@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>M-Pesa Shop</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #f5f5f5; padding: 2rem; }
+    h1 { text-align: center; margin-bottom: 2rem; }
+    .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; max-width: 800px; margin: 0 auto 2rem; }
+    .product { background: white; border-radius: 8px; padding: 1.5rem; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .product h3 { margin-bottom: 0.5rem; }
+    .price { font-size: 1.2rem; font-weight: 700; color: #00a651; margin-bottom: 1rem; }
+    .add-btn { padding: 0.5rem 1rem; background: #00a651; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .add-btn:hover { background: #008c44; }
+    .cart { max-width: 400px; margin: 0 auto; background: white; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
+    .cart h2 { margin-bottom: 1rem; }
+    .cart-item { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+    .total { font-size: 1.2rem; font-weight: 700; margin: 1rem 0; text-align: right; }
+    input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 1rem; font-size: 1rem; }
+    .pay-btn { width: 100%; padding: 0.75rem; background: #00a651; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+    .pay-btn:disabled { background: #ccc; }
+    #status { margin-top: 1rem; padding: 1rem; border-radius: 8px; display: none; }
+  </style>
+</head>
+<body>
+  <h1>M-Pesa Shop</h1>
+  <div class="products" id="products"></div>
+  <div class="cart" id="cart-section" style="display:none">
+    <h2>Cart</h2>
+    <div id="cart-items"></div>
+    <div class="total">Total: KES <span id="total">0</span></div>
+    <input id="phone" type="tel" placeholder="Phone number (0712345678)">
+    <button class="pay-btn" id="pay-btn" onclick="checkout()">Pay with M-Pesa</button>
+    <div id="status"></div>
+  </div>
+  <script>
+    const PRODUCTS = [
+      { id: 1, name: 'T-Shirt', price: 1500 },
+      { id: 2, name: 'Coffee Mug', price: 800 },
+      { id: 3, name: 'Notebook', price: 500 },
+      { id: 4, name: 'Sticker Pack', price: 200 },
+    ];
+    const cart = [];
+
+    const productsEl = document.getElementById('products');
+    PRODUCTS.forEach(p => {
+      productsEl.innerHTML += `<div class="product"><h3>${p.name}</h3><div class="price">KES ${p.price}</div><button class="add-btn" onclick="addToCart(${p.id})">Add to Cart</button></div>`;
+    });
+
+    function addToCart(id) {
+      const product = PRODUCTS.find(p => p.id === id);
+      const existing = cart.find(c => c.id === id);
+      if (existing) existing.qty++;
+      else cart.push({ ...product, qty: 1 });
+      renderCart();
+    }
+
+    function renderCart() {
+      document.getElementById('cart-section').style.display = cart.length ? 'block' : 'none';
+      const itemsEl = document.getElementById('cart-items');
+      itemsEl.innerHTML = cart.map(c => `<div class="cart-item"><span>${c.name} x${c.qty}</span><span>KES ${c.price * c.qty}</span></div>`).join('');
+      document.getElementById('total').textContent = cart.reduce((s, c) => s + c.price * c.qty, 0);
+    }
+
+    async function checkout() {
+      const btn = document.getElementById('pay-btn');
+      const status = document.getElementById('status');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      status.style.display = 'block';
+      status.style.background = '#fff3e0';
+      status.style.color = '#e65100';
+      status.textContent = 'Check your phone for the M-Pesa prompt...';
+      try {
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: document.getElementById('phone').value, items: cart }),
+        });
+        const data = await res.json();
+        if (data.ok && data.payment.status === 'completed') {
+          status.style.background = '#e8f5e9';
+          status.style.color = '#2e7d32';
+          status.textContent = 'Payment received! Order: ' + data.orderId;
+          cart.length = 0;
+          renderCart();
+        } else {
+          status.style.background = '#fce4ec';
+          status.style.color = '#c62828';
+          status.textContent = data.suggestion || data.error || 'Payment failed.';
+        }
+      } catch {
+        status.style.background = '#fce4ec';
+        status.style.color = '#c62828';
+        status.textContent = 'Error. Please try again.';
+      }
+      btn.disabled = false;
+      btn.textContent = 'Pay with M-Pesa';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "name": "mpesa-donation-page",
+  "version": "1.0.0",
+  "description": "M-Pesa donation page — accept payments via STK Push",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@daraja-kit/sdk": "^0.1.0",
+    "express": "^4.21.0"
+  }
+}

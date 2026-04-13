@@ -1,0 +1,36 @@
+# daraja-kit
+
+> Agent-forward toolkit for M-Pesa Daraja API integration. SDK with 6 methods, MCP server with 6 tools, structured knowledge base.
+
+## SDK
+
+- @daraja-kit/sdk: Zero-config M-Pesa SDK. Methods: collect, send, status, balance, reverse, qr.
+
+## Capabilities
+
+- [Collect Payments](capabilities/collect-payments.md): Accept M-Pesa payments via STK Push (auto-polling, no callbacks needed)
+- [Send Money](capabilities/send-money.md): Send money from business to customer (B2C salary, disbursement, refund)
+- [Check Status](capabilities/check-status.md): Query the status of any M-Pesa transaction
+- [Refunds](capabilities/refunds.md): Reverse or refund a completed M-Pesa transaction
+- [Account Balance](capabilities/account-balance.md): Check your M-Pesa shortcode or till balance
+- [QR Payments](capabilities/qr-payments.md): Generate QR codes customers scan to pay via M-Pesa
+- [Business Payments](capabilities/business-payments.md): Pay other businesses (B2B PayBill, BuyGoods) — raw API, not yet in SDK
+
+## Concepts
+
+- [Authentication](concepts/authentication.md): OAuth 2.0 tokens, SecurityCredential encryption, certificate handling
+- [Callbacks](concepts/callbacks.md): Daraja async callback pattern — setup, security, local dev with ngrok
+- [Environments](concepts/environments.md): Sandbox vs production — URLs, credentials, shortcodes, certificates
+- [Going Live](concepts/going-live.md): Complete go-live process from sandbox to production
+
+## Errors
+
+- [Error Codes](errors/error-codes.md): Complete Daraja error code reference with causes and fixes
+- [Troubleshooting](errors/troubleshooting.md): Decision trees for common integration issues
+
+## Patterns
+
+- [Donation Page](patterns/donation-page.md): Accept donations with STK Push — complete Express + HTML example
+- [E-commerce Checkout](patterns/ecommerce-checkout.md): Integrate M-Pesa into product checkout flows
+- [Subscription Billing](patterns/subscription-billing.md): Recurring M-Pesa payments with cron-based re-prompting
+- [B2C Disbursement](patterns/b2c-disbursement.md): Send money to multiple recipients — batch processing pattern

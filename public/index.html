@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Daraja POC</title>
+    <style>
+      :root {
+        --bg: #0b0f14;
+        --card: #121821;
+        --border: #1f2a36;
+        --text: #e6edf3;
+        --muted: #8b98a5;
+        --green: #3fb950;
+        --red: #f85149;
+        --accent: #2f81f7;
+      }
+      * { box-sizing: border-box; }
+      body {
+        font: 14px/1.5 -apple-system, 'SF Pro Text', system-ui, sans-serif;
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+      }
+      header {
+        padding: 20px 28px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      h1 { margin: 0; font-size: 18px; letter-spacing: 0.3px; }
+      header .env {
+        font-size: 12px;
+        color: var(--muted);
+        padding: 4px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+      }
+      main {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        padding: 24px 28px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 18px 18px 14px;
+      }
+      .card h2 {
+        margin: 0 0 12px;
+        font-size: 14px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--muted);
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 8px 0 4px;
+      }
+      input, select {
+        width: 100%;
+        background: #0b111a;
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 10px;
+        font: inherit;
+      }
+      button {
+        margin-top: 12px;
+        background: var(--accent);
+        color: white;
+        border: 0;
+        border-radius: 6px;
+        padding: 9px 14px;
+        font: inherit;
+        cursor: pointer;
+      }
+      button.secondary { background: #21303f; }
+      button:disabled { opacity: 0.5; cursor: not-allowed; }
+      pre {
+        background: #060a0f;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 12px;
+        font: 12px/1.45 'SF Mono', Menlo, monospace;
+        overflow: auto;
+        max-height: 220px;
+        color: #b8c3cf;
+        margin: 10px 0 0;
+      }
+      .events { grid-column: 1 / -1; }
+      .event {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 10px 12px;
+        margin-bottom: 8px;
+        background: #0b111a;
+      }
+      .event header {
+        padding: 0;
+        border: 0;
+        display: flex;
+        justify-content: space-between;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .event .kind { color: var(--green); font-weight: 600; }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .muted { color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Daraja POC</h1>
+      <span class="env" id="envLabel">loading…</span>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>1. OAuth</h2>
+        <button onclick="call('GET', '/api/token', null, 'out-token')">
+          Fetch access token
+        </button>
+        <pre id="out-token">—</pre>
+      </section>
+
+      <section class="card">
+        <h2>2. STK Push</h2>
+        <div class="row">
+          <div>
+            <label>Phone (2547XXXXXXXX)</label>
+            <input id="stk-phone" value="254708374149" />
+          </div>
+          <div>
+            <label>Amount (KES)</label>
+            <input id="stk-amount" value="1" type="number" />
+          </div>
+        </div>
+        <label>Account reference</label>
+        <input id="stk-ref" value="DarajaPOC" />
+        <button onclick="stkPush()">Send STK Push</button>
+        <button class="secondary" onclick="stkQuery()">Query status</button>
+        <pre id="out-stk">—</pre>
+      </section>
+
+      <section class="card">
+        <h2>3. C2B (sandbox)</h2>
+        <button onclick="call('POST', '/api/c2b/register', {}, 'out-c2b')">
+          Register URLs
+        </button>
+        <div class="row">
+          <div>
+            <label>Phone</label>
+            <input id="c2b-phone" value="254708374149" />
+          </div>
+          <div>
+            <label>Amount</label>
+            <input id="c2b-amount" value="10" type="number" />
+          </div>
+        </div>
+        <label>Bill ref</label>
+        <input id="c2b-ref" value="Invoice-001" />
+        <button class="secondary" onclick="c2bSimulate()">
+          Simulate payment
+        </button>
+        <pre id="out-c2b">—</pre>
+      </section>
+
+      <section class="card">
+        <h2>4. B2C</h2>
+        <div class="row">
+          <div>
+            <label>Phone</label>
+            <input id="b2c-phone" value="254708374149" />
+          </div>
+          <div>
+            <label>Amount</label>
+            <input id="b2c-amount" value="10" type="number" />
+          </div>
+        </div>
+        <label>Command</label>
+        <select id="b2c-cmd">
+          <option>BusinessPayment</option>
+          <option>SalaryPayment</option>
+          <option>PromotionPayment</option>
+        </select>
+        <button onclick="b2c()">Send B2C</button>
+        <pre id="out-b2c">—</pre>
+      </section>
+
+      <section class="card">
+        <h2>5. Transaction Status</h2>
+        <label>Transaction ID</label>
+        <input id="ts-id" placeholder="OEI2AK4Q16" />
+        <button onclick="txnStatus()">Query</button>
+        <pre id="out-ts">—</pre>
+      </section>
+
+      <section class="card">
+        <h2>6. Account Balance</h2>
+        <button onclick="call('POST', '/api/balance', {}, 'out-bal')">
+          Query balance
+        </button>
+        <pre id="out-bal">—</pre>
+      </section>
+
+      <section class="card">
+        <h2>7. Reversal</h2>
+        <div class="row">
+          <div>
+            <label>Transaction ID</label>
+            <input id="rev-id" />
+          </div>
+          <div>
+            <label>Amount</label>
+            <input id="rev-amount" type="number" />
+          </div>
+        </div>
+        <button onclick="reversal()">Reverse</button>
+        <pre id="out-rev">—</pre>
+      </section>
+
+      <section class="card events">
+        <h2>
+          Recent callbacks
+          <button class="secondary" style="float:right;margin:0;" onclick="loadEvents()">
+            Refresh
+          </button>
+        </h2>
+        <div id="events-list" class="muted">No callbacks yet.</div>
+      </section>
+    </main>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+
+      async function call(method, url, body, outId) {
+        const out = $(outId);
+        out.textContent = '…';
+        try {
+          const res = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: body ? JSON.stringify(body) : undefined,
+          });
+          const json = await res.json();
+          out.textContent = JSON.stringify(json, null, 2);
+          loadEvents();
+          return json;
+        } catch (e) {
+          out.textContent = 'Error: ' + e.message;
+        }
+      }
+
+      function stkPush() {
+        return call(
+          'POST',
+          '/api/stkpush',
+          {
+            phone: $('stk-phone').value,
+            amount: Number($('stk-amount').value),
+            accountReference: $('stk-ref').value,
+          },
+          'out-stk',
+        );
+      }
+
+      async function stkQuery() {
+        const current = $('out-stk').textContent;
+        let id = '';
+        try {
+          id = JSON.parse(current).data.CheckoutRequestID;
+        } catch (_) {}
+        id = prompt('CheckoutRequestID:', id);
+        if (!id) return;
+        return call(
+          'POST',
+          '/api/stkpush/query',
+          { checkoutRequestID: id },
+          'out-stk',
+        );
+      }
+
+      function c2bSimulate() {
+        return call(
+          'POST',
+          '/api/c2b/simulate',
+          {
+            phone: $('c2b-phone').value,
+            amount: Number($('c2b-amount').value),
+            billRefNumber: $('c2b-ref').value,
+          },
+          'out-c2b',
+        );
+      }
+
+      function b2c() {
+        return call(
+          'POST',
+          '/api/b2c',
+          {
+            phone: $('b2c-phone').value,
+            amount: Number($('b2c-amount').value),
+            commandID: $('b2c-cmd').value,
+          },
+          'out-b2c',
+        );
+      }
+
+      function txnStatus() {
+        return call(
+          'POST',
+          '/api/transaction/status',
+          { transactionId: $('ts-id').value },
+          'out-ts',
+        );
+      }
+
+      function reversal() {
+        return call(
+          'POST',
+          '/api/reversal',
+          {
+            transactionId: $('rev-id').value,
+            amount: Number($('rev-amount').value),
+          },
+          'out-rev',
+        );
+      }
+
+      async function loadEvents() {
+        const events = await (await fetch('/events')).json();
+        const list = $('events-list');
+        if (!events.length) {
+          list.innerHTML = '<span class="muted">No callbacks yet.</span>';
+          return;
+        }
+        list.innerHTML = events
+          .map(
+            (e) => `
+            <div class="event">
+              <header>
+                <span class="kind">${e.kind}</span>
+                <span>${e.receivedAt}</span>
+              </header>
+              <pre>${JSON.stringify(e.body, null, 2)}</pre>
+            </div>`,
+          )
+          .join('');
+      }
+
+      async function loadHealth() {
+        const h = await (await fetch('/healthz')).json();
+        $('envLabel').textContent = `${h.env} · ${h.baseUrl}`;
+      }
+
+      loadHealth();
+      loadEvents();
+      setInterval(loadEvents, 5000);
+    </script>
+  </body>
+</html>

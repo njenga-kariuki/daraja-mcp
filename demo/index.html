@@ -1,0 +1,1931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>daraja-kit — The Next Chapter for Daraja</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── Design Tokens ─────────────────────────────────────────────────── */
+    :root {
+      --green: #35A839;
+      --green-dark: #2D8F31;
+      --green-hover: #2FA633;
+      --dark: #0A290D;
+      --dark-surface: #0F3A13;
+      --light: #F7FDF7;
+      --white: #FFFFFF;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-300: #D1D5DB;
+      --gray-400: #9CA3AF;
+      --gray-500: #6B7280;
+      --gray-600: #4B5563;
+      --gray-700: #374151;
+      --gray-800: #1F2937;
+      --gray-900: #111827;
+      --blue: #2563EB;
+      --success: #059669;
+      --error: #DC2626;
+      --warning: #F59E0B;
+      --info: #3B82F6;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, Consolas, monospace;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+      --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04);
+      --radius: 8px;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --max-w: 1280px;
+      --section-py: 120px;
+    }
+
+    /* ── Reset & Base ──────────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 18px; }
+    body {
+      font-family: var(--font-sans);
+      color: var(--gray-900);
+      background: var(--white);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    img { max-width: 100%; display: block; }
+    a { color: var(--green); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Utility ───────────────────────────────────────────────────────── */
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 32px; }
+    .overline {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 12px;
+    }
+    .overline-light { color: rgba(255,255,255,0.6); }
+    .section-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+    .section-subtitle {
+      font-size: 1.1rem;
+      color: var(--gray-500);
+      max-width: 720px;
+      line-height: 1.7;
+    }
+    .section-subtitle-light { color: rgba(255,255,255,0.7); }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--green);
+      color: var(--white);
+    }
+    .btn-primary:hover { background: var(--green-dark); text-decoration: none; }
+    .btn-secondary {
+      background: transparent;
+      color: var(--green);
+      border: 1.5px solid var(--green);
+    }
+    .btn-secondary:hover { background: rgba(53,168,57,0.06); text-decoration: none; }
+    .btn-dark {
+      background: var(--white);
+      color: var(--dark);
+    }
+    .btn-dark:hover { background: var(--gray-100); text-decoration: none; }
+    .btn-outline-light {
+      background: transparent;
+      color: var(--white);
+      border: 1.5px solid rgba(255,255,255,0.3);
+    }
+    .btn-outline-light:hover { border-color: rgba(255,255,255,0.6); text-decoration: none; }
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-error { background: #FEE2E2; color: #991B1B; }
+    .badge-warning { background: #FEF3C7; color: #92400E; }
+    .badge-info { background: #DBEAFE; color: #1E40AF; }
+    .badge-success { background: #D1FAE5; color: #065F46; }
+
+    /* ── Section Backgrounds ───────────────────────────────────────────── */
+    .section-white { background: var(--white); }
+    .section-light { background: var(--light); }
+    .section-dark {
+      background: var(--dark);
+      color: var(--white);
+    }
+    .section-gradient {
+      background: linear-gradient(135deg, var(--green) 0%, var(--dark) 100%);
+      color: var(--white);
+    }
+    section { padding: var(--section-py) 0; }
+
+    /* ── Animations ────────────────────────────────────────────────────── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    @keyframes pulse-green {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(53,168,57,0.3); }
+      50% { box-shadow: 0 0 0 12px rgba(53,168,57,0); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    @keyframes counter-glow {
+      0% { text-shadow: 0 0 20px rgba(53,168,57,0); }
+      50% { text-shadow: 0 0 20px rgba(53,168,57,0.3); }
+      100% { text-shadow: 0 0 20px rgba(53,168,57,0); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION 1: HERO
+       ═══════════════════════════════════════════════════════════════════ */
+    #hero {
+      padding: 160px 0 140px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 50% 50%, rgba(53,168,57,0.04) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    #hero .overline { font-size: 0.78rem; letter-spacing: 0.15em; }
+    #hero h1 {
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    #hero .subtitle {
+      font-size: 1.15rem;
+      color: var(--gray-500);
+      max-width: 640px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+    .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      justify-content: center;
+      margin-top: 64px;
+      flex-wrap: wrap;
+    }
+    .hero-stat {
+      text-align: center;
+    }
+    .hero-stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--green);
+      line-height: 1;
+    }
+    .hero-stat-label {
+      font-size: 0.78rem;
+      color: var(--gray-400);
+      margin-top: 6px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION 2: FOUNDATION (Celebrate Daraja 3.0)
+       ═══════════════════════════════════════════════════════════════════ */
+    .foundation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .stat-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      text-align: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    .stat-card-value {
+      font-size: 2.8rem;
+      font-weight: 800;
+      color: var(--green);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-card-label {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 8px;
+    }
+    .stat-card-desc {
+      font-size: 0.83rem;
+      color: var(--gray-500);
+      line-height: 1.5;
+    }
+    .foundation-note {
+      max-width: 720px;
+      margin: 48px auto 0;
+      text-align: center;
+      font-size: 1.05rem;
+      color: var(--gray-600);
+      line-height: 1.7;
+      font-style: italic;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION 3: OPPORTUNITY
+       ═══════════════════════════════════════════════════════════════════ */
+    .opportunity-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .insight-card {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      padding: 36px 28px;
+      color: var(--gray-900);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .insight-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-xl);
+    }
+    .insight-card-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--light);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+    .insight-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    .insight-card p {
+      font-size: 0.88rem;
+      color: var(--gray-600);
+      line-height: 1.65;
+    }
+    .insight-card em {
+      color: var(--green-dark);
+      font-style: italic;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION 4: EVOLUTION (Before/After)
+       ═══════════════════════════════════════════════════════════════════ */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin: 40px 0 0;
+      border-bottom: 2px solid var(--gray-200);
+      overflow-x: auto;
+    }
+    .tab {
+      padding: 12px 24px;
+      font-size: 0.83rem;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      white-space: nowrap;
+      transition: color 0.2s, border-color 0.2s;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: var(--font-sans);
+    }
+    .tab:hover { color: var(--gray-700); }
+    .tab.active {
+      color: var(--green);
+      border-bottom-color: var(--green);
+    }
+    .comparison {
+      display: none;
+      margin-top: 32px;
+    }
+    .comparison.active { display: block; }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .code-panel {
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      border: 1px solid var(--gray-200);
+    }
+    .code-panel-header {
+      padding: 14px 20px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .code-panel-standard .code-panel-header {
+      background: var(--gray-50);
+      color: var(--gray-500);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .code-panel-kit .code-panel-header {
+      background: #F0FDF4;
+      color: var(--success);
+      border-bottom: 1px solid #BBF7D0;
+    }
+    .code-panel-lines {
+      font-size: 0.72rem;
+      font-weight: 600;
+      font-family: var(--font-mono);
+    }
+    .code-panel pre {
+      margin: 0;
+      padding: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      line-height: 1.65;
+      overflow-x: auto;
+      background: #FAFAFA;
+      color: var(--gray-800);
+      max-height: 380px;
+    }
+    .code-panel-kit pre { background: #FAFFF5; }
+    .comparison-metric {
+      text-align: center;
+      margin-top: 24px;
+      padding: 20px;
+      background: var(--light);
+      border-radius: var(--radius-lg);
+    }
+    .comparison-metric strong {
+      font-size: 1.8rem;
+      color: var(--green);
+    }
+    .comparison-metric span {
+      font-size: 0.9rem;
+      color: var(--gray-500);
+    }
+
+    /* Syntax highlighting */
+    .kw { color: #7C3AED; }  /* keyword */
+    .fn { color: #2563EB; }  /* function */
+    .str { color: #059669; } /* string */
+    .cm { color: #9CA3AF; }  /* comment */
+    .num { color: #D97706; } /* number */
+    .op { color: #6B7280; }  /* operator */
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION 5: MCP TOOLS
+       ═══════════════════════════════════════════════════════════════════ */
+    .tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .tool-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .tool-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+    .tool-card-header {
+      padding: 24px 24px 0;
+    }
+    .tool-card-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--light);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      margin-bottom: 14px;
+    }
+    .tool-card-header h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .tool-card-header .tool-name {
+      font-size: 0.72rem;
+      color: var(--gray-400);
+      font-family: var(--font-mono);
+      margin-bottom: 8px;
+    }
+    .tool-card-header p {
+      font-size: 0.83rem;
+      color: var(--gray-500);
+      line-height: 1.55;
+      margin-bottom: 16px;
+    }
+    .tool-card-body {
+      padding: 0 24px 24px;
+    }
+    .tool-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      margin-bottom: 12px;
+      resize: none;
+    }
+    .tool-input:focus {
+      outline: none;
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(53,168,57,0.1);
+    }
+    .tool-btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .tool-btn:hover { background: var(--green-dark); }
+    .tool-btn:disabled { background: var(--gray-300); cursor: wait; }
+    .tool-output {
+      margin-top: 16px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 16px;
+      font-size: 0.78rem;
+      max-height: 300px;
+      overflow-y: auto;
+      display: none;
+    }
+    .tool-output.visible { display: block; }
+    .tool-output pre {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--gray-700);
+    }
+    .tool-output-file {
+      padding: 8px 12px;
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--gray-700);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tool-output-file-icon { color: var(--green); }
+    .tool-issue {
+      padding: 10px 14px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+    .tool-issue-error { background: #FEF2F2; border-left: 3px solid var(--error); }
+    .tool-issue-warning { background: #FFFBEB; border-left: 3px solid var(--warning); }
+    .tool-issue-info { background: #EFF6FF; border-left: 3px solid var(--info); }
+    .tool-score {
+      text-align: center;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-top: 8px;
+    }
+    .tool-diagnosis {
+      padding: 16px;
+      background: var(--white);
+      border-radius: 8px;
+      border: 1px solid var(--gray-200);
+    }
+    .tool-diagnosis h4 {
+      font-size: 0.88rem;
+      margin-bottom: 4px;
+    }
+    .tool-diagnosis p {
+      font-size: 0.78rem;
+      color: var(--gray-600);
+      line-height: 1.55;
+      margin-bottom: 8px;
+    }
+    .tool-diagnosis .fix {
+      background: #F0FDF4;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: var(--success);
+      border-left: 3px solid var(--success);
+    }
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 0.78rem;
+    }
+    .checklist-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.65rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .checklist-done { background: #D1FAE5; color: #065F46; }
+    .checklist-pending { background: #FEF3C7; color: #92400E; }
+    .checklist-blocking { background: #FEE2E2; color: #991B1B; }
+    .test-result {
+      padding: 16px;
+      border-radius: 8px;
+    }
+    .test-result.success { background: #F0FDF4; border: 1px solid #BBF7D0; }
+    .test-result.failure { background: #FEF2F2; border: 1px solid #FECACA; }
+    .test-result-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .test-result-status {
+      font-weight: 700;
+      font-size: 0.83rem;
+    }
+    .test-result-time {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--gray-400);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION 6: USER STORIES
+       ═══════════════════════════════════════════════════════════════════ */
+    .stories-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      margin-top: 48px;
+    }
+    .story-card {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+    }
+    .story-persona {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .story-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .story-persona-info h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+    .story-persona-info span {
+      font-size: 0.78rem;
+      color: var(--gray-500);
+    }
+    .story-steps {
+      list-style: none;
+      margin: 20px 0;
+    }
+    .story-step {
+      display: flex;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .story-step:last-child { border-bottom: none; }
+    .story-step-num {
+      width: 28px;
+      height: 28px;
+      background: var(--green);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .story-step-text {
+      font-size: 0.88rem;
+      color: var(--gray-700);
+      line-height: 1.55;
+    }
+    .story-step-text code {
+      background: var(--gray-100);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+    .story-time {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: #F0FDF4;
+      border-radius: 999px;
+      font-size: 0.83rem;
+      font-weight: 700;
+      color: var(--success);
+      margin-top: 16px;
+    }
+    .story-tagline {
+      margin-top: 16px;
+      font-size: 0.88rem;
+      color: var(--gray-500);
+      font-style: italic;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION 7: METRICS
+       ═══════════════════════════════════════════════════════════════════ */
+    .metrics-counters {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 32px;
+      margin-top: 48px;
+    }
+    .metric-counter {
+      text-align: center;
+    }
+    .metric-value {
+      font-size: 3.2rem;
+      font-weight: 800;
+      color: var(--green);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .metric-value-suffix {
+      font-size: 1.6rem;
+      color: rgba(53,168,57,0.7);
+    }
+    .metric-label {
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.6);
+    }
+    .metrics-table-wrapper {
+      margin-top: 64px;
+      overflow-x: auto;
+    }
+    .metrics-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+    .metrics-table th {
+      padding: 14px 20px;
+      text-align: left;
+      font-weight: 700;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.5);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .metrics-table td {
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.8);
+    }
+    .metrics-table tr:last-child td { border-bottom: none; }
+    .metrics-table td:last-child {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION 8: CHAT WIDGET
+       ═══════════════════════════════════════════════════════════════════ */
+    .chat-fab {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 56px;
+      height: 56px;
+      background: var(--green);
+      border-radius: 50%;
+      border: none;
+      color: white;
+      font-size: 1.4rem;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(53,168,57,0.4);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+      animation: pulse-green 2s infinite;
+    }
+    .chat-fab:hover { transform: scale(1.08); }
+    .chat-panel {
+      position: fixed;
+      bottom: 96px;
+      right: 28px;
+      width: 380px;
+      max-height: 520px;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      border: 1px solid var(--gray-200);
+      z-index: 1000;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .chat-panel.open { display: flex; }
+    .chat-panel-header {
+      padding: 16px 20px;
+      background: var(--green);
+      color: white;
+      font-weight: 700;
+      font-size: 0.88rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .chat-panel-close {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      opacity: 0.7;
+    }
+    .chat-panel-close:hover { opacity: 1; }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .chat-msg {
+      max-width: 85%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 0.78rem;
+      line-height: 1.55;
+      animation: fadeInMsg 0.3s ease;
+    }
+    @keyframes fadeInMsg {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .chat-msg-user {
+      align-self: flex-end;
+      background: var(--green);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-msg-ai {
+      align-self: flex-start;
+      background: var(--gray-50);
+      color: var(--gray-800);
+      border-bottom-left-radius: 4px;
+      border: 1px solid var(--gray-200);
+    }
+    .chat-msg-tool {
+      align-self: flex-start;
+      background: #F0FDF4;
+      color: var(--gray-700);
+      border: 1px solid #BBF7D0;
+      border-bottom-left-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+    .chat-typing {
+      align-self: flex-start;
+      padding: 10px 14px;
+      font-size: 0.78rem;
+      color: var(--gray-400);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       SECTION 9: CTA + FOOTER
+       ═══════════════════════════════════════════════════════════════════ */
+    #cta {
+      text-align: center;
+      padding: 120px 0;
+    }
+    #cta h2 {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+    #cta p {
+      font-size: 1.1rem;
+      color: rgba(255,255,255,0.75);
+      max-width: 640px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+    footer {
+      background: var(--dark);
+      padding: 32px 0;
+      text-align: center;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.35);
+    }
+
+    /* ── Responsive ────────────────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      .foundation-grid, .opportunity-grid, .tools-grid, .metrics-counters { grid-template-columns: repeat(2, 1fr); }
+      .comparison-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 768px) {
+      html { font-size: 16px; }
+      :root { --section-py: 80px; }
+      #hero { padding: 100px 0 80px; }
+      #hero h1 { font-size: 2.2rem; }
+      .section-title { font-size: 1.8rem; }
+      .foundation-grid, .opportunity-grid, .tools-grid, .stories-grid, .metrics-counters { grid-template-columns: 1fr; }
+      .chat-panel { width: calc(100vw - 32px); right: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 1: HERO
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="hero" class="section-white">
+    <div class="container">
+      <div class="overline fade-in">THE NEXT CHAPTER FOR DARAJA</div>
+      <h1 class="fade-in">From World-Class APIs<br>to Universal Access</h1>
+      <p class="subtitle fade-in">
+        Daraja 3.0 built the most powerful M-Pesa platform in the world.
+        <strong>daraja-kit</strong> makes it accessible to every developer &mdash; and every AI agent.
+      </p>
+      <div class="hero-ctas fade-in">
+        <a href="#foundation" class="btn btn-primary">Explore the Evolution</a>
+        <a href="#tools" class="btn btn-secondary">See It Live</a>
+      </div>
+      <div class="hero-stats fade-in">
+        <div class="hero-stat">
+          <div class="hero-stat-value" data-count="6">0</div>
+          <div class="hero-stat-label">APIs Wrapped</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" data-count="6">0</div>
+          <div class="hero-stat-label">AI Tools</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value" data-count="20">0</div>
+          <div class="hero-stat-label">Knowledge Docs</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-value">0</div>
+          <div class="hero-stat-label">Config Required</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 2: THE FOUNDATION
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="foundation" class="section-light">
+    <div class="container">
+      <div class="overline fade-in">THE FOUNDATION</div>
+      <h2 class="section-title fade-in">Daraja 3.0: The Platform That Powers It All</h2>
+      <div class="foundation-grid">
+        <div class="stat-card fade-in">
+          <div class="stat-card-value">12K</div>
+          <div class="stat-card-label">Transactions Per Second</div>
+          <div class="stat-card-desc">Cloud-native, enterprise-grade infrastructure built for Africa's scale</div>
+        </div>
+        <div class="stat-card fade-in">
+          <div class="stat-card-value">6</div>
+          <div class="stat-card-label">Core APIs</div>
+          <div class="stat-card-desc">Payments, disbursements, QR codes, status queries, balances, reversals</div>
+        </div>
+        <div class="stat-card fade-in">
+          <div class="stat-card-value">100K+</div>
+          <div class="stat-card-label">Developers</div>
+          <div class="stat-card-desc">Africa's largest and most active fintech developer ecosystem</div>
+        </div>
+      </div>
+      <p class="foundation-note fade-in">
+        "Daraja 3.0 delivers the most comprehensive M-Pesa API suite ever built. Every capability a developer needs is here.
+        The question is: <strong>how do we make these powerful APIs accessible to the next million builders?</strong>"
+      </p>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 3: THE OPPORTUNITY
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="opportunity" class="section-dark">
+    <div class="container">
+      <div class="overline overline-light fade-in">THE OPPORTUNITY</div>
+      <h2 class="section-title fade-in">Meeting Developers Where They Are</h2>
+      <div class="opportunity-grid">
+        <div class="insight-card fade-in">
+          <div class="insight-card-icon">&#x1F680;</div>
+          <h3>The Expert Path</h3>
+          <p>
+            Today's Daraja APIs are feature-complete and powerful. A skilled developer can build anything.
+            <em>But what about the 10x more builders who have great ideas but aren't API experts?</em>
+          </p>
+        </div>
+        <div class="insight-card fade-in">
+          <div class="insight-card-icon">&#x1F916;</div>
+          <h3>The Agentic Shift</h3>
+          <p>
+            AI coding assistants are writing 40%+ of new code globally.
+            <em>They need machine-readable knowledge and structured tools to integrate M-Pesa correctly.</em>
+          </p>
+        </div>
+        <div class="insight-card fade-in">
+          <div class="insight-card-icon">&#x26A1;</div>
+          <h3>The Global Standard</h3>
+          <p>
+            Developers worldwide benchmark against Stripe's &ldquo;5-line integration.&rdquo;
+            <em>What if M-Pesa could match that &mdash; while handling African payments complexity automatically?</em>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 4: THE EVOLUTION (Before/After)
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="evolution" class="section-white">
+    <div class="container">
+      <div class="overline fade-in">THE EVOLUTION</div>
+      <h2 class="section-title fade-in">Same Powerful APIs. Radically Simpler Interface.</h2>
+      <p class="section-subtitle fade-in">
+        daraja-kit wraps Daraja 3.0's APIs in an intent-based SDK that handles authentication,
+        security, polling, and error handling automatically.
+      </p>
+
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="collect" role="tab">Collect Payment</button>
+        <button class="tab" data-tab="send" role="tab">Send Money (B2C)</button>
+        <button class="tab" data-tab="scaffold" role="tab">Full Integration</button>
+        <button class="tab" data-tab="errors" role="tab">Error Handling</button>
+      </div>
+
+      <!-- TAB: Collect Payment -->
+      <div class="comparison active" id="tab-collect">
+        <div class="comparison-grid">
+          <div class="code-panel code-panel-standard">
+            <div class="code-panel-header">
+              <span>Standard Daraja</span>
+              <span class="code-panel-lines">3 files &middot; 187 lines</span>
+            </div>
+            <pre><span class="cm">// utils/config.js — environment configuration (43 lines)</span>
+<span class="kw">import</span> <span class="str">'dotenv/config'</span>;
+<span class="kw">const</span> env = (process.env.DARAJA_ENV ?? <span class="str">'sandbox'</span>);
+<span class="kw">export const</span> config = {
+  baseUrl: env === <span class="str">'production'</span>
+    ? <span class="str">'https://api.safaricom.co.ke'</span>
+    : <span class="str">'https://sandbox.safaricom.co.ke'</span>,
+  consumerKey: process.env.DARAJA_CONSUMER_KEY,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET,
+  shortcode: process.env.MPESA_SHORTCODE ?? <span class="str">'174379'</span>,
+  passkey: process.env.MPESA_PASSKEY ?? <span class="str">'bfb279f...'</span>,
+  <span class="cm">// ... 30+ more lines of config</span>
+};
+
+<span class="cm">// daraja/client.js — OAuth token management (70 lines)</span>
+<span class="kw">const</span> http = axios.<span class="fn">create</span>({ baseURL: config.baseUrl });
+<span class="kw">let</span> cachedToken = <span class="kw">null</span>;
+<span class="kw">let</span> tokenExpiresAt = <span class="num">0</span>;
+
+<span class="kw">async function</span> <span class="fn">fetchAccessToken</span>() {
+  <span class="kw">const</span> basic = Buffer.<span class="fn">from</span>(
+    <span class="str">`${config.consumerKey}:${config.consumerSecret}`</span>
+  ).<span class="fn">toString</span>(<span class="str">'base64'</span>);
+  <span class="kw">const</span> { data } = <span class="kw">await</span> axios.<span class="fn">get</span>(
+    <span class="str">`${config.baseUrl}/oauth/v1/generate?grant_type=client_credentials`</span>,
+    { headers: { Authorization: <span class="str">`Basic ${basic}`</span> } }
+  );
+  cachedToken = data.access_token;
+  tokenExpiresAt = Date.<span class="fn">now</span>() + (Number(data.expires_in) - <span class="num">60</span>) * <span class="num">1000</span>;
+  <span class="kw">return</span> cachedToken;
+}
+<span class="cm">// ... interceptors, retry logic, 401 handling (30+ more lines)</span>
+
+<span class="cm">// utils/security.js — password generation (74 lines)</span>
+<span class="kw">export function</span> <span class="fn">darajaTimestamp</span>(date = <span class="kw">new</span> Date()) {
+  <span class="cm">// Format: YYYYMMDDHHmmss — manual string padding</span>
+  <span class="kw">const</span> pad = (n) => String(n).<span class="fn">padStart</span>(<span class="num">2</span>, <span class="str">'0'</span>);
+  <span class="kw">return</span> date.<span class="fn">getFullYear</span>() + <span class="fn">pad</span>(date.<span class="fn">getMonth</span>() + <span class="num">1</span>) + ...;
+}
+<span class="kw">export function</span> <span class="fn">stkPushPassword</span>(shortcode, passkey, timestamp) {
+  <span class="kw">return</span> Buffer.<span class="fn">from</span>(<span class="str">`${shortcode}${passkey}${timestamp}`</span>).<span class="fn">toString</span>(<span class="str">'base64'</span>);
+}
+
+<span class="cm">// daraja/stkPush.js — STK Push request (73 lines)</span>
+<span class="kw">export async function</span> <span class="fn">stkPush</span>({ amount, phone, callbackUrl, ... }) {
+  <span class="kw">const</span> timestamp = <span class="fn">darajaTimestamp</span>();
+  <span class="kw">const</span> password = <span class="fn">stkPushPassword</span>(config.shortcode, config.passkey, timestamp);
+  <span class="kw">const</span> msisdn = <span class="fn">normalizeMsisdn</span>(phone);
+  <span class="kw">const</span> payload = {
+    BusinessShortCode: config.shortcode,
+    Password: password,
+    Timestamp: timestamp,
+    TransactionType: <span class="str">'CustomerPayBillOnline'</span>,
+    Amount: String(amount),
+    PartyA: msisdn, PartyB: config.shortcode,
+    PhoneNumber: msisdn,
+    CallBackURL: callbackUrl,
+    AccountReference: accountReference.<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">12</span>),
+    TransactionDesc: description.<span class="fn">slice</span>(<span class="num">0</span>, <span class="num">13</span>),
+  };
+  <span class="kw">const</span> { data } = <span class="kw">await</span> http.<span class="fn">post</span>(<span class="str">'/mpesa/stkpush/v1/processrequest'</span>, payload);
+  <span class="kw">return</span> data;
+}</pre>
+          </div>
+          <div class="code-panel code-panel-kit">
+            <div class="code-panel-header">
+              <span>With daraja-kit</span>
+              <span class="code-panel-lines">1 file &middot; 5 lines</span>
+            </div>
+            <pre>
+<span class="kw">import</span> { createClient } <span class="kw">from</span> <span class="str">'@daraja-kit/sdk'</span>;
+
+<span class="kw">const</span> mpesa = <span class="fn">createClient</span>();
+
+<span class="kw">const</span> payment = <span class="kw">await</span> mpesa.<span class="fn">collect</span>({
+  amount: <span class="num">100</span>,
+  phone: <span class="str">'0712345678'</span>,
+});
+
+<span class="cm">// That's it.</span>
+<span class="cm">// Auth: automatic. Password: automatic.</span>
+<span class="cm">// Polling: automatic. Phone format: automatic.</span>
+<span class="cm">// Result: { status: 'completed', receipt: 'QKJ41HAY4I' }</span></pre>
+          </div>
+        </div>
+        <div class="comparison-metric fade-in">
+          <strong>97%</strong> <span>reduction &mdash; same Daraja APIs underneath, zero ceremony on top</span>
+        </div>
+      </div>
+
+      <!-- TAB: Send Money -->
+      <div class="comparison" id="tab-send">
+        <div class="comparison-grid">
+          <div class="code-panel code-panel-standard">
+            <div class="code-panel-header">
+              <span>Standard Daraja</span>
+              <span class="code-panel-lines">3 files &middot; 185 lines</span>
+            </div>
+            <pre><span class="cm">// Same client.js + config.js as above (113 lines)</span>
+
+<span class="cm">// utils/security.js — RSA certificate encryption (74 lines)</span>
+<span class="kw">export function</span> <span class="fn">buildSecurityCredential</span>() {
+  <span class="kw">const</span> certPath = path.<span class="fn">resolve</span>(process.<span class="fn">cwd</span>(), config.certPath);
+  <span class="kw">if</span> (!fs.<span class="fn">existsSync</span>(certPath)) {
+    <span class="kw">throw new</span> Error(
+      <span class="str">`Cert not found at ${certPath}. Download SandboxCertificate.cer...`</span>
+    );
+  }
+  <span class="kw">const</span> cert = fs.<span class="fn">readFileSync</span>(certPath);
+  <span class="kw">const</span> encrypted = crypto.<span class="fn">publicEncrypt</span>(
+    { key: cert, padding: crypto.constants.RSA_PKCS1_PADDING },
+    Buffer.<span class="fn">from</span>(config.initiatorPassword, <span class="str">'utf8'</span>)
+  );
+  <span class="kw">return</span> encrypted.<span class="fn">toString</span>(<span class="str">'base64'</span>);
+}
+
+<span class="cm">// daraja/b2c.js — B2C request (41 lines)</span>
+<span class="kw">export async function</span> <span class="fn">b2cPayment</span>({ amount, phone, commandID, ... }) {
+  <span class="kw">const</span> securityCredential = <span class="fn">buildSecurityCredential</span>();
+  <span class="kw">const</span> payload = {
+    InitiatorName: config.initiatorName,
+    SecurityCredential: securityCredential,
+    CommandID: commandID,
+    Amount: String(amount),
+    PartyA: config.b2cShortcode,
+    PartyB: <span class="fn">normalizeMsisdn</span>(phone),
+    ResultURL: resultUrl,
+    QueueTimeOutURL: queueTimeoutUrl,
+    <span class="cm">// ... more fields</span>
+  };
+  <span class="kw">const</span> { data } = <span class="kw">await</span> http.<span class="fn">post</span>(<span class="str">'/mpesa/b2c/v1/paymentrequest'</span>, payload);
+  <span class="kw">return</span> data;
+}</pre>
+          </div>
+          <div class="code-panel code-panel-kit">
+            <div class="code-panel-header">
+              <span>With daraja-kit</span>
+              <span class="code-panel-lines">1 file &middot; 6 lines</span>
+            </div>
+            <pre>
+<span class="kw">import</span> { createClient } <span class="kw">from</span> <span class="str">'@daraja-kit/sdk'</span>;
+
+<span class="kw">const</span> mpesa = <span class="fn">createClient</span>();
+
+<span class="kw">const</span> transfer = <span class="kw">await</span> mpesa.<span class="fn">send</span>({
+  amount: <span class="num">5000</span>,
+  phone: <span class="str">'0712345678'</span>,
+  type: <span class="str">'salary'</span>,
+  callbackUrl: <span class="str">'https://myapp.com/callback'</span>,
+});
+
+<span class="cm">// RSA encryption: automatic.</span>
+<span class="cm">// Certificate loading: automatic.</span>
+<span class="cm">// SecurityCredential: automatic.</span>
+<span class="cm">// Result: { status: 'queued', conversationId: '...' }</span></pre>
+          </div>
+        </div>
+        <div class="comparison-metric fade-in">
+          <strong>97%</strong> <span>reduction &mdash; RSA encryption, certificate management, credential handling all automatic</span>
+        </div>
+      </div>
+
+      <!-- TAB: Full Integration -->
+      <div class="comparison" id="tab-scaffold">
+        <div class="comparison-grid">
+          <div class="code-panel code-panel-standard">
+            <div class="code-panel-header">
+              <span>Standard Daraja</span>
+              <span class="code-panel-lines">9 files &middot; 500+ lines</span>
+            </div>
+            <pre><span class="cm">// Project structure for a donation page:</span>
+<span class="cm">//</span>
+<span class="cm">// src/</span>
+<span class="cm">//   daraja/</span>
+<span class="cm">//     client.js         — OAuth + HTTP client (70 lines)</span>
+<span class="cm">//     stkPush.js        — STK Push logic (73 lines)</span>
+<span class="cm">//     c2b.js            — C2B registration</span>
+<span class="cm">//     b2c.js            — B2C payments</span>
+<span class="cm">//   utils/</span>
+<span class="cm">//     config.js         — Env config (43 lines)</span>
+<span class="cm">//     security.js       — Crypto helpers (74 lines)</span>
+<span class="cm">//     logger.js         — Logging setup</span>
+<span class="cm">//   routes/</span>
+<span class="cm">//     api.js            — Express routes (128 lines)</span>
+<span class="cm">//     callbacks.js      — Callback handlers</span>
+<span class="cm">//   index.js            — Server entry point</span>
+<span class="cm">// package.json</span>
+<span class="cm">// .env</span>
+<span class="cm">// certs/</span>
+<span class="cm">//   SandboxCertificate.cer</span>
+<span class="cm">//</span>
+<span class="cm">// Total: 500+ lines across 9+ files</span>
+<span class="cm">// Setup time: hours to days</span>
+<span class="cm">// Requires: Node.js, Express, Daraja docs,</span>
+<span class="cm">//   certificate download, env configuration,</span>
+<span class="cm">//   callback URL setup (ngrok), error handling</span></pre>
+          </div>
+          <div class="code-panel code-panel-kit">
+            <div class="code-panel-header">
+              <span>With daraja-kit + AI</span>
+              <span class="code-panel-lines">2 files &middot; 109 lines</span>
+            </div>
+            <pre><span class="cm">// Step 1: Tell an AI assistant what you want</span>
+<span class="cm">// "Build me a donation page with M-Pesa"</span>
+<span class="cm">//</span>
+<span class="cm">// Step 2: MCP scaffold tool generates:</span>
+
+<span class="cm">// server.js (30 lines)</span>
+<span class="kw">import</span> express <span class="kw">from</span> <span class="str">'express'</span>;
+<span class="kw">import</span> { createClient } <span class="kw">from</span> <span class="str">'@daraja-kit/sdk'</span>;
+
+<span class="kw">const</span> app = <span class="fn">express</span>();
+<span class="kw">const</span> mpesa = <span class="fn">createClient</span>();
+
+app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span class="kw">async</span> (req, res) => {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> result = <span class="kw">await</span> mpesa.<span class="fn">collect</span>({
+      amount: req.body.amount,
+      phone: req.body.phone,
+      reference: <span class="str">'DONATION'</span>,
+    });
+    res.<span class="fn">json</span>({ ok: <span class="kw">true</span>, ...result });
+  } <span class="kw">catch</span> (err) {
+    res.<span class="fn">json</span>({ ok: <span class="kw">false</span>, suggestion: err.suggestion });
+  }
+});
+
+<span class="cm">// + public/index.html (79 lines) — complete UI</span>
+<span class="cm">//</span>
+<span class="cm">// Step 3: npm install && npm start</span>
+<span class="cm">// Done. Accepting donations.</span></pre>
+          </div>
+        </div>
+        <div class="comparison-metric fade-in">
+          <strong>5 min</strong> <span>from idea to working payment page &mdash; complete project scaffolded by AI</span>
+        </div>
+      </div>
+
+      <!-- TAB: Error Handling -->
+      <div class="comparison" id="tab-errors">
+        <div class="comparison-grid">
+          <div class="code-panel code-panel-standard">
+            <div class="code-panel-header">
+              <span>Standard Daraja</span>
+              <span class="code-panel-lines">Raw error response</span>
+            </div>
+            <pre><span class="cm">// What Daraja returns when a user cancels:</span>
+{
+  <span class="str">"Body"</span>: {
+    <span class="str">"stkCallback"</span>: {
+      <span class="str">"MerchantRequestID"</span>: <span class="str">"29115-34620561-1"</span>,
+      <span class="str">"CheckoutRequestID"</span>: <span class="str">"ws_CO_191220..."</span>,
+      <span class="str">"ResultCode"</span>: <span class="num">1032</span>,
+      <span class="str">"ResultDesc"</span>: <span class="str">"Request cancelled by user"</span>
+    }
+  }
+}
+
+<span class="cm">// What does 1032 mean? What should I do?</span>
+<span class="cm">// Is it safe to retry? What about 1025? 2001?</span>
+<span class="cm">// Developer must look up each code manually.</span>
+<span class="cm">// AI agents have no structured guidance.</span></pre>
+          </div>
+          <div class="code-panel code-panel-kit">
+            <div class="code-panel-header">
+              <span>With daraja-kit</span>
+              <span class="code-panel-lines">Self-healing errors</span>
+            </div>
+            <pre><span class="kw">try</span> {
+  <span class="kw">const</span> payment = <span class="kw">await</span> mpesa.<span class="fn">collect</span>({ amount: <span class="num">100</span>, phone });
+} <span class="kw">catch</span> (err) {
+  <span class="cm">// err is a structured MpesaError:</span>
+  err.code;        <span class="cm">// "USER_CANCELLED"</span>
+  err.message;     <span class="cm">// "Payment cancelled by user"</span>
+  err.darajaCode;  <span class="cm">// "1032"</span>
+  err.suggestion;  <span class="cm">// "The customer cancelled the M-Pesa</span>
+                   <span class="cm">//  prompt or it timed out. You can</span>
+                   <span class="cm">//  retry with mpesa.collect()."</span>
+
+  <span class="cm">// Human-readable AND machine-readable.</span>
+  <span class="cm">// AI agents can act on .suggestion directly.</span>
+  <span class="cm">// Show err.suggestion to users — it's friendly.</span>
+  <span class="cm">// Every Daraja error code is mapped and explained.</span>
+}
+
+<span class="cm">// Errors become guidance, not dead ends.</span></pre>
+          </div>
+        </div>
+        <div class="comparison-metric fade-in">
+          <strong>Every error</strong> <span>becomes actionable guidance &mdash; for humans and AI agents alike</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 5: AI-NATIVE TOOLS
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="tools" class="section-light">
+    <div class="container">
+      <div class="overline fade-in">AGENTIC-READY</div>
+      <h2 class="section-title fade-in">6 AI Tools That Democratize M-Pesa Integration</h2>
+      <p class="section-subtitle fade-in">
+        The MCP server gives any AI assistant &mdash; Claude, GPT, Copilot &mdash; deep M-Pesa expertise.
+        Every tool works for humans too.
+      </p>
+
+      <div class="tools-grid">
+
+        <!-- Tool 1: Build (Scaffold) -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1F3D7;&#xFE0F;</div>
+            <h3>Build</h3>
+            <div class="tool-name">daraja_scaffold</div>
+            <p>Generate a complete M-Pesa project from a description. Any non-technical founder can go from idea to payment page.</p>
+          </div>
+          <div class="tool-card-body">
+            <input class="tool-input" id="scaffold-input" value="Build me a donation page with M-Pesa" placeholder="Describe what you want to build...">
+            <button class="tool-btn" onclick="runTool('scaffold')">Generate Project</button>
+            <div class="tool-output" id="scaffold-output"></div>
+          </div>
+        </div>
+
+        <!-- Tool 2: Validate -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1F50D;</div>
+            <h3>Validate</h3>
+            <div class="tool-name">daraja_validate</div>
+            <p>Expert-level code review for M-Pesa integrations. Catches credential leaks, URL issues, and field limits.</p>
+          </div>
+          <div class="tool-card-body">
+            <textarea class="tool-input" id="validate-input" rows="4" style="font-size:0.7rem;line-height:1.4">const consumerKey = 'abc123def456ghi789';
+const callbackUrl = 'http://mysite.com/callback';
+const ref = 'PAYMENT-REF-12345';
+mpesa.collect({ amount, phone });</textarea>
+            <button class="tool-btn" onclick="runTool('validate')">Validate Code</button>
+            <div class="tool-output" id="validate-output"></div>
+          </div>
+        </div>
+
+        <!-- Tool 3: Diagnose -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1FA7A;</div>
+            <h3>Diagnose</h3>
+            <div class="tool-name">daraja_diagnose</div>
+            <p>Instant root cause analysis for any Daraja error. No more searching forums &mdash; the answer is immediate.</p>
+          </div>
+          <div class="tool-card-body">
+            <select class="tool-input" id="diagnose-input" style="font-family:var(--font-sans)">
+              <option value="1032">Error 1032 — Request cancelled</option>
+              <option value="1025">Error 1025 — STK delivery failed</option>
+              <option value="1037">Error 1037 — Phone unreachable</option>
+              <option value="2001">Error 2001 — Invalid credentials</option>
+              <option value="1001">Error 1001 — USSD session busy</option>
+              <option value="401">Error 401 — Authentication failed</option>
+            </select>
+            <button class="tool-btn" onclick="runTool('diagnose')">Diagnose Error</button>
+            <div class="tool-output" id="diagnose-output"></div>
+          </div>
+        </div>
+
+        <!-- Tool 4: Learn (Explain) -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1F4DA;</div>
+            <h3>Learn</h3>
+            <div class="tool-name">daraja_explain</div>
+            <p>Plain-language explanations of any M-Pesa concept. 20 structured documents searchable by humans and AI.</p>
+          </div>
+          <div class="tool-card-body">
+            <select class="tool-input" id="explain-input" style="font-family:var(--font-sans)">
+              <option value="SecurityCredential">What is SecurityCredential?</option>
+              <option value="STK Push flow">How does STK Push work?</option>
+              <option value="callbacks">How do callbacks work?</option>
+              <option value="going live production">How do I go live?</option>
+              <option value="authentication OAuth">How does authentication work?</option>
+            </select>
+            <button class="tool-btn" onclick="runTool('explain')">Explain</button>
+            <div class="tool-output" id="explain-output"></div>
+          </div>
+        </div>
+
+        <!-- Tool 5: Test -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1F9EA;</div>
+            <h3>Test</h3>
+            <div class="tool-name">daraja_test_sandbox</div>
+            <p>Run real tests against the Daraja sandbox. Verify your integration before writing backend code.</p>
+          </div>
+          <div class="tool-card-body">
+            <select class="tool-input" id="test-input" style="font-family:var(--font-sans)">
+              <option value="auth">Test: OAuth Authentication</option>
+              <option value="stk_push">Test: STK Push</option>
+              <option value="qr">Test: QR Code Generation</option>
+            </select>
+            <button class="tool-btn" onclick="runTool('test')">Run Live Test</button>
+            <div class="tool-output" id="test-output"></div>
+          </div>
+        </div>
+
+        <!-- Tool 6: Ship (Go Live) -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1F6A2;</div>
+            <h3>Ship</h3>
+            <div class="tool-name">daraja_go_live</div>
+            <p>Production readiness checklist. Guided path from sandbox to live &mdash; no steps missed.</p>
+          </div>
+          <div class="tool-card-body">
+            <div style="display:flex;gap:12px;margin-bottom:12px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;cursor:pointer">
+                <input type="checkbox" id="golive-shortcode"> Has shortcode
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;cursor:pointer">
+                <input type="checkbox" id="golive-letter"> Has go-live letter
+              </label>
+            </div>
+            <button class="tool-btn" onclick="runTool('golive')">Check Readiness</button>
+            <div class="tool-output" id="golive-output"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 6: USER STORIES
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="stories" class="section-white">
+    <div class="container">
+      <div class="overline fade-in">UNIVERSAL ACCESS</div>
+      <h2 class="section-title fade-in">Built for Everyone Who Builds on M-Pesa</h2>
+
+      <div class="stories-grid">
+        <!-- Story 1: Vibe Coder -->
+        <div class="story-card fade-in">
+          <div class="story-persona">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#35A839,#059669)">A</div>
+            <div class="story-persona-info">
+              <h4>Amara</h4>
+              <span>University student &middot; Building a campus marketplace</span>
+            </div>
+          </div>
+          <ol class="story-steps">
+            <li class="story-step">
+              <div class="story-step-num">1</div>
+              <div class="story-step-text">Opens Claude and says: <em>"I want to accept M-Pesa payments for my campus delivery app"</em></div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">2</div>
+              <div class="story-step-text">MCP <code>daraja_scaffold</code> generates a complete project &mdash; server, frontend, payment flow</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">3</div>
+              <div class="story-step-text"><code>npm install && npm start</code> &mdash; accepting payments on campus</div>
+            </li>
+          </ol>
+          <div class="story-time">&#x23F1;&#xFE0F; Idea to first payment: 5 minutes</div>
+          <p class="story-tagline">"No backend experience. No API docs. Just describe what you want."</p>
+        </div>
+
+        <!-- Story 2: Expert Developer -->
+        <div class="story-card fade-in">
+          <div class="story-persona">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#2563EB,#7C3AED)">K</div>
+            <div class="story-persona-info">
+              <h4>Kevin</h4>
+              <span>Senior engineer &middot; Fintech startup</span>
+            </div>
+          </div>
+          <ol class="story-steps">
+            <li class="story-step">
+              <div class="story-step-num">1</div>
+              <div class="story-step-text"><code>npm install @daraja-kit/sdk</code> &mdash; one dependency, zero config for sandbox</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">2</div>
+              <div class="story-step-text">5 lines of code for STK Push &mdash; auth, security, polling all handled</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">3</div>
+              <div class="story-step-text"><code>daraja_validate</code> catches a hardcoded credential and HTTP callback before production</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">4</div>
+              <div class="story-step-text"><code>daraja_go_live</code> generates a 10-point production checklist &mdash; nothing missed</div>
+            </li>
+          </ol>
+          <div class="story-time">&#x23F1;&#xFE0F; Production-ready in an afternoon, not a sprint</div>
+          <p class="story-tagline">"Everything you know about Daraja still applies. The SDK just removes the boilerplate."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 7: METRICS
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="metrics" class="section-dark">
+    <div class="container">
+      <div class="overline overline-light fade-in">THE IMPACT</div>
+      <h2 class="section-title fade-in">Developer Experience, Quantified</h2>
+
+      <div class="metrics-counters">
+        <div class="metric-counter fade-in">
+          <div class="metric-value"><span data-count="97">0</span><span class="metric-value-suffix">%</span></div>
+          <div class="metric-label">Fewer lines of code</div>
+        </div>
+        <div class="metric-counter fade-in">
+          <div class="metric-value" data-count="6">0</div>
+          <div class="metric-label">AI-native tools</div>
+        </div>
+        <div class="metric-counter fade-in">
+          <div class="metric-value" data-count="20">0</div>
+          <div class="metric-label">Knowledge documents</div>
+        </div>
+        <div class="metric-counter fade-in">
+          <div class="metric-value"><span data-count="5">0</span><span class="metric-value-suffix"> min</span></div>
+          <div class="metric-label">Zero to first payment</div>
+        </div>
+      </div>
+
+      <div class="metrics-table-wrapper fade-in">
+        <table class="metrics-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>Standard Daraja</th>
+              <th>With daraja-kit</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>STK Push setup</td>
+              <td>Multi-file, multi-step</td>
+              <td>5 lines, 1 file</td>
+            </tr>
+            <tr>
+              <td>Auth management</td>
+              <td>Manual OAuth + refresh</td>
+              <td>Automatic (zero-config)</td>
+            </tr>
+            <tr>
+              <td>Security credential</td>
+              <td>Manual RSA encryption</td>
+              <td>Automatic</td>
+            </tr>
+            <tr>
+              <td>Error guidance</td>
+              <td>Result code reference</td>
+              <td>.suggestion field (human + AI)</td>
+            </tr>
+            <tr>
+              <td>Project scaffolding</td>
+              <td>Manual setup</td>
+              <td>AI generates complete projects</td>
+            </tr>
+            <tr>
+              <td>Production readiness</td>
+              <td>Manual checklist</td>
+              <td>Automated 10-point verification</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 9: CTA
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="cta" class="section-gradient">
+    <div class="container">
+      <h2 class="fade-in">The Agentic Future of M-Pesa</h2>
+      <p class="fade-in">
+        Daraja 3.0 made M-Pesa programmable. daraja-kit makes it conversational.
+        Together, they open M-Pesa to every developer, every AI agent, and every idea &mdash; across Africa and beyond.
+      </p>
+      <div class="fade-in" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
+        <a href="#" class="btn btn-dark">Let's Build This Together</a>
+        <a href="#tools" class="btn btn-outline-light">Try the Tools</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      daraja-kit &mdash; An evolution of Daraja 3.0 for the agentic era
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       SECTION 8: CHAT WIDGET
+       ═══════════════════════════════════════════════════════════════════ -->
+  <button class="chat-fab" id="chat-fab" onclick="toggleChat()" title="Ask Daraja AI">&#x1F4AC;</button>
+
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-panel-header">
+      <span>Ask Daraja AI</span>
+      <button class="chat-panel-close" onclick="toggleChat()">&times;</button>
+    </div>
+    <div class="chat-messages" id="chat-messages"></div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       JAVASCRIPT
+       ═══════════════════════════════════════════════════════════════════ -->
+  <script>
+    // ── Scroll Animations ──────────────────────────────────────────────
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          // Trigger counter animations
+          entry.target.querySelectorAll('[data-count]').forEach(animateCounter);
+        }
+      });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // ── Counter Animation ──────────────────────────────────────────────
+    const animated = new Set();
+    function animateCounter(el) {
+      if (animated.has(el)) return;
+      animated.add(el);
+      const target = parseInt(el.dataset.count);
+      const duration = 1500;
+      const start = performance.now();
+
+      function tick(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+        el.textContent = Math.round(target * eased);
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    // ── Tab System ─────────────────────────────────────────────────────
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.comparison').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // ── Tool Runners ───────────────────────────────────────────────────
+    async function runTool(tool) {
+      const outputEl = document.getElementById(tool === 'golive' ? 'golive-output' : tool + '-output');
+      const btn = outputEl.previousElementSibling;
+      btn.disabled = true;
+      btn.textContent = 'Running...';
+      outputEl.classList.add('visible');
+      outputEl.innerHTML = '<div style="color:var(--gray-400);font-size:0.78rem">Processing...</div>';
+
+      try {
+        let body, url;
+
+        switch (tool) {
+          case 'scaffold':
+            url = '/api/tools/scaffold';
+            body = { intent: document.getElementById('scaffold-input').value };
+            break;
+          case 'validate':
+            url = '/api/tools/validate';
+            body = { code: document.getElementById('validate-input').value };
+            break;
+          case 'diagnose':
+            url = '/api/tools/diagnose';
+            body = { error: document.getElementById('diagnose-input').value };
+            break;
+          case 'explain':
+            url = '/api/tools/explain';
+            body = { topic: document.getElementById('explain-input').value, depth: 'brief' };
+            break;
+          case 'test':
+            url = '/api/live/test';
+            body = { test: document.getElementById('test-input').value };
+            break;
+          case 'golive':
+            url = '/api/tools/go-live';
+            body = {
+              has_shortcode: document.getElementById('golive-shortcode').checked,
+              has_go_live_letter: document.getElementById('golive-letter').checked,
+            };
+            break;
+        }
+
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json();
+        renderToolOutput(tool, data, outputEl);
+      } catch (err) {
+        outputEl.innerHTML = `<div style="color:var(--error);font-size:0.78rem">Error: ${err.message}</div>`;
+      }
+
+      btn.disabled = false;
+      btn.textContent = getButtonLabel(tool);
+    }
+
+    function getButtonLabel(tool) {
+      const labels = { scaffold: 'Generate Project', validate: 'Validate Code', diagnose: 'Diagnose Error', explain: 'Explain', test: 'Run Live Test', golive: 'Check Readiness' };
+      return labels[tool];
+    }
+
+    function renderToolOutput(tool, data, el) {
+      switch (tool) {
+        case 'scaffold':
+          let html = '<div style="margin-bottom:8px;font-weight:600;font-size:0.78rem;color:var(--success)">Generated project: ' + data.template + '</div>';
+          data.files.forEach(f => {
+            html += `<div class="tool-output-file"><span class="tool-output-file-icon">&#x1F4C4;</span> ${f.path}</div>`;
+          });
+          html += '<div style="margin-top:12px;font-size:0.72rem;color:var(--gray-500);white-space:pre-wrap">' + escapeHtml(data.instructions) + '</div>';
+          el.innerHTML = html;
+          break;
+
+        case 'validate': {
+          let vhtml = '';
+          data.issues.forEach(issue => {
+            const cls = 'tool-issue tool-issue-' + issue.severity;
+            const badge = `<span class="badge badge-${issue.severity}">${issue.severity}</span>`;
+            vhtml += `<div class="${cls}">${badge} <strong>${issue.message}</strong>${issue.line ? ' (line ' + issue.line + ')' : ''}<br><span style="color:var(--gray-500)">${issue.fix}</span></div>`;
+          });
+          const scoreColor = data.score >= 80 ? 'var(--success)' : data.score >= 50 ? 'var(--warning)' : 'var(--error)';
+          const scoreBg = data.score >= 80 ? '#F0FDF4' : data.score >= 50 ? '#FFFBEB' : '#FEF2F2';
+          vhtml += `<div class="tool-score" style="background:${scoreBg};color:${scoreColor}">Score: ${data.score}/100</div>`;
+          el.innerHTML = vhtml;
+          break;
+        }
+
+        case 'diagnose':
+          el.innerHTML = `<div class="tool-diagnosis">
+            <h4 style="color:var(--error)">Error ${data.errorCode}: ${data.meaning}</h4>
+            <p><strong>Root cause:</strong> ${data.rootCause}</p>
+            <div class="fix"><strong>Fix:</strong> ${data.fix}</div>
+            ${data.codeExample ? '<pre style="margin-top:10px;padding:10px;background:var(--gray-50);border-radius:6px;font-size:0.7rem;font-family:var(--font-mono);overflow-x:auto">' + escapeHtml(data.codeExample) + '</pre>' : ''}
+            ${data.relatedDocs?.length ? '<div style="margin-top:10px;font-size:0.7rem;color:var(--gray-400)">Docs: ' + data.relatedDocs.join(', ') + '</div>' : ''}
+          </div>`;
+          break;
+
+        case 'explain': {
+          const content = data.explanation.length > 600 ? data.explanation.slice(0, 600) + '...' : data.explanation;
+          el.innerHTML = `<div style="font-size:0.78rem;line-height:1.6;color:var(--gray-700);white-space:pre-wrap">${escapeHtml(content)}</div>
+            ${data.relatedTopics?.length ? '<div style="margin-top:12px;font-size:0.72rem;color:var(--gray-400)">Related: ' + data.relatedTopics.join(', ') + '</div>' : ''}
+            ${data.sources?.length ? '<div style="font-size:0.72rem;color:var(--gray-400)">Sources: ' + data.sources.join(', ') + '</div>' : ''}`;
+          break;
+        }
+
+        case 'test': {
+          const cls = data.success ? 'success' : 'failure';
+          const icon = data.success ? '&#x2705;' : '&#x274C;';
+          el.innerHTML = `<div class="test-result ${cls}">
+            <div class="test-result-header">
+              <span class="test-result-status">${icon} ${data.success ? 'Success' : 'Failed'}</span>
+              <span class="test-result-time">${data.duration_ms}ms</span>
+            </div>
+            <pre style="font-family:var(--font-mono);font-size:0.68rem;margin:8px 0;overflow-x:auto;white-space:pre-wrap">${JSON.stringify(data.response, null, 2)}</pre>
+            ${data.next_steps ? '<div style="font-size:0.72rem;color:var(--gray-500);margin-top:8px">' + data.next_steps + '</div>' : ''}
+          </div>`;
+          break;
+        }
+
+        case 'golive': {
+          let ghtml = '';
+          data.checklist.forEach(item => {
+            const icons = { done: '&#x2705;', pending: '&#x23F3;', blocking: '&#x1F6D1;' };
+            const cls = 'checklist-' + item.status;
+            ghtml += `<div class="checklist-item">
+              <div class="checklist-icon ${cls}">${icons[item.status]}</div>
+              <div><strong style="font-size:0.78rem">${item.item}</strong><br><span style="color:var(--gray-500);font-size:0.72rem">${item.detail}</span></div>
+            </div>`;
+          });
+          const readyColor = data.ready ? 'var(--success)' : 'var(--warning)';
+          ghtml += `<div style="margin-top:12px;padding:12px;background:${data.ready ? '#F0FDF4' : '#FFFBEB'};border-radius:8px;font-size:0.83rem;font-weight:600;color:${readyColor}">${data.summary}</div>`;
+          el.innerHTML = ghtml;
+          break;
+        }
+      }
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // ── Chat Widget ────────────────────────────────────────────────────
+    let chatOpen = false;
+    let chatPlayed = false;
+
+    function toggleChat() {
+      chatOpen = !chatOpen;
+      document.getElementById('chat-panel').classList.toggle('open', chatOpen);
+      if (chatOpen && !chatPlayed) {
+        chatPlayed = true;
+        playChat();
+      }
+    }
+
+    const chatScript = [
+      { type: 'user', text: 'How do I accept M-Pesa payments in my app?' },
+      { type: 'tool', text: 'Using daraja_explain: "STK Push payments"' },
+      { type: 'ai', text: 'STK Push (Lipa Na M-Pesa Online) sends a payment prompt directly to a customer\'s phone. They enter their M-Pesa PIN to confirm. With daraja-kit, it\'s one method call:\n\nawait mpesa.collect({ amount: 100, phone: \'0712345678\' })\n\nThe SDK handles auth, polling, and phone format automatically. No callback server needed.' },
+      { type: 'user', text: 'Build me a donation page for my NGO' },
+      { type: 'tool', text: 'Using daraja_scaffold: "donation page"' },
+      { type: 'ai', text: 'Done! I\'ve generated a complete project:\n\n- package.json\n- server.js (30 lines)\n- public/index.html (79 lines)\n\nRun: npm install && npm start\n\nYour donation page will be at localhost:3000. It uses sandbox mode by default — no real charges.' },
+      { type: 'user', text: 'I\'m getting error 1032 when I test' },
+      { type: 'tool', text: 'Using daraja_diagnose: "error 1032"' },
+      { type: 'ai', text: 'Error 1032 means the customer cancelled the M-Pesa prompt (or it timed out). This is normal user behavior in sandbox testing.\n\nYour code should handle it:\nif (result.status === \'cancelled\') {\n  // Show retry button\n}\n\nThe SDK maps this automatically — check result.status after collect().' },
+    ];
+
+    async function playChat() {
+      const container = document.getElementById('chat-messages');
+      for (const msg of chatScript) {
+        await sleep(800);
+        const div = document.createElement('div');
+        div.className = 'chat-msg chat-msg-' + msg.type;
+        div.style.whiteSpace = 'pre-wrap';
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
+
+        // Typewriter effect
+        for (let i = 0; i <= msg.text.length; i++) {
+          div.textContent = msg.text.slice(0, i);
+          container.scrollTop = container.scrollHeight;
+          await sleep(msg.type === 'tool' ? 20 : 12);
+        }
+        await sleep(400);
+      }
+    }
+
+    function sleep(ms) {
+      return new Promise(r => setTimeout(r, ms));
+    }
+
+    // ── Keyboard Navigation ────────────────────────────────────────────
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && chatOpen) toggleChat();
+    });
+  </script>
+</body>
+</html>

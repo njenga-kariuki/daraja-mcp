@@ -1,0 +1,4075 @@
+# daraja-kit -- Full Knowledge Base
+
+> This file contains the complete daraja-kit documentation concatenated into a single file.
+> For the index, see llms.txt. For individual files, see the capabilities/, concepts/, errors/, and patterns/ directories.
+
+---
+
+================================================================
+FILE: llms.txt
+================================================================
+
+# daraja-kit
+
+> Agent-forward toolkit for M-Pesa Daraja API integration. SDK with 6 methods, MCP server with 6 tools, structured knowledge base.
+
+## SDK
+
+- @daraja-kit/sdk: Zero-config M-Pesa SDK. Methods: collect, send, status, balance, reverse, qr.
+
+## Capabilities
+
+- [Collect Payments](capabilities/collect-payments.md): Accept M-Pesa payments via STK Push (auto-polling, no callbacks needed)
+- [Send Money](capabilities/send-money.md): Send money from business to customer (B2C salary, disbursement, refund)
+- [Check Status](capabilities/check-status.md): Query the status of any M-Pesa transaction
+- [Refunds](capabilities/refunds.md): Reverse or refund a completed M-Pesa transaction
+- [Account Balance](capabilities/account-balance.md): Check your M-Pesa shortcode or till balance
+- [QR Payments](capabilities/qr-payments.md): Generate QR codes customers scan to pay via M-Pesa
+- [Business Payments](capabilities/business-payments.md): Pay other businesses (B2B PayBill, BuyGoods) — raw API, not yet in SDK
+
+## Concepts
+
+- [Authentication](concepts/authentication.md): OAuth 2.0 tokens, SecurityCredential encryption, certificate handling
+- [Callbacks](concepts/callbacks.md): Daraja async callback pattern — setup, security, local dev with ngrok
+- [Environments](concepts/environments.md): Sandbox vs production — URLs, credentials, shortcodes, certificates
+- [Going Live](concepts/going-live.md): Complete go-live process from sandbox to production
+
+## Errors
+
+- [Error Codes](errors/error-codes.md): Complete Daraja error code reference with causes and fixes
+- [Troubleshooting](errors/troubleshooting.md): Decision trees for common integration issues
+
+## Patterns
+
+- [Donation Page](patterns/donation-page.md): Accept donations with STK Push — complete Express + HTML example
+- [E-commerce Checkout](patterns/ecommerce-checkout.md): Integrate M-Pesa into product checkout flows
+- [Subscription Billing](patterns/subscription-billing.md): Recurring M-Pesa payments with cron-based re-prompting
+- [B2C Disbursement](patterns/b2c-disbursement.md): Send money to multiple recipients — batch processing pattern
+
+
+================================================================
+FILE: capabilities/collect-payments.md
+================================================================
+
+# Collect Payments
+
+## What
+
+Accept M-Pesa payments from customers. The SDK sends an STK Push to the customer's phone, they enter their PIN, and you receive the result -- all in one call, no callbacks needed.
+
+## When to Use
+
+Use this when you need to: accept payments, charge customers, checkout, collect money, receive payments, process orders, handle donations, or any scenario where a customer pays your business.
+
+## Quick Start
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const result = await mpesa.collect({
+  amount: 100,
+  phone: '254712345678',
+});
+
+console.log(result.status); // 'success' | 'failed' | 'pending'
+```
+
+## How It Works
+
+STK Push (Lipa Na M-Pesa Online) is the primary payment collection method. The flow:
+
+1. Your server calls `mpesa.collect()` with amount and phone number.
+2. Daraja sends an STK Push prompt to the customer's phone.
+3. The customer sees a payment prompt with amount and merchant name.
+4. The customer enters their M-Pesa PIN to authorize.
+5. Daraja processes the payment.
+6. The SDK polls STK Query every 3 seconds until the transaction resolves or the timeout is reached (default: 60 seconds).
+7. You receive a final result with `status: 'success'` or `status: 'failed'`.
+
+**Auto-polling** is the key SDK feature here. Raw Daraja requires you to either set up a callback URL or manually poll the STK Query endpoint. The SDK handles polling automatically -- you call `collect()` and await a final result.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `amount` | `number` | Yes | -- | Amount to charge in KES (integer, minimum 1) |
+| `phone` | `string` | Yes | -- | Customer phone in format `254XXXXXXXXX` (12 digits) |
+| `reference` | `string` | No | `'Payment'` | Account reference shown on STK prompt and M-Pesa statement (max 12 chars) |
+| `description` | `string` | No | `'Payment'` | Transaction description (max 13 chars -- exceeding this causes error 1025/9999) |
+| `poll` | `boolean` | No | `true` | Whether to poll for final result. Set `false` to get only the initiation response. |
+| `pollInterval` | `number` | No | `3000` | Milliseconds between poll attempts |
+| `pollTimeout` | `number` | No | `60000` | Maximum milliseconds to wait for a final result |
+
+## Response
+
+### CollectResult
+
+```typescript
+interface CollectResult {
+  status: 'success' | 'failed' | 'pending';
+  transactionId?: string;    // M-Pesa receipt number (e.g., 'SBJ7TLTQA2')
+  phone?: string;            // Phone number charged
+  amount?: number;           // Amount charged
+  merchantRequestId: string; // Daraja merchant request ID
+  checkoutRequestId: string; // Daraja checkout request ID
+  errorCode?: string;        // Daraja result code on failure
+  errorMessage?: string;     // Human-readable failure reason
+}
+```
+
+### Success Response
+
+```json
+{
+  "status": "success",
+  "transactionId": "SBJ7TLTQA2",
+  "phone": "254712345678",
+  "amount": 100,
+  "merchantRequestId": "29115-34620561-1",
+  "checkoutRequestId": "ws_CO_191220191020363925"
+}
+```
+
+### Failed Response (User Cancelled)
+
+```json
+{
+  "status": "failed",
+  "merchantRequestId": "29115-34620561-1",
+  "checkoutRequestId": "ws_CO_191220191020363925",
+  "errorCode": "1032",
+  "errorMessage": "Request cancelled by user"
+}
+```
+
+### Pending Response (Timeout Before Resolution)
+
+```json
+{
+  "status": "pending",
+  "merchantRequestId": "29115-34620561-1",
+  "checkoutRequestId": "ws_CO_191220191020363925"
+}
+```
+
+## Common Issues
+
+| Error Code | Meaning | Cause | Fix |
+|------------|---------|-------|-----|
+| `1032` | Request cancelled by user | Customer declined the STK Push or dismissed the prompt | Prompt user to retry. Add UX messaging: "Payment cancelled. Tap Pay to try again." |
+| `1037` | DS timeout -- phone unreachable | Phone is off, in airplane mode, or has no signal. Especially common with iOS eSIM devices. | Ask customer to check their phone is on and has signal. Restarting the phone often fixes eSIM issues. Retry after a few seconds. |
+| `1001` | USSD session in progress | Customer has an active USSD session (e.g., dialed *334#) | Ask customer to cancel any active USSD sessions and retry after 2-3 minutes. |
+| `1025` | STK delivery failed | Often caused by `description` exceeding 13 characters | Shorten `description` to 13 characters or fewer. |
+| `9999` | STK delivery failed | Same as 1025 -- description or reference too long, or temporary Daraja issue | Shorten `description` and `reference`. Retry once if params are already short. |
+
+## Full Example
+
+Complete Express route with error handling:
+
+```typescript
+import express from 'express';
+import { createClient } from '@daraja-kit/sdk';
+
+const app = express();
+app.use(express.json());
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+app.post('/api/pay', async (req, res) => {
+  const { amount, phone } = req.body;
+
+  // Validate input
+  if (!amount || !phone) {
+    return res.status(400).json({ error: 'amount and phone are required' });
+  }
+
+  if (amount < 1) {
+    return res.status(400).json({ error: 'Amount must be at least 1 KES' });
+  }
+
+  // Normalize phone: accept 0712345678 or +254712345678
+  const normalizedPhone = phone.replace(/^0/, '254').replace(/^\+/, '');
+
+  try {
+    const result = await mpesa.collect({
+      amount: Math.round(amount),
+      phone: normalizedPhone,
+      reference: 'ORDER123',
+      description: 'Payment',
+    });
+
+    switch (result.status) {
+      case 'success':
+        // Payment confirmed -- fulfill the order
+        return res.json({
+          success: true,
+          transactionId: result.transactionId,
+          message: `Payment of KES ${result.amount} received`,
+        });
+
+      case 'failed':
+        // Payment failed -- tell the user why
+        return res.json({
+          success: false,
+          errorCode: result.errorCode,
+          message: getFailureMessage(result.errorCode),
+        });
+
+      case 'pending':
+        // Timed out waiting for result
+        return res.json({
+          success: false,
+          message: 'Payment is still processing. Please check your M-Pesa messages.',
+          checkoutRequestId: result.checkoutRequestId,
+        });
+    }
+  } catch (error) {
+    console.error('M-Pesa collect error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Payment service temporarily unavailable. Please try again.',
+    });
+  }
+});
+
+function getFailureMessage(errorCode?: string): string {
+  switch (errorCode) {
+    case '1032':
+      return 'You cancelled the payment. Tap Pay to try again.';
+    case '1037':
+      return 'Could not reach your phone. Check your phone is on and has signal, then retry.';
+    case '1001':
+      return 'Your phone has an active USSD session. Cancel it and try again in 2 minutes.';
+    case '1025':
+    case '9999':
+      return 'Payment could not be delivered to your phone. Please try again.';
+    default:
+      return 'Payment failed. Please try again.';
+  }
+}
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+```
+
+## Advanced: C2B Registration
+
+C2B (Customer to Business) is the alternative payment collection method. Instead of the merchant initiating an STK Push, the customer initiates payment themselves via the M-Pesa USSD menu (*334#) or M-Pesa app, entering your PayBill number and account reference.
+
+Use C2B when:
+- You want customers to pay via USSD menu (no smartphone needed)
+- You need to support payments from feature phones
+- You run a PayBill or Till Number that receives organic payments
+
+C2B requires registering validation and confirmation URLs with Daraja:
+
+```typescript
+// C2B registration is not yet wrapped in the SDK.
+// Use the raw Daraja API:
+
+// POST https://sandbox.safaricom.co.ke/mpesa/c2b/v1/registerurl
+// Headers: Authorization: Bearer <access_token>
+// Body:
+{
+  "ShortCode": "174379",
+  "ResponseType": "Completed",  // or "Cancelled"
+  "ConfirmationURL": "https://yourdomain.com/api/c2b/confirm",
+  "ValidationURL": "https://yourdomain.com/api/c2b/validate"
+}
+```
+
+After registration, Daraja will POST to your URLs whenever a customer pays your shortcode. Your validation URL can accept or reject the transaction. Your confirmation URL receives the final payment details.
+
+For most integrations, STK Push via `mpesa.collect()` is simpler and recommended. C2B is for specific use cases where the customer must initiate.
+
+
+================================================================
+FILE: capabilities/send-money.md
+================================================================
+
+# Send Money (B2C)
+
+## What
+
+Send money from your M-Pesa business account to a customer's phone. Used for salary payments, disbursements, refunds, promotional payouts, and any business-to-customer transfer.
+
+## When to Use
+
+Use this when you need to: send money, pay employees, process salary, disburse funds, refund a customer, pay out winnings, send promotional rewards, or transfer from your business float to a person.
+
+## Quick Start
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const result = await mpesa.send({
+  amount: 500,
+  phone: '254712345678',
+  callbackUrl: 'https://yourdomain.com/api/b2c/callback',
+});
+
+console.log(result.conversationId);
+```
+
+## How It Works
+
+B2C (Business to Customer) sends money from your business shortcode to a customer's M-Pesa wallet. The flow:
+
+1. Your server calls `mpesa.send()` with amount, phone, and callback URL.
+2. The SDK generates a SecurityCredential by RSA-encrypting your initiator password with Safaricom's public certificate. This happens automatically.
+3. Daraja validates the request and queues the transfer.
+4. You receive an immediate acknowledgement with a `conversationId`.
+5. Daraja processes the transfer (usually 5-30 seconds).
+6. Daraja sends the final result to your `callbackUrl`.
+
+**Why callbackUrl is required:** Unlike STK Push (which supports polling), B2C is inherently asynchronous with no polling endpoint. The only way to receive the final result is via a callback. You must host a publicly reachable HTTPS endpoint.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `amount` | `number` | Yes | -- | Amount in KES to send (integer, minimum 10 for sandbox) |
+| `phone` | `string` | Yes | -- | Recipient phone in format `254XXXXXXXXX` |
+| `type` | `string` | No | `'salary'` | Payment type. Maps to Daraja CommandID: `'salary'` = SalaryPayment, `'business'` = BusinessPayment, `'promotion'` = PromotionPayment |
+| `remarks` | `string` | No | `'Payment'` | Transaction remarks (max 100 chars) |
+| `occasion` | `string` | No | `''` | Optional occasion description (max 100 chars) |
+| `callbackUrl` | `string` | Yes | -- | HTTPS URL to receive the final result |
+| `timeoutUrl` | `string` | No | Same as `callbackUrl` | HTTPS URL for timeout notifications |
+
+### Payment Types Explained
+
+| SDK Type | Daraja CommandID | Use Case |
+|----------|-----------------|----------|
+| `'salary'` | SalaryPayment | Employee salary and wages |
+| `'business'` | BusinessPayment | General business payments, refunds, disbursements |
+| `'promotion'` | PromotionPayment | Promotional payouts, rewards, bonuses |
+
+## Response
+
+### Initiation Response
+
+```typescript
+interface SendResult {
+  conversationId: string;       // Unique ID for this conversation
+  originatorConversationId: string; // Your request's tracking ID
+  responseCode: string;         // '0' means accepted for processing
+  responseDescription: string;  // e.g., 'Accept the service request successfully.'
+}
+```
+
+```json
+{
+  "conversationId": "AG_20191219_00004e48cf7e3533f581",
+  "originatorConversationId": "16740-34861180-1",
+  "responseCode": "0",
+  "responseDescription": "Accept the service request successfully."
+}
+```
+
+**Note:** This response only means the request was accepted for processing. The actual transfer result arrives at your callback URL.
+
+### Callback Payload
+
+```json
+{
+  "Result": {
+    "ResultType": 0,
+    "ResultCode": 0,
+    "ResultDesc": "The service request is processed successfully.",
+    "OriginatorConversationID": "16740-34861180-1",
+    "ConversationID": "AG_20191219_00004e48cf7e3533f581",
+    "TransactionID": "SBJ7TLTQA2",
+    "ResultParameters": {
+      "ResultParameter": [
+        { "Key": "TransactionAmount", "Value": 500 },
+        { "Key": "TransactionReceipt", "Value": "SBJ7TLTQA2" },
+        { "Key": "ReceiverPartyPublicName", "Value": "254712345678 - John Doe" },
+        { "Key": "TransactionCompletedDateTime", "Value": "19.12.2019 18:00:00" },
+        { "Key": "B2CUtilityAccountAvailableFunds", "Value": 50000.00 },
+        { "Key": "B2CWorkingAccountAvailableFunds", "Value": 100000.00 },
+        { "Key": "B2CRecipientIsRegisteredCustomer", "Value": "Y" },
+        { "Key": "B2CChargesPaidAccountAvailableFunds", "Value": 0.00 }
+      ]
+    }
+  }
+}
+```
+
+## Common Issues
+
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| SecurityCredential error | Wrong certificate for environment, or wrong initiator password | Ensure you are using the sandbox cert for sandbox and production cert for production. Verify your initiator password matches what Safaricom provided. The SDK handles cert selection automatically based on environment. |
+| Initiator credential error (2001) | Initiator name or password not recognized | Check that your initiator name and password are correct. For sandbox, the default initiator is `testapi` with password `Safaricom999!*!`. |
+| Insufficient float | Business account does not have enough balance | Top up your M-Pesa business float. Check balance with `mpesa.balance()`. |
+| Callback never arrives | Callback URL not reachable | Ensure URL is HTTPS, publicly accessible, and returns HTTP 200. See [Callbacks](../concepts/callbacks.md). |
+| Phone not registered | Recipient phone is not an M-Pesa user | Verify the phone number. B2C can only send to registered M-Pesa numbers. |
+
+## Full Example
+
+Complete Express server with B2C payment and callback handler:
+
+```typescript
+import express from 'express';
+import { createClient } from '@daraja-kit/sdk';
+
+const app = express();
+app.use(express.json());
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const CALLBACK_BASE = process.env.MPESA_CALLBACK_BASE_URL!;
+// e.g., 'https://abc123.ngrok-free.app' for local dev
+
+// --- Initiate B2C Payment ---
+app.post('/api/send', async (req, res) => {
+  const { amount, phone, type = 'business', remarks } = req.body;
+
+  if (!amount || !phone) {
+    return res.status(400).json({ error: 'amount and phone are required' });
+  }
+
+  const normalizedPhone = phone.replace(/^0/, '254').replace(/^\+/, '');
+
+  try {
+    const result = await mpesa.send({
+      amount: Math.round(amount),
+      phone: normalizedPhone,
+      type,
+      remarks: remarks || `Payment of KES ${amount}`,
+      callbackUrl: `${CALLBACK_BASE}/api/b2c/callback`,
+    });
+
+    // Store the conversationId to match with callback later
+    console.log('B2C initiated:', result.conversationId);
+
+    return res.json({
+      success: true,
+      message: 'Payment is being processed',
+      conversationId: result.conversationId,
+    });
+  } catch (error) {
+    console.error('B2C initiation error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to initiate payment. Please try again.',
+    });
+  }
+});
+
+// --- B2C Callback Handler ---
+app.post('/api/b2c/callback', (req, res) => {
+  const { Result } = req.body;
+
+  console.log('B2C callback received:', JSON.stringify(Result, null, 2));
+
+  if (Result.ResultCode === 0) {
+    // Payment succeeded
+    const params = Result.ResultParameters.ResultParameter;
+    const receipt = params.find((p: any) => p.Key === 'TransactionReceipt')?.Value;
+    const amount = params.find((p: any) => p.Key === 'TransactionAmount')?.Value;
+    const recipient = params.find((p: any) => p.Key === 'ReceiverPartyPublicName')?.Value;
+
+    console.log(`B2C Success: KES ${amount} sent to ${recipient}. Receipt: ${receipt}`);
+
+    // TODO: Update your database -- mark disbursement as completed
+  } else {
+    // Payment failed
+    console.error(`B2C Failed: ${Result.ResultCode} - ${Result.ResultDesc}`);
+
+    // TODO: Update your database -- mark disbursement as failed, queue retry if appropriate
+  }
+
+  // Always respond to Daraja (required)
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+```
+
+
+================================================================
+FILE: capabilities/check-status.md
+================================================================
+
+# Check Transaction Status
+
+## What
+
+Query the status of any M-Pesa transaction. Useful for verifying whether a payment went through, reconciling records, or recovering from missed callbacks.
+
+## When to Use
+
+Use this when you need to: check status, verify payment, confirm whether a payment went through, handle missed callbacks, reconcile transactions, or audit a specific transaction.
+
+**Note:** For STK Push payments, `mpesa.collect()` with the default `poll: true` already handles status checking automatically. You only need `mpesa.status()` for:
+- B2C, B2B, or reversal transactions where you missed the callback
+- Reconciliation jobs that verify historical transactions
+- Any transaction where you have the M-Pesa transaction ID and need to confirm its status
+
+## Quick Start
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const result = await mpesa.status({
+  transactionId: 'SBJ7TLTQA2',
+  callbackUrl: 'https://yourdomain.com/api/status/callback',
+});
+
+console.log(result.conversationId);
+```
+
+## How It Works
+
+1. Your server calls `mpesa.status()` with the M-Pesa transaction ID.
+2. The SDK generates a SecurityCredential automatically.
+3. Daraja acknowledges the request immediately.
+4. Daraja looks up the transaction and sends the result to your callback URL.
+5. Your callback handler receives the full transaction details.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `transactionId` | `string` | Yes | -- | The M-Pesa transaction ID (receipt number, e.g., `'SBJ7TLTQA2'`) |
+| `callbackUrl` | `string` | Yes | -- | HTTPS URL to receive the status result |
+| `timeoutUrl` | `string` | No | Same as `callbackUrl` | HTTPS URL for timeout notifications |
+
+## Response
+
+### Initiation Response
+
+```json
+{
+  "conversationId": "AG_20191219_00004e48cf7e3533f581",
+  "originatorConversationId": "16740-34861180-1",
+  "responseCode": "0",
+  "responseDescription": "Accept the service request successfully."
+}
+```
+
+### Callback Payload (Success)
+
+```json
+{
+  "Result": {
+    "ResultType": 0,
+    "ResultCode": 0,
+    "ResultDesc": "The service request is processed successfully.",
+    "OriginatorConversationID": "16740-34861180-1",
+    "ConversationID": "AG_20191219_00004e48cf7e3533f581",
+    "TransactionID": "SBJ7TLTQA2",
+    "ResultParameters": {
+      "ResultParameter": [
+        { "Key": "DebitPartyName", "Value": "254712345678 - John Doe" },
+        { "Key": "CreditPartyName", "Value": "174379 - Testapi" },
+        { "Key": "OriginatorConversationID", "Value": "16740-34861180-1" },
+        { "Key": "InitiatedTime", "Value": "20191219180000" },
+        { "Key": "DebitAccountType", "Value": "MMF Account" },
+        { "Key": "DebitPartyCharges", "Value": "" },
+        { "Key": "TransactionReason", "Value": "" },
+        { "Key": "ReasonType", "Value": "Payment" },
+        { "Key": "TransactionStatus", "Value": "Completed" },
+        { "Key": "FinalisedTime", "Value": "20191219180000" },
+        { "Key": "Amount", "Value": 100 },
+        { "Key": "ConversationID", "Value": "AG_20191219_00004e48cf7e3533f581" },
+        { "Key": "ReceiptNo", "Value": "SBJ7TLTQA2" }
+      ]
+    }
+  }
+}
+```
+
+## Full Example
+
+```typescript
+import express from 'express';
+import { createClient } from '@daraja-kit/sdk';
+
+const app = express();
+app.use(express.json());
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const CALLBACK_BASE = process.env.MPESA_CALLBACK_BASE_URL!;
+
+// --- Check Transaction Status ---
+app.post('/api/check-status', async (req, res) => {
+  const { transactionId } = req.body;
+
+  if (!transactionId) {
+    return res.status(400).json({ error: 'transactionId is required' });
+  }
+
+  try {
+    const result = await mpesa.status({
+      transactionId,
+      callbackUrl: `${CALLBACK_BASE}/api/status/callback`,
+    });
+
+    return res.json({
+      success: true,
+      message: 'Status query submitted. Result will arrive via callback.',
+      conversationId: result.conversationId,
+    });
+  } catch (error) {
+    console.error('Status query error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to query transaction status.',
+    });
+  }
+});
+
+// --- Status Callback Handler ---
+app.post('/api/status/callback', (req, res) => {
+  const { Result } = req.body;
+
+  if (Result.ResultCode === 0) {
+    const params = Result.ResultParameters.ResultParameter;
+    const status = params.find((p: any) => p.Key === 'TransactionStatus')?.Value;
+    const amount = params.find((p: any) => p.Key === 'Amount')?.Value;
+    const receipt = params.find((p: any) => p.Key === 'ReceiptNo')?.Value;
+
+    console.log(`Transaction ${receipt}: ${status}, KES ${amount}`);
+
+    // TODO: Update your records based on the transaction status
+  } else {
+    console.error(`Status query failed: ${Result.ResultCode} - ${Result.ResultDesc}`);
+  }
+
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+```
+
+## Tips
+
+- **Transaction ID format:** M-Pesa transaction IDs are alphanumeric receipt numbers like `SBJ7TLTQA2`. This is the receipt number the customer sees in their M-Pesa SMS.
+- **Use for reconciliation:** Run a daily job querying the status of any transactions where you did not receive (or lost) the callback result.
+- **STK Push alternative:** If you only need to check the status of an STK Push payment, `mpesa.collect({ poll: true })` is simpler -- it handles polling automatically and returns the final result inline.
+
+
+================================================================
+FILE: capabilities/refunds.md
+================================================================
+
+# Refunds (Transaction Reversal)
+
+## What
+
+Reverse a completed M-Pesa transaction. The reversed amount is returned to the original sender. Used for refunds, accidental payments, and dispute resolution.
+
+## When to Use
+
+Use this when you need to: refund a customer, reverse a transaction, cancel a completed payment, undo a transaction, or process a chargeback.
+
+## Quick Start
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const result = await mpesa.reverse({
+  transactionId: 'SBJ7TLTQA2',
+  amount: 100,
+  callbackUrl: 'https://yourdomain.com/api/reversal/callback',
+});
+
+console.log(result.conversationId);
+```
+
+## How It Works
+
+1. Your server calls `mpesa.reverse()` with the original transaction ID and amount.
+2. The SDK generates a SecurityCredential automatically.
+3. Daraja validates the request and queues the reversal.
+4. You receive an immediate acknowledgement.
+5. Daraja processes the reversal (can take seconds to minutes).
+6. Daraja sends the final result to your `callbackUrl`.
+7. The customer receives the reversed amount back in their M-Pesa wallet.
+
+## Important Constraints
+
+- **You can only reverse transactions that were paid to your shortcode.** You cannot reverse arbitrary M-Pesa transactions.
+- **You need the original M-Pesa transaction ID** (the receipt number, e.g., `SBJ7TLTQA2`).
+- **Reversals are not instant.** They are processed asynchronously and the result arrives via callback.
+- **Partial reversals are supported.** The `amount` can be less than or equal to the original transaction amount.
+- **Reversals may fail** if the recipient has already spent the funds or if the transaction is too old.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `transactionId` | `string` | Yes | -- | The original M-Pesa transaction ID (receipt number) to reverse |
+| `amount` | `number` | Yes | -- | Amount to reverse in KES. Must be less than or equal to original amount. |
+| `callbackUrl` | `string` | Yes | -- | HTTPS URL to receive the reversal result |
+| `timeoutUrl` | `string` | No | Same as `callbackUrl` | HTTPS URL for timeout notifications |
+
+## Response
+
+### Initiation Response
+
+```json
+{
+  "conversationId": "AG_20191219_00004e48cf7e3533f581",
+  "originatorConversationId": "16740-34861180-1",
+  "responseCode": "0",
+  "responseDescription": "Accept the service request successfully."
+}
+```
+
+### Callback Payload (Success)
+
+```json
+{
+  "Result": {
+    "ResultType": 0,
+    "ResultCode": 0,
+    "ResultDesc": "The service request is processed successfully.",
+    "OriginatorConversationID": "16740-34861180-1",
+    "ConversationID": "AG_20191219_00004e48cf7e3533f581",
+    "TransactionID": "SBK7XYZAB3",
+    "ResultParameters": {
+      "ResultParameter": [
+        { "Key": "DebitAccountCurrentBalance", "Value": "{Amount={CurrencyCode=KES, MinimumAmount=49900, BasicAmount=499.00}}" },
+        { "Key": "Amount", "Value": 100 },
+        { "Key": "TransCompletedTime", "Value": "20191219180000" },
+        { "Key": "OriginalTransactionID", "Value": "SBJ7TLTQA2" },
+        { "Key": "Charge", "Value": 0 },
+        { "Key": "CreditPartyPublicName", "Value": "254712345678 - John Doe" },
+        { "Key": "DebitPartyPublicName", "Value": "174379 - Testapi" }
+      ]
+    }
+  }
+}
+```
+
+## Full Example
+
+```typescript
+import express from 'express';
+import { createClient } from '@daraja-kit/sdk';
+
+const app = express();
+app.use(express.json());
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const CALLBACK_BASE = process.env.MPESA_CALLBACK_BASE_URL!;
+
+// --- Initiate Reversal ---
+app.post('/api/refund', async (req, res) => {
+  const { transactionId, amount } = req.body;
+
+  if (!transactionId || !amount) {
+    return res.status(400).json({ error: 'transactionId and amount are required' });
+  }
+
+  try {
+    const result = await mpesa.reverse({
+      transactionId,
+      amount: Math.round(amount),
+      callbackUrl: `${CALLBACK_BASE}/api/reversal/callback`,
+    });
+
+    return res.json({
+      success: true,
+      message: 'Refund is being processed',
+      conversationId: result.conversationId,
+    });
+  } catch (error) {
+    console.error('Reversal error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to initiate refund. Please try again.',
+    });
+  }
+});
+
+// --- Reversal Callback Handler ---
+app.post('/api/reversal/callback', (req, res) => {
+  const { Result } = req.body;
+
+  if (Result.ResultCode === 0) {
+    const params = Result.ResultParameters.ResultParameter;
+    const originalTxn = params.find((p: any) => p.Key === 'OriginalTransactionID')?.Value;
+    const amount = params.find((p: any) => p.Key === 'Amount')?.Value;
+    const recipient = params.find((p: any) => p.Key === 'CreditPartyPublicName')?.Value;
+
+    console.log(`Reversal success: KES ${amount} returned for txn ${originalTxn} to ${recipient}`);
+
+    // TODO: Update order status to "refunded" in your database
+  } else {
+    console.error(`Reversal failed: ${Result.ResultCode} - ${Result.ResultDesc}`);
+
+    // TODO: Mark refund as failed, alert support team
+  }
+
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+```
+
+## Tips
+
+- **Store the original transaction ID** whenever you receive a payment. You will need it if you ever need to issue a refund.
+- **Partial refunds:** Set `amount` to less than the original payment amount to issue a partial refund.
+- **Refund timing:** Process refunds as soon as possible. Older transactions may be harder to reverse.
+- **Alternative to reversal:** For STK Push payments, you can also use B2C (`mpesa.send()`) to send money back to the customer. This is more reliable for older transactions but costs you the B2C transaction fee.
+
+
+================================================================
+FILE: capabilities/account-balance.md
+================================================================
+
+# Account Balance
+
+## What
+
+Check the available balance on your M-Pesa business shortcode or till number.
+
+## When to Use
+
+Use this when you need to: check balance, see available funds, verify float, monitor account balance, or ensure you have enough funds before processing B2C payments.
+
+## Quick Start
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const result = await mpesa.balance({
+  callbackUrl: 'https://yourdomain.com/api/balance/callback',
+});
+
+console.log(result.conversationId);
+```
+
+## How It Works
+
+1. Your server calls `mpesa.balance()` with a callback URL.
+2. The SDK generates a SecurityCredential automatically.
+3. Daraja acknowledges the request.
+4. Daraja queries the account balance and sends the result to your callback URL.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `callbackUrl` | `string` | Yes | -- | HTTPS URL to receive the balance result |
+| `timeoutUrl` | `string` | No | Same as `callbackUrl` | HTTPS URL for timeout notifications |
+
+## Response
+
+### Initiation Response
+
+```json
+{
+  "conversationId": "AG_20191219_00004e48cf7e3533f581",
+  "originatorConversationId": "16740-34861180-1",
+  "responseCode": "0",
+  "responseDescription": "Accept the service request successfully."
+}
+```
+
+### Callback Payload
+
+```json
+{
+  "Result": {
+    "ResultType": 0,
+    "ResultCode": 0,
+    "ResultDesc": "The service request is processed successfully.",
+    "OriginatorConversationID": "16740-34861180-1",
+    "ConversationID": "AG_20191219_00004e48cf7e3533f581",
+    "TransactionID": "SBJ7TLTQA2",
+    "ResultParameters": {
+      "ResultParameter": [
+        {
+          "Key": "AccountBalance",
+          "Value": "Working Account|KES|50000.00|50000.00|0.00|0.00&Utility Account|KES|100000.00|100000.00|0.00|0.00"
+        },
+        { "Key": "BOCompletedTime", "Value": "20191219180000" }
+      ]
+    }
+  }
+}
+```
+
+The `AccountBalance` value is a pipe-delimited string with the format: `AccountName|Currency|Available|Actual|Uncleared|0.00` for each account, separated by `&`.
+
+## Full Example
+
+```typescript
+import express from 'express';
+import { createClient } from '@daraja-kit/sdk';
+
+const app = express();
+app.use(express.json());
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const CALLBACK_BASE = process.env.MPESA_CALLBACK_BASE_URL!;
+
+// --- Request Balance ---
+app.get('/api/balance', async (_req, res) => {
+  try {
+    const result = await mpesa.balance({
+      callbackUrl: `${CALLBACK_BASE}/api/balance/callback`,
+    });
+
+    return res.json({
+      success: true,
+      message: 'Balance query submitted. Result will arrive via callback.',
+      conversationId: result.conversationId,
+    });
+  } catch (error) {
+    console.error('Balance query error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to query balance.',
+    });
+  }
+});
+
+// --- Balance Callback Handler ---
+app.post('/api/balance/callback', (req, res) => {
+  const { Result } = req.body;
+
+  if (Result.ResultCode === 0) {
+    const balanceStr = Result.ResultParameters.ResultParameter
+      .find((p: any) => p.Key === 'AccountBalance')?.Value;
+
+    if (balanceStr) {
+      // Parse the pipe-delimited balance string
+      const accounts = balanceStr.split('&').map((acct: string) => {
+        const [name, currency, available, actual] = acct.split('|');
+        return { name, currency, available: parseFloat(available), actual: parseFloat(actual) };
+      });
+
+      console.log('Account balances:', accounts);
+
+      // TODO: Store or display the balance
+    }
+  } else {
+    console.error(`Balance query failed: ${Result.ResultCode} - ${Result.ResultDesc}`);
+  }
+
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+```
+
+## Tips
+
+- **Check before B2C:** Query your balance before processing large B2C disbursement batches to ensure sufficient float.
+- **Sandbox balance:** In sandbox, the balance may return fixed test values.
+- **Account types:** Most shortcodes have a Working Account (for transactions) and a Utility Account.
+
+
+================================================================
+FILE: capabilities/qr-payments.md
+================================================================
+
+# QR Payments
+
+## What
+
+Generate QR codes that customers scan with the M-Pesa app to pay. The QR code pre-fills the payment details (amount, merchant, reference) so the customer just scans and enters their PIN.
+
+## When to Use
+
+Use this when you need to: generate QR codes, enable scan-to-pay, accept in-store payments, create payment links for physical locations, display a payment code on screen, or support offline-first payment initiation.
+
+## Quick Start
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const result = await mpesa.qr({
+  amount: 500,
+  merchantName: 'My Store',
+  reference: 'INV-001',
+});
+
+// result.qrCode is a base64-encoded PNG image
+console.log(result.qrCode);
+```
+
+## How It Works
+
+1. Your server calls `mpesa.qr()` with amount and merchant details.
+2. Daraja generates a QR code containing the payment parameters.
+3. You receive a base64-encoded PNG image of the QR code.
+4. Display the QR code on screen, print it, or embed it in a webpage.
+5. Customer opens M-Pesa app and scans the QR code.
+6. M-Pesa app auto-fills the payment details (amount, merchant, reference).
+7. Customer enters their M-Pesa PIN to authorize.
+8. Payment is processed. Customer and merchant both receive confirmation SMS.
+
+**Note:** QR generation is synchronous -- you get the image back immediately. The actual payment happens later when the customer scans and pays.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `amount` | `number` | Yes | -- | Amount in KES |
+| `merchantName` | `string` | No | `'Merchant'` | Business name displayed to customer |
+| `reference` | `string` | No | `'Payment'` | Account/invoice reference |
+| `type` | `string` | No | `'buygoods'` | QR transaction type (see table below) |
+| `size` | `number` | No | `300` | QR code image size in pixels (width and height) |
+
+### QR Transaction Types
+
+| Type | Description |
+|------|-------------|
+| `'paybill'` | Pay to a PayBill number (customer enters account number) |
+| `'buygoods'` | Pay to a Till Number (Buy Goods) -- most common for retail |
+| `'send_money'` | Send money to a phone number |
+| `'withdraw'` | Withdraw from an M-Pesa agent |
+| `'send_to_business'` | Send to a business number |
+
+## Response
+
+```typescript
+interface QRResult {
+  qrCode: string;          // Base64-encoded PNG image
+  requestId: string;        // Daraja request tracking ID
+  responseCode: string;     // '0' for success
+  responseDescription: string;
+}
+```
+
+## Full Example
+
+Express server that generates and serves QR codes:
+
+```typescript
+import express from 'express';
+import { createClient } from '@daraja-kit/sdk';
+
+const app = express();
+app.use(express.json());
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+// --- Generate QR Code ---
+app.post('/api/qr', async (req, res) => {
+  const { amount, reference, merchantName } = req.body;
+
+  if (!amount) {
+    return res.status(400).json({ error: 'amount is required' });
+  }
+
+  try {
+    const result = await mpesa.qr({
+      amount: Math.round(amount),
+      merchantName: merchantName || 'My Store',
+      reference: reference || `PAY-${Date.now()}`,
+      type: 'buygoods',
+      size: 400,
+    });
+
+    return res.json({
+      success: true,
+      qrCode: result.qrCode,
+    });
+  } catch (error) {
+    console.error('QR generation error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to generate QR code.',
+    });
+  }
+});
+
+// --- Serve QR as image ---
+app.get('/api/qr/image', async (req, res) => {
+  const amount = parseInt(req.query.amount as string) || 100;
+  const reference = (req.query.reference as string) || 'Payment';
+
+  try {
+    const result = await mpesa.qr({
+      amount,
+      merchantName: 'My Store',
+      reference,
+    });
+
+    // Convert base64 to buffer and serve as PNG
+    const buffer = Buffer.from(result.qrCode, 'base64');
+    res.set('Content-Type', 'image/png');
+    res.send(buffer);
+  } catch (error) {
+    console.error('QR image error:', error);
+    res.status(500).send('Failed to generate QR code');
+  }
+});
+
+// --- HTML page with QR code ---
+app.get('/pay', (_req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head><title>Scan to Pay</title></head>
+    <body>
+      <h1>Scan to Pay</h1>
+      <div id="qr-container">
+        <p>Enter amount and click Generate</p>
+        <input type="number" id="amount" placeholder="Amount (KES)" min="1" />
+        <button onclick="generateQR()">Generate QR Code</button>
+      </div>
+      <div id="qr-image"></div>
+      <script>
+        async function generateQR() {
+          const amount = document.getElementById('amount').value;
+          if (!amount) return alert('Enter an amount');
+
+          const res = await fetch('/api/qr', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: parseInt(amount) }),
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            document.getElementById('qr-image').innerHTML =
+              '<img src="data:image/png;base64,' + data.qrCode + '" alt="M-Pesa QR Code" />' +
+              '<p>Scan with M-Pesa app to pay KES ' + amount + '</p>';
+          } else {
+            alert('Failed to generate QR code');
+          }
+        }
+      </script>
+    </body>
+    </html>
+  `);
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+```
+
+## Tips
+
+- **Tracking payments from QR:** QR codes initiate a standard M-Pesa payment to your shortcode/till. If you have C2B confirmation URLs registered, you will receive the payment notification there. You can match by reference.
+- **Print QR codes:** Generate QR codes for fixed amounts and print them for in-store display. Customers scan instead of typing your till number.
+- **Dynamic amounts:** Generate QR codes per transaction/invoice for exact-amount payments.
+- **Size:** Default 300px works for screen display. Use 400-600px for print.
+
+
+================================================================
+FILE: capabilities/business-payments.md
+================================================================
+
+# Business Payments (B2B)
+
+## What
+
+Pay other businesses via M-Pesa. Send money from your business shortcode to another PayBill or Buy Goods (Till) number. Used for supplier payments, inter-business transfers, and wholesale purchases.
+
+## When to Use
+
+Use this when you need to: pay a supplier, transfer to another business, pay a PayBill from your business account, buy goods from a till number using business float, or settle inter-company accounts.
+
+## SDK Status
+
+**Not yet wrapped in the SDK.** B2B is available via the raw Daraja API. The information below covers the direct API endpoint and parameters.
+
+## Quick Start (Raw API)
+
+```typescript
+// B2B is not yet in the SDK. Use the raw Daraja API directly.
+// This example shows the HTTP request structure.
+
+const response = await fetch('https://sandbox.safaricom.co.ke/mpesa/b2b/v1/paymentrequest', {
+  method: 'POST',
+  headers: {
+    'Authorization': `Bearer ${accessToken}`,
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    Initiator: 'testapi',
+    SecurityCredential: securityCredential, // RSA-encrypted initiator password
+    CommandID: 'BusinessPayBill',           // or 'BusinessBuyGoods'
+    SenderIdentifierType: '4',              // 4 = shortcode
+    RecieverIdentifierType: '4',            // 4 = shortcode
+    Amount: 1000,
+    PartyA: '174379',                       // Your shortcode
+    PartyB: '000000',                       // Recipient shortcode/till
+    AccountReference: 'INV-001',
+    Remarks: 'Supplier payment',
+    QueueTimeOutURL: 'https://yourdomain.com/api/b2b/timeout',
+    ResultURL: 'https://yourdomain.com/api/b2b/callback',
+  }),
+});
+```
+
+## API Details
+
+### Endpoint
+
+| Environment | URL |
+|-------------|-----|
+| Sandbox | `https://sandbox.safaricom.co.ke/mpesa/b2b/v1/paymentrequest` |
+| Production | `https://api.safaricom.co.ke/mpesa/b2b/v1/paymentrequest` |
+
+### Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `Initiator` | `string` | Yes | API operator username (sandbox: `testapi`) |
+| `SecurityCredential` | `string` | Yes | RSA-encrypted initiator password using Safaricom's certificate |
+| `CommandID` | `string` | Yes | `BusinessPayBill` or `BusinessBuyGoods` or `MerchantToMerchantTransfer` or `MerchantTransferFromMerchantToWorking` or `MerchantServicesMMFAccountTransfer` or `AgencyFloatAdvance` |
+| `SenderIdentifierType` | `string` | Yes | `4` for shortcode |
+| `RecieverIdentifierType` | `string` | Yes | `4` for shortcode |
+| `Amount` | `number` | Yes | Amount in KES |
+| `PartyA` | `string` | Yes | Your shortcode (sender) |
+| `PartyB` | `string` | Yes | Recipient shortcode or till number |
+| `AccountReference` | `string` | Yes | Account/invoice reference (max 13 chars) |
+| `Remarks` | `string` | Yes | Transaction remarks (max 100 chars) |
+| `QueueTimeOutURL` | `string` | Yes | Callback URL for timeout |
+| `ResultURL` | `string` | Yes | Callback URL for final result |
+
+### CommandID Options
+
+| CommandID | Use Case |
+|-----------|----------|
+| `BusinessPayBill` | Pay to a PayBill number |
+| `BusinessBuyGoods` | Pay to a Till Number (Buy Goods) |
+| `MerchantToMerchantTransfer` | Transfer between merchants |
+| `MerchantTransferFromMerchantToWorking` | Transfer from merchant to working account |
+| `MerchantServicesMMFAccountTransfer` | Transfer MMF account |
+| `AgencyFloatAdvance` | Agency float advance |
+
+## Callback Payload
+
+```json
+{
+  "Result": {
+    "ResultType": 0,
+    "ResultCode": 0,
+    "ResultDesc": "The service request is processed successfully.",
+    "OriginatorConversationID": "16740-34861180-1",
+    "ConversationID": "AG_20191219_00004e48cf7e3533f581",
+    "TransactionID": "SBJ7TLTQA2",
+    "ResultParameters": {
+      "ResultParameter": [
+        { "Key": "DebitAccountBalance", "Value": "Working Account|KES|49000.00" },
+        { "Key": "Amount", "Value": 1000 },
+        { "Key": "DebitPartyAffectedAccountBalance", "Value": "Working Account|KES|49000.00" },
+        { "Key": "TransCompletedTime", "Value": "20191219180000" },
+        { "Key": "DebitPartyCharges", "Value": "0.00" },
+        { "Key": "ReceiverPartyPublicName", "Value": "000000 - Test Merchant" },
+        { "Key": "Currency", "Value": "KES" },
+        { "Key": "InitiatorAccountCurrentBalance", "Value": "Working Account|KES|49000.00" }
+      ]
+    }
+  }
+}
+```
+
+## Full Example
+
+```typescript
+import express from 'express';
+import crypto from 'crypto';
+import fs from 'fs';
+
+const app = express();
+app.use(express.json());
+
+// --- Helper: Get OAuth token ---
+async function getAccessToken(): Promise<string> {
+  const credentials = Buffer.from(
+    `${process.env.DARAJA_CONSUMER_KEY}:${process.env.DARAJA_CONSUMER_SECRET}`
+  ).toString('base64');
+
+  const response = await fetch(
+    'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+    { headers: { Authorization: `Basic ${credentials}` } }
+  );
+
+  const data = await response.json() as { access_token: string };
+  return data.access_token;
+}
+
+// --- Helper: Generate SecurityCredential ---
+function generateSecurityCredential(password: string, certPath: string): string {
+  const cert = fs.readFileSync(certPath, 'utf-8');
+  const encrypted = crypto.publicEncrypt(
+    { key: cert, padding: crypto.constants.RSA_PKCS1_PADDING },
+    Buffer.from(password)
+  );
+  return encrypted.toString('base64');
+}
+
+// --- Initiate B2B Payment ---
+app.post('/api/b2b', async (req, res) => {
+  const { amount, recipient, accountReference, remarks } = req.body;
+
+  try {
+    const accessToken = await getAccessToken();
+    const securityCredential = generateSecurityCredential(
+      'Safaricom999!*!', // sandbox initiator password
+      './certs/SandboxCertificate.cer'
+    );
+
+    const response = await fetch(
+      'https://sandbox.safaricom.co.ke/mpesa/b2b/v1/paymentrequest',
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          Initiator: 'testapi',
+          SecurityCredential: securityCredential,
+          CommandID: 'BusinessPayBill',
+          SenderIdentifierType: '4',
+          RecieverIdentifierType: '4',
+          Amount: amount,
+          PartyA: '174379',
+          PartyB: recipient,
+          AccountReference: accountReference || 'Payment',
+          Remarks: remarks || 'B2B Payment',
+          QueueTimeOutURL: `${process.env.MPESA_CALLBACK_BASE_URL}/api/b2b/timeout`,
+          ResultURL: `${process.env.MPESA_CALLBACK_BASE_URL}/api/b2b/callback`,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    return res.json({ success: true, data });
+  } catch (error) {
+    console.error('B2B error:', error);
+    return res.status(500).json({ success: false, message: 'B2B payment failed' });
+  }
+});
+
+// --- B2B Callback Handler ---
+app.post('/api/b2b/callback', (req, res) => {
+  const { Result } = req.body;
+
+  if (Result.ResultCode === 0) {
+    console.log('B2B payment successful:', Result.TransactionID);
+  } else {
+    console.error(`B2B payment failed: ${Result.ResultCode} - ${Result.ResultDesc}`);
+  }
+
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+app.post('/api/b2b/timeout', (req, res) => {
+  console.error('B2B timeout:', req.body);
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+app.listen(3000, () => console.log('Server running on port 3000'));
+```
+
+## Tips
+
+- **SecurityCredential:** Use the same RSA encryption as B2C. The SDK handles this for B2C/Status/Balance/Reversal, but for B2B you need to generate it manually (for now).
+- **Sandbox shortcodes:** Use `174379` as your sender shortcode in sandbox.
+- **SDK support coming:** B2B will be added to `@daraja-kit/sdk` in a future release.
+
+
+================================================================
+FILE: concepts/authentication.md
+================================================================
+
+# Authentication
+
+Complete reference on Daraja API authentication: OAuth tokens, SecurityCredential encryption, and certificate management.
+
+## Overview
+
+Daraja uses two authentication mechanisms:
+
+1. **OAuth 2.0 Access Tokens** -- required for every API call. Generated from your consumer key and secret.
+2. **SecurityCredential** -- required for B2C, Transaction Status, Account Balance, and Reversal APIs. RSA-encrypted initiator password.
+
+The SDK handles both automatically. This document explains how they work under the hood.
+
+## OAuth 2.0 Access Tokens
+
+### How It Works
+
+1. Combine your consumer key and secret as `key:secret`.
+2. Base64-encode the combined string.
+3. Send a GET request to the token endpoint with `Authorization: Basic <base64>`.
+4. Receive an access token valid for 3599 seconds (approximately 1 hour).
+5. Include the token in all subsequent API calls as `Authorization: Bearer <token>`.
+
+### Token Endpoint
+
+| Environment | URL |
+|-------------|-----|
+| Sandbox | `https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials` |
+| Production | `https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials` |
+
+### Token Lifetime and Caching
+
+- Tokens are valid for **3599 seconds** (just under 1 hour).
+- The SDK caches tokens automatically and refreshes them **60 seconds before expiry**.
+- You never need to manually manage tokens when using the SDK.
+
+### SDK Approach (Automatic)
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+// The SDK handles OAuth automatically.
+// Just provide your consumer key and secret.
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+// Every method call automatically includes a valid Bearer token.
+const result = await mpesa.collect({ amount: 100, phone: '254712345678' });
+```
+
+### Manual Approach
+
+```typescript
+// If you need to get a token manually (e.g., for B2B or custom API calls):
+
+async function getAccessToken(): Promise<string> {
+  const consumerKey = process.env.DARAJA_CONSUMER_KEY!;
+  const consumerSecret = process.env.DARAJA_CONSUMER_SECRET!;
+
+  const credentials = Buffer.from(`${consumerKey}:${consumerSecret}`).toString('base64');
+
+  const response = await fetch(
+    'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials',
+    {
+      method: 'GET',
+      headers: {
+        Authorization: `Basic ${credentials}`,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`OAuth failed: ${response.status} ${response.statusText}`);
+  }
+
+  const data = await response.json() as { access_token: string; expires_in: string };
+  return data.access_token;
+}
+
+// Usage:
+const token = await getAccessToken();
+// Use in API calls: headers: { Authorization: `Bearer ${token}` }
+```
+
+### OAuth Response
+
+```json
+{
+  "access_token": "cXlKc2J2aGRkYXc4ZDhoZWRoYTk4...",
+  "expires_in": "3599"
+}
+```
+
+### Common OAuth Errors
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| HTTP 401 "Invalid Credentials" | Wrong consumer key or secret | Regenerate credentials at developer.safaricom.co.ke |
+| HTTP 400 "Bad Request" | Malformed authorization header | Ensure base64 encoding is correct, format is `key:secret` |
+| HTTP 403 "Access Denied" | App not authorized for this API | Check your app's API subscriptions on the portal |
+
+## SecurityCredential
+
+### What It Is
+
+SecurityCredential is an RSA-encrypted version of your initiator password. It is required by APIs that perform sensitive operations: B2C payments, Transaction Status queries, Account Balance checks, and Reversals.
+
+### How It Works
+
+1. Take your initiator password (a plaintext string).
+2. Load Safaricom's public certificate (PEM format).
+3. RSA-encrypt the password using PKCS#1 v1.5 padding.
+4. Base64-encode the encrypted result.
+5. Send the base64 string as the `SecurityCredential` parameter.
+
+### SDK Approach (Automatic)
+
+```typescript
+// The SDK generates SecurityCredential automatically for all APIs that need it.
+// You don't need to handle encryption or certificates.
+
+const result = await mpesa.send({
+  amount: 500,
+  phone: '254712345678',
+  callbackUrl: 'https://yourdomain.com/api/b2c/callback',
+});
+// SecurityCredential was generated behind the scenes.
+```
+
+### Manual Approach
+
+```typescript
+import crypto from 'crypto';
+import fs from 'fs';
+
+function generateSecurityCredential(password: string, certPath: string): string {
+  const certificate = fs.readFileSync(certPath, 'utf-8');
+
+  const encrypted = crypto.publicEncrypt(
+    {
+      key: certificate,
+      padding: crypto.constants.RSA_PKCS1_PADDING,
+    },
+    Buffer.from(password)
+  );
+
+  return encrypted.toString('base64');
+}
+
+// Usage:
+const credential = generateSecurityCredential(
+  'Safaricom999!*!',              // Initiator password (sandbox default)
+  './certs/SandboxCertificate.cer' // Path to Safaricom's public cert
+);
+```
+
+## Certificates
+
+Safaricom provides two public certificates for SecurityCredential encryption:
+
+| Certificate | Environment | File Name |
+|-------------|-------------|-----------|
+| Sandbox | Sandbox/testing | `SandboxCertificate.cer` |
+| Production | Live/production | `ProductionCertificate.cer` |
+
+**The SDK bundles the sandbox certificate** so you do not need to download or manage it for sandbox testing. For production, you will use the production certificate.
+
+### Where to Get Certificates
+
+- **Sandbox:** Bundled in the SDK. Also available at developer.safaricom.co.ke under your app.
+- **Production:** Provided by Safaricom during the go-live process, or download from the developer portal.
+
+### Common Certificate Errors
+
+| Error | Cause | Fix |
+|-------|-------|-----|
+| "SecurityCredential error" | Using sandbox cert in production or vice versa | Match the certificate to your environment |
+| "error:0906D06C:PEM routines" | Corrupted or wrong format certificate | Re-download the certificate from the portal |
+| "Invalid initiator credentials" (2001) | Wrong initiator password or name | For sandbox: initiator = `testapi`, password = `Safaricom999!*!` |
+
+## Environment Variables
+
+The SDK reads these environment variables:
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `DARAJA_CONSUMER_KEY` | Yes | Your app's consumer key from developer.safaricom.co.ke |
+| `DARAJA_CONSUMER_SECRET` | Yes | Your app's consumer secret from developer.safaricom.co.ke |
+
+### Setting Up
+
+```bash
+# .env file
+DARAJA_CONSUMER_KEY=your_consumer_key_here
+DARAJA_CONSUMER_SECRET=your_consumer_secret_here
+```
+
+```typescript
+// Load environment variables (e.g., with dotenv)
+import 'dotenv/config';
+import { createClient } from '@daraja-kit/sdk';
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+```
+
+### Getting Credentials
+
+1. Go to [developer.safaricom.co.ke](https://developer.safaricom.co.ke).
+2. Sign up or log in.
+3. Create a new app under "My Apps".
+4. Select the APIs you need (Lipa Na M-Pesa, B2C, Transaction Status, etc.).
+5. Copy the Consumer Key and Consumer Secret from the app details page.
+6. For sandbox, credentials work immediately. For production, you need to go through the go-live process.
+
+## Summary
+
+| Mechanism | Used By | SDK Handles It? |
+|-----------|---------|-----------------|
+| OAuth 2.0 Bearer Token | All APIs | Yes -- cached, auto-refreshed |
+| SecurityCredential (RSA) | B2C, Status, Balance, Reversal | Yes -- auto-generated per request |
+| STK Push Password | STK Push (Lipa Na M-Pesa) | Yes -- generated from shortcode + passkey + timestamp |
+
+You should never need to manually handle authentication when using `@daraja-kit/sdk`. The information above is for understanding what happens under the hood and for debugging authentication issues.
+
+
+================================================================
+FILE: concepts/callbacks.md
+================================================================
+
+# Callbacks
+
+Complete reference on Daraja's asynchronous callback pattern: how callbacks work, which APIs need them, how to set them up, and how to handle them securely.
+
+## Why Callbacks
+
+Daraja processes most transactions asynchronously. When you submit a request (B2C payment, reversal, status query, balance check), Daraja accepts it immediately but processes it in the background. When processing completes, Daraja sends the result to a URL you provided -- your callback URL.
+
+Think of it as: "I will call you back when I have the answer."
+
+## Which APIs Need Callbacks
+
+| API | Callback Required? | Alternative |
+|-----|-------------------|-------------|
+| STK Push (collect) | No | SDK polls automatically with `poll: true` (default) |
+| B2C (send) | **Yes** | None -- callback is the only way to get the result |
+| Transaction Status | **Yes** | None |
+| Account Balance | **Yes** | None |
+| Reversal | **Yes** | None |
+| C2B (register URLs) | **Yes** | None -- validation and confirmation URLs are callback URLs |
+| B2B | **Yes** | None |
+
+**STK Push is the exception.** The SDK handles STK Push results via polling, so you do not need a callback URL for `mpesa.collect()`. All other APIs require a callback.
+
+## Callback URL Requirements
+
+Your callback URL must meet these requirements:
+
+| Requirement | Details |
+|-------------|---------|
+| **HTTPS** | Must use HTTPS (not HTTP). Daraja will not call HTTP URLs. |
+| **Valid SSL certificate** | Must have a valid, non-expired SSL certificate. Self-signed certificates will not work. |
+| **Publicly reachable** | Must be accessible from the internet. Daraja's servers need to reach your URL. |
+| **No IP addresses** | Use a domain name, not an IP address (e.g., `https://api.yoursite.com`, not `https://1.2.3.4`). |
+| **Returns HTTP 200** | Must return a 200 status code. Daraja may retry if it receives an error status. |
+| **Responds quickly** | Process the callback and respond within a few seconds. Do heavy processing asynchronously. |
+
+## Local Development
+
+During development, your localhost is not reachable from the internet. Use a tunneling tool to expose your local server.
+
+### ngrok (Recommended)
+
+```bash
+# Install ngrok
+brew install ngrok     # macOS
+# or download from https://ngrok.com
+
+# Start your Express server
+node server.js         # listening on port 3000
+
+# In another terminal, start ngrok
+ngrok http 3000
+```
+
+ngrok gives you a public HTTPS URL like `https://abc123.ngrok-free.app`. Use this as your callback base URL:
+
+```bash
+# .env
+MPESA_CALLBACK_BASE_URL=https://abc123.ngrok-free.app
+```
+
+```typescript
+const result = await mpesa.send({
+  amount: 100,
+  phone: '254712345678',
+  callbackUrl: `${process.env.MPESA_CALLBACK_BASE_URL}/api/b2c/callback`,
+});
+```
+
+**Note:** The ngrok URL changes every time you restart ngrok (unless you have a paid plan with a fixed domain). Update your `.env` accordingly.
+
+### cloudflared (Alternative)
+
+```bash
+# Install cloudflared
+brew install cloudflared
+
+# Expose port 3000
+cloudflared tunnel --url http://localhost:3000
+```
+
+This gives you a URL like `https://random-words.trycloudflare.com`. Use it the same way as ngrok.
+
+## Callback Response Format
+
+When Daraja calls your URL, you MUST respond with this JSON body:
+
+```json
+{
+  "ResultCode": 0,
+  "ResultDesc": "Accepted"
+}
+```
+
+This tells Daraja you received the callback. If you do not respond correctly, Daraja may retry the callback or mark your URL as unresponsive.
+
+## Callback Payload Structure
+
+All Daraja callbacks follow a similar structure:
+
+```json
+{
+  "Result": {
+    "ResultType": 0,
+    "ResultCode": 0,
+    "ResultDesc": "The service request is processed successfully.",
+    "OriginatorConversationID": "16740-34861180-1",
+    "ConversationID": "AG_20191219_00004e48cf7e3533f581",
+    "TransactionID": "SBJ7TLTQA2",
+    "ResultParameters": {
+      "ResultParameter": [
+        { "Key": "SomeKey", "Value": "SomeValue" },
+        { "Key": "AnotherKey", "Value": 12345 }
+      ]
+    }
+  }
+}
+```
+
+- **ResultCode 0** means success. Any other code means failure.
+- **ResultParameters** contains the transaction-specific data as key-value pairs.
+- The specific keys in ResultParameters vary by API (see each capability's documentation).
+
+## Security
+
+Daraja does NOT sign callbacks. There is no built-in way to verify that a callback genuinely came from Safaricom. You should implement your own security measures:
+
+### 1. IP Whitelisting
+
+Restrict your callback endpoints to only accept requests from Safaricom's IP ranges. Known Safaricom API IPs include:
+
+```typescript
+const SAFARICOM_IPS = [
+  '196.201.214.200',
+  '196.201.214.206',
+  '196.201.213.114',
+  '196.201.214.207',
+  '196.201.214.208',
+  '196.201.213.44',
+  '196.201.212.127',
+  '196.201.212.138',
+  '196.201.212.129',
+  '196.201.212.136',
+  '196.201.212.74',
+  '196.201.212.69',
+];
+
+function isSafaricomIP(ip: string): boolean {
+  // Handle proxied requests (X-Forwarded-For)
+  return SAFARICOM_IPS.includes(ip);
+}
+```
+
+**Important:** These IPs may change. Verify current IPs with Safaricom or check your callback logs.
+
+### 2. Request Validation
+
+Validate the structure and content of callbacks:
+
+```typescript
+function validateCallback(body: any): boolean {
+  // Check required fields exist
+  if (!body?.Result) return false;
+  if (typeof body.Result.ResultCode !== 'number') return false;
+  if (!body.Result.ConversationID) return false;
+
+  // Check ConversationID matches one you initiated
+  // (requires storing conversation IDs when you make requests)
+  return true;
+}
+```
+
+### 3. Idempotency
+
+Daraja may send the same callback more than once (retries). Protect against duplicate processing:
+
+```typescript
+const processedCallbacks = new Set<string>();
+
+function handleCallback(body: any) {
+  const conversationId = body.Result.ConversationID;
+
+  // Skip if already processed
+  if (processedCallbacks.has(conversationId)) {
+    console.log(`Duplicate callback ignored: ${conversationId}`);
+    return;
+  }
+
+  processedCallbacks.add(conversationId);
+
+  // Process the callback...
+  // In production, use a database instead of an in-memory Set
+}
+```
+
+## Complete Express Callback Handler
+
+```typescript
+import express from 'express';
+
+const app = express();
+app.use(express.json());
+
+// --- Middleware: IP Whitelist (optional but recommended) ---
+const SAFARICOM_IPS = [
+  '196.201.214.200', '196.201.214.206', '196.201.213.114',
+  '196.201.214.207', '196.201.214.208', '196.201.213.44',
+  '196.201.212.127', '196.201.212.138', '196.201.212.129',
+  '196.201.212.136', '196.201.212.74', '196.201.212.69',
+];
+
+function safaricomOnly(req: express.Request, res: express.Response, next: express.NextFunction) {
+  const clientIP = req.ip || req.socket.remoteAddress || '';
+  const forwardedFor = req.headers['x-forwarded-for'] as string || '';
+  const sourceIP = forwardedFor.split(',')[0].trim() || clientIP;
+
+  // In development, allow all IPs
+  if (process.env.NODE_ENV === 'development') return next();
+
+  if (!SAFARICOM_IPS.includes(sourceIP)) {
+    console.warn(`Blocked callback from non-Safaricom IP: ${sourceIP}`);
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+
+  next();
+}
+
+// --- B2C Callback ---
+app.post('/api/b2c/callback', safaricomOnly, (req, res) => {
+  const { Result } = req.body;
+
+  console.log('B2C Result:', JSON.stringify(Result, null, 2));
+
+  if (Result.ResultCode === 0) {
+    const params = Result.ResultParameters.ResultParameter;
+    const receipt = params.find((p: any) => p.Key === 'TransactionReceipt')?.Value;
+    const amount = params.find((p: any) => p.Key === 'TransactionAmount')?.Value;
+
+    // TODO: Update your database
+    console.log(`B2C success: KES ${amount}, receipt ${receipt}`);
+  } else {
+    console.error(`B2C failed: ${Result.ResultCode} - ${Result.ResultDesc}`);
+  }
+
+  // Always respond to Daraja
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+// --- Reversal Callback ---
+app.post('/api/reversal/callback', safaricomOnly, (req, res) => {
+  const { Result } = req.body;
+
+  console.log('Reversal Result:', JSON.stringify(Result, null, 2));
+
+  if (Result.ResultCode === 0) {
+    console.log('Reversal successful:', Result.TransactionID);
+  } else {
+    console.error(`Reversal failed: ${Result.ResultCode} - ${Result.ResultDesc}`);
+  }
+
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+// --- Status Callback ---
+app.post('/api/status/callback', safaricomOnly, (req, res) => {
+  const { Result } = req.body;
+
+  console.log('Status Result:', JSON.stringify(Result, null, 2));
+
+  // Process status result...
+
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+// --- Balance Callback ---
+app.post('/api/balance/callback', safaricomOnly, (req, res) => {
+  const { Result } = req.body;
+
+  console.log('Balance Result:', JSON.stringify(Result, null, 2));
+
+  // Process balance result...
+
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+// --- Generic Timeout Handler ---
+app.post('/api/timeout', safaricomOnly, (req, res) => {
+  console.warn('Daraja timeout:', JSON.stringify(req.body, null, 2));
+
+  // TODO: Queue for retry or manual review
+
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+app.listen(3000, () => console.log('Callback server running on port 3000'));
+```
+
+## Debugging Callbacks
+
+If callbacks never arrive:
+
+1. **Check your URL is reachable.** Open it in a browser or curl it from another machine.
+2. **Check HTTPS.** Daraja requires HTTPS with a valid SSL cert.
+3. **Check ngrok is running.** If using ngrok, ensure the tunnel is active.
+4. **Check your server logs.** Look for incoming POST requests.
+5. **Check firewall rules.** Ensure your server allows inbound HTTPS from Safaricom IPs.
+6. **Check Daraja response.** The initial API response includes `responseCode: '0'` if the request was accepted. If you get an error here, the callback was never scheduled.
+7. **Sandbox behavior.** Sandbox callbacks can be delayed or occasionally not delivered. Retry the request.
+
+
+================================================================
+FILE: concepts/environments.md
+================================================================
+
+# Environments
+
+Daraja has two environments: Sandbox (for testing) and Production (for live transactions). This document covers the differences and how to configure each.
+
+## Comparison
+
+| Aspect | Sandbox | Production |
+|--------|---------|------------|
+| **Base URL** | `https://sandbox.safaricom.co.ke` | `https://api.safaricom.co.ke` |
+| **Credentials** | From portal sandbox app | Received via email after go-live |
+| **Certificate** | `SandboxCertificate.cer` | `ProductionCertificate.cer` |
+| **STK Push Shortcode** | `174379` | Your production shortcode |
+| **STK Push Passkey** | Fixed sandbox passkey | Your production passkey (emailed) |
+| **Test Phone** | `254708374149` | Real phone numbers |
+| **Real Money** | No -- transactions are simulated | Yes -- real M-Pesa charges |
+| **C2B Shortcode** | `600000` (sandbox) | Your registered PayBill/Till |
+| **B2C Shortcode** | `600000` (sandbox) | Your production shortcode |
+| **Initiator Name** | `testapi` | Your production initiator |
+| **Initiator Password** | `Safaricom999!*!` | Your production initiator password |
+
+## Sandbox
+
+The sandbox is a testing environment that simulates M-Pesa transactions without moving real money.
+
+### Key Details
+
+- **Base URL:** `https://sandbox.safaricom.co.ke`
+- **Test phone number:** `254708374149` -- STK Push to this number always succeeds in sandbox.
+- **Default shortcode:** `174379` for STK Push. `600000` for C2B and B2C.
+- **Behavior:** Transactions are simulated. No real money moves. The test phone does not receive actual STK prompts.
+- **Reliability:** Sandbox can be intermittently slow or return inconsistent results. This is a known issue. Implement retries in your test suite.
+
+### Getting Sandbox Credentials
+
+1. Go to [developer.safaricom.co.ke](https://developer.safaricom.co.ke).
+2. Sign up or log in.
+3. Click "Add a New App" under My Apps.
+4. Give your app a name and select the APIs you need.
+5. The Consumer Key and Consumer Secret are shown on the app details page.
+
+### Sandbox Configuration
+
+```bash
+# .env for sandbox
+DARAJA_CONSUMER_KEY=your_sandbox_consumer_key
+DARAJA_CONSUMER_SECRET=your_sandbox_consumer_secret
+```
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+// Sandbox is the default -- no extra configuration needed
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+```
+
+### Sandbox Test Values
+
+| Parameter | Value |
+|-----------|-------|
+| STK Push Shortcode | `174379` |
+| STK Push Passkey | `bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919` |
+| Initiator Name | `testapi` |
+| Initiator Password | `Safaricom999!*!` |
+| Test Phone | `254708374149` |
+| C2B Shortcode | `600000` |
+| B2C Shortcode | `600000` |
+
+## Production
+
+Production processes real M-Pesa transactions with real money.
+
+### Key Details
+
+- **Base URL:** `https://api.safaricom.co.ke`
+- **Real phone numbers:** STK Push goes to actual phones. Real money moves.
+- **Your shortcode:** Use your registered PayBill or Till Number.
+- **Reliability:** Production is significantly more reliable than sandbox.
+
+### Getting Production Credentials
+
+Production credentials are not available on the developer portal. You receive them via email after completing the go-live process. See [Going Live](going-live.md).
+
+You will receive:
+- Production Consumer Key and Consumer Secret
+- Production passkey (for STK Push)
+- Initiator name and password (for B2C, Status, Balance, Reversal)
+
+### Production Configuration
+
+```bash
+# .env for production
+DARAJA_CONSUMER_KEY=your_production_consumer_key
+DARAJA_CONSUMER_SECRET=your_production_consumer_secret
+```
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+// For production, specify env: 'production'
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+  // env: 'production',  // Uncomment for production
+});
+```
+
+## Behavior Differences
+
+Some things work differently between sandbox and production:
+
+| Behavior | Sandbox | Production |
+|----------|---------|------------|
+| STK Push prompt | Not displayed on phone (simulated) | Customer sees real prompt on phone |
+| Transaction speed | Can be slow or delayed | Usually completes in 5-30 seconds |
+| Error responses | May return inconsistent errors | Consistent error codes |
+| Callbacks | May be delayed or missing | Reliable delivery |
+| Transaction limits | No enforced limits | M-Pesa limits apply (min KES 1, max KES 150,000 per STK) |
+| Phone validation | `254708374149` always works | Must be a real, registered M-Pesa number |
+
+## Switching Between Environments
+
+Use environment variables to switch without code changes:
+
+```bash
+# .env.sandbox
+DARAJA_CONSUMER_KEY=sandbox_key
+DARAJA_CONSUMER_SECRET=sandbox_secret
+NODE_ENV=development
+
+# .env.production
+DARAJA_CONSUMER_KEY=production_key
+DARAJA_CONSUMER_SECRET=production_secret
+NODE_ENV=production
+```
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+  // env: process.env.NODE_ENV === 'production' ? 'production' : 'sandbox',
+});
+```
+
+## Tips
+
+- **Always test in sandbox first.** Get your integration working end-to-end in sandbox before going live.
+- **Sandbox is flaky.** If you get unexpected errors in sandbox, retry. Do not assume your code is broken just because sandbox returns an error.
+- **Production verification:** After going live, test with small amounts (KES 1-10) to verify everything works before processing real customer payments.
+- **Separate apps:** Create separate Daraja apps for sandbox and production. Do not reuse the same credentials.
+
+
+================================================================
+FILE: concepts/going-live.md
+================================================================
+
+# Going Live
+
+Complete guide to moving your Daraja integration from sandbox to production.
+
+## Prerequisites
+
+Before you can go live, you need:
+
+1. **A registered business** in Kenya (sole proprietorship, partnership, or company).
+2. **An M-Pesa shortcode** (PayBill number) or **Till Number** (Buy Goods). Apply through Safaricom Business if you do not have one.
+3. **A working sandbox integration** that you have tested end-to-end.
+4. **Callback URLs** hosted on a publicly reachable HTTPS server with a valid SSL certificate.
+
+## Steps
+
+### 1. Create a Production App on the Developer Portal
+
+1. Log in to [developer.safaricom.co.ke](https://developer.safaricom.co.ke).
+2. Go to "My Apps" and click "Add a New App".
+3. Name the app (e.g., "MyApp Production").
+4. Select the APIs you need (same ones you tested in sandbox).
+5. Note: This production app will not have usable credentials yet. Credentials are sent separately after the go-live letter is processed.
+
+### 2. Submit the Go-Live Letter
+
+Send an email to **m-pesabusiness@safaricom.co.ke** with your go-live request.
+
+**Subject:** Go-Live Request - [Your Company Name] - [Your Shortcode]
+
+**What to include in the letter:**
+
+| Item | Details |
+|------|---------|
+| Company name | Your registered business name |
+| Business registration number | Certificate of incorporation number |
+| Shortcode or Till Number | Your M-Pesa PayBill or Till Number |
+| APIs needed | List all APIs: Lipa Na M-Pesa (STK Push), B2C, Transaction Status, Account Balance, Reversal, etc. |
+| Callback URLs | Production callback URLs for each API |
+| Contact person | Name, phone number, and email of the technical contact |
+| Developer portal email | The email used to create the production app |
+
+**Sample go-live letter:**
+
+```
+Dear M-Pesa Business Team,
+
+We are requesting production API credentials for our Daraja integration.
+
+Company Name: Acme Solutions Limited
+Registration Number: CPR/2020/123456
+Shortcode: 123456 (PayBill)
+
+APIs Required:
+- Lipa Na M-Pesa Online (STK Push)
+- B2C Payment
+- Transaction Status Query
+- Account Balance Query
+- Reversal
+
+Callback URLs:
+- STK Push: https://api.acme.co.ke/mpesa/stk/callback
+- B2C: https://api.acme.co.ke/mpesa/b2c/callback
+- Status: https://api.acme.co.ke/mpesa/status/callback
+- Balance: https://api.acme.co.ke/mpesa/balance/callback
+- Reversal: https://api.acme.co.ke/mpesa/reversal/callback
+
+Technical Contact:
+Name: John Doe
+Phone: +254712345678
+Email: john@acme.co.ke
+
+Developer Portal Email: dev@acme.co.ke
+
+We have completed sandbox testing and are ready for production.
+
+Regards,
+John Doe
+Acme Solutions Limited
+```
+
+### 3. Wait for Processing
+
+Safaricom typically processes go-live requests in **1-3 business days**. During peak periods, it may take longer.
+
+You will receive an email with:
+- Production Consumer Key and Consumer Secret
+- Production passkey (for STK Push)
+- Initiator credentials (name and password, for B2C/Status/Balance/Reversal)
+
+### 4. Update Your Configuration
+
+Once you receive production credentials, update your environment:
+
+```bash
+# .env.production
+DARAJA_CONSUMER_KEY=your_production_consumer_key
+DARAJA_CONSUMER_SECRET=your_production_consumer_secret
+
+# These are used internally by the SDK for the correct shortcode and passkey:
+# DARAJA_SHORTCODE=your_production_shortcode
+# DARAJA_PASSKEY=your_production_passkey
+# DARAJA_INITIATOR_NAME=your_production_initiator
+# DARAJA_INITIATOR_PASSWORD=your_production_initiator_password
+```
+
+### Config Changes Summary
+
+| Setting | Sandbox Value | Production Value |
+|---------|--------------|------------------|
+| Environment | `sandbox` | `production` |
+| Consumer Key | Sandbox key from portal | Production key from email |
+| Consumer Secret | Sandbox secret from portal | Production secret from email |
+| Certificate | `SandboxCertificate.cer` | `ProductionCertificate.cer` |
+| Shortcode | `174379` (STK), `600000` (B2C/C2B) | Your real shortcode |
+| Passkey | Sandbox passkey | Production passkey from email |
+| Initiator | `testapi` | Your production initiator name |
+| Initiator Password | `Safaricom999!*!` | Your production initiator password |
+| Base URL | `sandbox.safaricom.co.ke` | `api.safaricom.co.ke` |
+
+## IP Whitelisting
+
+Safaricom may require you to whitelist specific server IPs for production access. If so:
+
+- Provide the static IP addresses of your production servers.
+- If using a cloud provider (AWS, GCP, Railway, etc.), use a static/elastic IP.
+- IP whitelisting is typically required for B2C and other sensitive APIs.
+
+## Post-Go-Live Testing
+
+After updating to production credentials:
+
+1. **Test with small amounts first.** Send a KES 1 STK Push to your own phone.
+2. **Verify callbacks arrive.** Confirm your production callback URLs receive results.
+3. **Test each API.** Do not assume all APIs work just because one does.
+4. **Monitor error rates.** Watch for unexpected errors in the first few hours.
+5. **Keep sandbox credentials.** Do not delete your sandbox app -- you will need it for future development and testing.
+
+## Common Go-Live Issues
+
+| Issue | Fix |
+|-------|-----|
+| Still hitting sandbox URL | Verify your `env` config is set to `production` |
+| "Invalid credentials" after switching | Double-check you are using production (not sandbox) credentials |
+| B2C fails with security credential error | Ensure you are using `ProductionCertificate.cer`, not sandbox cert |
+| STK Push shows wrong merchant name | Merchant name comes from your registered shortcode, not from API params |
+| Callbacks not arriving | Verify production callback URLs are reachable, HTTPS, and correct |
+| "IP not whitelisted" errors | Contact Safaricom to whitelist your production server IPs |
+
+## Timeline
+
+| Step | Duration |
+|------|----------|
+| Sandbox development and testing | Depends on your project |
+| Submit go-live letter | 5 minutes |
+| Safaricom processing | 1-3 business days |
+| Update config and test | 1-2 hours |
+| **Total go-live process** | **2-4 business days** |
+
+
+================================================================
+FILE: errors/error-codes.md
+================================================================
+
+# Error Codes
+
+Complete Daraja error code reference. Every known error code with its API context, meaning, cause, and fix.
+
+## Result Codes (Transaction-Level)
+
+These codes appear in `ResultCode` (callback responses) or `errorCode` (SDK collect results).
+
+| Code | API | Meaning | Cause | Fix |
+|------|-----|---------|-------|-----|
+| 0 | All | Success | Transaction completed successfully | No action needed |
+| 1 | All | Insufficient funds | Customer or business does not have enough M-Pesa balance | For STK Push: prompt customer to top up. For B2C: top up your business float. |
+| 03 | STK Push | Amount below minimum | Amount is less than the minimum allowed (KES 1 for most APIs) | Increase amount to at least KES 1 |
+| 04 | STK Push | Amount above maximum | Amount exceeds per-transaction limit (KES 150,000 for STK Push) | Reduce amount or split into multiple transactions |
+| 05 | STK Push | Transaction timeout | Transaction took too long to process on Daraja's side | Retry the transaction. If persistent, wait a few minutes. |
+| 06 | STK Push | Confirmation failed | M-Pesa could not confirm the transaction | Retry. Check that the phone number is valid and registered. |
+| 08 | STK Push | Daily transaction limit | Customer has exceeded their daily M-Pesa transaction limit | Customer must wait until the next day or use a different payment method |
+| 09 | STK Push | Store number not found | The shortcode or till number is not recognized | Verify your shortcode is correct and active |
+| 10 | STK Push | Not registered on M-Pesa | The phone number is not registered for M-Pesa | Customer must register for M-Pesa first |
+| 11 | All | System error | Internal Daraja system error | Retry after a short delay. If persistent, contact Safaricom support. |
+| 12 | STK Push | Details mismatch | Transaction details do not match (e.g., wrong shortcode/passkey combination) | Verify your shortcode, passkey, and other parameters are correct |
+| 29 | All | System downtime | Daraja is undergoing maintenance or experiencing an outage | Retry after a few minutes. Check Safaricom status page. |
+| 30 | STK Push | Missing reference | AccountReference parameter is missing or empty | Provide a non-empty `reference` parameter |
+| 31 | STK Push | Invalid amount | Amount is not a valid number or is zero | Ensure amount is a positive integer |
+| 32 | STK Push | Service not activated | The API or feature is not activated for your shortcode | Contact Safaricom to activate the API on your shortcode |
+| 33 | STK Push | Service not approved | Your go-live request has not been approved yet | Wait for go-live approval or contact Safaricom |
+| 34 | STK Push | Processing delay | Transaction is being processed but is delayed | Wait and check status later. Do not retry immediately. |
+| 35 | STK Push | Duplicate transaction | A transaction with the same parameters was just processed | Wait at least 30 seconds before retrying the same phone + amount combination |
+| 36 | STK Push | Incorrect credentials | Wrong passkey or shortcode | Verify your passkey and shortcode match your environment |
+| 40 | STK Push | Missing parameters | Required parameters are missing from the request | Check all required fields are provided |
+| 41 | STK Push | Invalid MSISDN | Phone number format is invalid | Use format `254XXXXXXXXX` (12 digits, starting with 254) |
+| 42 | STK Push | Passkey/paybill issue | Passkey does not match the shortcode | Ensure the passkey corresponds to your shortcode. For sandbox use the sandbox passkey. |
+| 43 | STK Push | Duplicate merchant transaction | Your system sent a duplicate `MerchantRequestID` | Generate a unique MerchantRequestID per request (SDK handles this) |
+| 99 | STK Push | No transaction found | STK Query could not find the transaction | Transaction may have expired. The STK prompt was likely not completed within 60 seconds. |
+| 1001 | STK Push | USSD session in progress | Customer has an active USSD session (*334# or similar) blocking the STK prompt | Ask customer to cancel any active USSD dialogs and wait 2-3 minutes before retrying |
+| 1025 | STK Push | STK delivery failed | STK prompt could not be delivered to the phone. Often caused by `description` exceeding 13 characters. | Shorten `description` to 13 characters or fewer. Retry. |
+| 1032 | STK Push | Request cancelled by user | Customer dismissed the STK prompt or pressed Cancel | Prompt customer to retry. Add UX: "Payment cancelled. Tap Pay to try again." |
+| 1037 | STK Push | DS timeout (phone unreachable) | Phone is off, in airplane mode, has no signal, or eSIM issue (common on iOS) | Ask customer to check phone is on and has signal. Restarting fixes eSIM issues. Retry. |
+| 2001 | B2C, Status, Balance, Reversal | Invalid initiator credentials | Initiator name or password is wrong, or SecurityCredential is invalid | Verify initiator name and password. For sandbox: `testapi` / `Safaricom999!*!`. Ensure correct certificate. |
+| 9999 | STK Push | STK delivery failed | Same as 1025 -- description/reference too long or temporary Daraja issue | Shorten `description` and `reference`. Retry once. |
+
+## HTTP-Level Errors
+
+These are HTTP status codes returned by the Daraja API endpoint itself (before any transaction is processed).
+
+| HTTP Code | Meaning | Cause | Fix |
+|-----------|---------|-------|-----|
+| 400 | Bad Request | Malformed request body, missing required fields, or invalid JSON | Validate your request payload. Check all required fields are present and correctly typed. |
+| 401 | Unauthorized | Invalid or expired access token, or invalid Basic auth credentials | Regenerate your OAuth token. If using Basic auth for token generation, verify consumer key/secret. |
+| 403 | Forbidden | App not authorized for this API, or IP not whitelisted | Check API subscriptions on the portal. For production, verify IP whitelisting with Safaricom. |
+| 404 | Not Found | Wrong API endpoint URL | Verify you are using the correct URL. Check environment (sandbox vs production). |
+| 429 | Too Many Requests | Rate limit exceeded | Implement exponential backoff. Daraja rate limits vary by API. Wait and retry. |
+| 500 | Internal Server Error | Daraja internal error | Retry after a short delay. If persistent, Daraja may be experiencing issues. |
+| 503 | Service Unavailable | Daraja is down or overloaded | Retry after a few minutes. Check for scheduled maintenance. |
+
+## STK Push Specific: ResultCode vs ResponseCode
+
+STK Push has two different code fields:
+
+- **ResponseCode** (in the initial STK Push response): `0` means the request was accepted and the STK prompt will be sent. Non-zero means the request itself failed.
+- **ResultCode** (in the STK Query/callback result): `0` means the payment succeeded. Non-zero means the payment failed (see result codes table above).
+
+```typescript
+// ResponseCode is in the immediate response:
+// { ResponseCode: "0", ResponseDescription: "Success. Request accepted for processing" }
+
+// ResultCode is in the polling/callback result:
+// { ResultCode: "0", ResultDesc: "The service request is processed successfully." }
+// { ResultCode: "1032", ResultDesc: "Request cancelled by user" }
+```
+
+## Error Handling Best Practices
+
+1. **Always check the result code**, not just the HTTP status. A 200 HTTP response can contain a failed transaction.
+2. **Map error codes to user-friendly messages.** Do not show raw error codes to customers.
+3. **Implement retries for transient errors** (11, 29, 34, 05, HTTP 500/503). Use exponential backoff.
+4. **Do not retry user-driven failures** (1032 cancelled, 1 insufficient funds). These require user action.
+5. **Log all error codes.** Some errors (like 35 duplicate) indicate issues in your retry logic.
+6. **Handle unknown codes gracefully.** Daraja may return codes not documented here. Default to a generic "please try again" message.
+
+
+================================================================
+FILE: errors/troubleshooting.md
+================================================================
+
+# Troubleshooting
+
+Decision trees for common Daraja integration issues. Start with the symptom, follow the path to the fix.
+
+---
+
+## STK Push Returns 1032 (User Cancelled)
+
+**Symptom:** `mpesa.collect()` returns `{ status: 'failed', errorCode: '1032' }`.
+
+**What happened:** The customer saw the STK Push prompt on their phone and either pressed Cancel or dismissed it.
+
+**Fix:**
+1. This is normal user behavior, not a bug.
+2. Show a friendly message: "Payment cancelled. Tap Pay to try again."
+3. Allow the user to re-initiate payment.
+4. Do not auto-retry -- the user intentionally cancelled.
+
+**If it happens frequently:**
+- Ensure your merchant name and amount are clear on the prompt.
+- Check that the amount matches what the user expects.
+- Consider adding a confirmation step before initiating STK Push.
+
+---
+
+## STK Push Returns 1037 (Phone Unreachable)
+
+**Symptom:** `mpesa.collect()` returns `{ status: 'failed', errorCode: '1037' }`.
+
+**What happened:** Daraja could not deliver the STK prompt to the customer's phone.
+
+**Common causes:**
+- Phone is powered off
+- Phone is in airplane mode
+- No cellular signal
+- iOS eSIM issue (common with newer iPhones)
+- Phone number is not registered on M-Pesa
+
+**Fix:**
+1. Ask the customer: "We couldn't reach your phone. Please check it's on and has signal."
+2. **For iOS users specifically:** Restarting the phone often resolves eSIM connectivity issues with M-Pesa.
+3. Wait 10-30 seconds, then offer to retry.
+4. If it persists, the phone may genuinely be off or out of range.
+
+---
+
+## STK Push Never Completes (Stays Pending)
+
+**Symptom:** `mpesa.collect()` returns `{ status: 'pending' }` after the full timeout period.
+
+**What happened:** The STK prompt was sent but the customer never acted on it, or a USSD session is blocking it.
+
+**Common causes:**
+- Customer did not see the prompt (phone was locked, app in foreground)
+- Active USSD session is blocking the STK prompt (error 1001)
+- Customer is ignoring the prompt
+- Sandbox flakiness
+
+**Fix:**
+1. Ask the customer to check their phone for an M-Pesa prompt.
+2. If they have an active USSD session (`*334#` or similar), ask them to cancel it.
+3. Wait 2-3 minutes for the USSD session to time out naturally.
+4. Retry the payment.
+5. Increase `pollTimeout` if you want to wait longer (e.g., 90000ms).
+
+---
+
+## B2C Fails with SecurityCredential Error
+
+**Symptom:** `mpesa.send()` throws an error about SecurityCredential, or the API returns error 2001.
+
+**What happened:** The RSA-encrypted initiator password is invalid.
+
+**Check these in order:**
+
+1. **Wrong certificate for environment?**
+   - Sandbox must use `SandboxCertificate.cer`
+   - Production must use `ProductionCertificate.cer`
+   - The SDK selects the correct cert automatically based on environment.
+
+2. **Wrong initiator password?**
+   - Sandbox: password is `Safaricom999!*!`
+   - Production: use the password Safaricom emailed you during go-live
+
+3. **Wrong initiator name?**
+   - Sandbox: initiator is `testapi`
+   - Production: use the initiator name from your go-live credentials
+
+4. **Corrupted certificate file?**
+   - Re-download the certificate from the developer portal.
+   - Ensure the file is not truncated or modified.
+
+---
+
+## OAuth Returns 401 or 403
+
+**Symptom:** Token generation fails with HTTP 401 (Unauthorized) or 403 (Forbidden).
+
+**For 401 (Invalid Credentials):**
+1. Verify your consumer key and secret are correct. Copy-paste from the portal to avoid typos.
+2. Check you are using the right credentials for the right environment (sandbox vs production).
+3. Regenerate credentials on the developer portal and try again.
+4. Ensure there are no extra spaces or newlines in your environment variables.
+
+**For 403 (Access Denied):**
+1. Check that your app has the required APIs enabled on the developer portal.
+2. Go to My Apps, select your app, and verify the API checkboxes.
+3. For production: your go-live approval may not cover all APIs you need. Contact Safaricom.
+
+---
+
+## Callbacks Never Arrive
+
+**Symptom:** You initiate a B2C, Status, Balance, or Reversal request successfully (get `responseCode: '0'`), but the callback never hits your server.
+
+**Check these in order:**
+
+1. **Is your server running?**
+   - Check that your Express (or other) server is actually listening on the expected port.
+
+2. **Is the URL reachable from the internet?**
+   - Test: `curl -X POST https://your-callback-url.com/api/b2c/callback -d '{}'`
+   - If using ngrok: is the ngrok tunnel still active? The URL changes on restart.
+
+3. **Is it HTTPS?**
+   - Daraja requires HTTPS. HTTP URLs will be silently ignored.
+
+4. **Is the SSL certificate valid?**
+   - Self-signed certs will not work. Use Let's Encrypt or a real CA.
+
+5. **Is there a firewall blocking inbound requests?**
+   - Check cloud provider security groups, firewall rules, or WAF settings.
+   - Safaricom IPs must be able to reach your server.
+
+6. **Are you returning the correct response?**
+   - Your endpoint must return `{ ResultCode: 0, ResultDesc: "Accepted" }`.
+   - If you return an error, Daraja may stop sending callbacks.
+
+7. **Sandbox-specific:**
+   - Sandbox callbacks can be delayed by minutes or occasionally not delivered at all.
+   - This is a known sandbox limitation. Test again.
+
+---
+
+## Amount Too Low or Too High
+
+**Symptom:** Error codes 03 (below minimum) or 04 (above maximum).
+
+**Limits:**
+
+| API | Minimum | Maximum |
+|-----|---------|---------|
+| STK Push | KES 1 | KES 150,000 |
+| B2C | KES 10 (sandbox) | KES 150,000 |
+| B2B | Varies | Varies by agreement |
+
+**Fix:**
+1. Ensure `amount` is at least 1 (or 10 for B2C sandbox).
+2. For large amounts, split into multiple transactions.
+3. Production limits may differ from sandbox. Verify with Safaricom for your specific shortcode.
+
+---
+
+## Duplicate Transaction Error (Code 35)
+
+**Symptom:** Error code 35 when retrying a payment.
+
+**What happened:** You sent the same phone + amount combination too quickly. Daraja rejects it to prevent accidental double-charges.
+
+**Fix:**
+1. Wait at least 30 seconds before retrying the same phone + amount.
+2. If intentionally charging the same amount twice, change the `reference` to make it unique.
+3. Implement a cooldown in your UI to prevent rapid re-clicks of the Pay button.
+
+```typescript
+// Simple deduplication
+const recentRequests = new Map<string, number>();
+
+function canInitiatePayment(phone: string, amount: number): boolean {
+  const key = `${phone}:${amount}`;
+  const lastTime = recentRequests.get(key) || 0;
+  const now = Date.now();
+
+  if (now - lastTime < 30000) {
+    return false; // Too soon -- wait 30 seconds
+  }
+
+  recentRequests.set(key, now);
+  return true;
+}
+```
+
+---
+
+## Sandbox Returns Inconsistent Results
+
+**Symptom:** Same request sometimes succeeds, sometimes fails, or returns unexpected data in sandbox.
+
+**This is a known issue.** Safaricom's sandbox environment is not as stable as production. Common manifestations:
+- Callbacks arrive late or not at all
+- STK Push returns random errors
+- Token generation is slow
+- B2C returns different result structures
+
+**Fix:**
+1. Implement retries with exponential backoff in your test code.
+2. Do not treat sandbox failures as bugs in your code unless you can reproduce them consistently.
+3. Test critical flows multiple times to distinguish real bugs from sandbox flakiness.
+4. When in doubt, verify your code is correct, then move to production testing with small amounts.
+
+---
+
+## "Invalid Access Token" After It Was Working
+
+**Symptom:** API calls that were working suddenly return 401.
+
+**What happened:** Your access token expired. Tokens last 3599 seconds (about 1 hour).
+
+**Fix:**
+- If using the SDK, this should not happen -- the SDK auto-refreshes tokens.
+- If making raw API calls, implement token caching with refresh:
+
+```typescript
+let cachedToken: { token: string; expiresAt: number } | null = null;
+
+async function getToken(): Promise<string> {
+  const now = Date.now();
+
+  // Refresh 60 seconds before expiry
+  if (cachedToken && cachedToken.expiresAt > now + 60000) {
+    return cachedToken.token;
+  }
+
+  const token = await fetchNewToken(); // Your OAuth call
+  cachedToken = {
+    token,
+    expiresAt: now + 3599 * 1000,
+  };
+
+  return token;
+}
+```
+
+---
+
+## Quick Reference: Error to Action
+
+| Symptom | Most Likely Cause | First Action |
+|---------|-------------------|--------------|
+| 1032 | User cancelled | Show retry button |
+| 1037 | Phone unreachable | Ask user to check phone, restart if iOS |
+| 1001 | USSD session active | Wait 2-3 min, retry |
+| 1025/9999 | Description too long | Shorten to 13 chars |
+| 2001 | Wrong initiator credentials | Check cert + password + initiator name |
+| 401 | Bad consumer key/secret | Regenerate on portal |
+| 403 | API not enabled | Enable API on portal |
+| No callback | URL not reachable | Test URL with curl, check ngrok |
+| 35 | Duplicate transaction | Wait 30s before retry |
+| 11/29 | Daraja system issue | Retry with backoff |
+| pending | Prompt not acted on | Ask user to check phone |
+
+
+================================================================
+FILE: patterns/donation-page.md
+================================================================
+
+# Pattern: Donation Page
+
+Accept donations via M-Pesa STK Push. Visitor enters amount and phone number, receives an STK prompt, enters PIN, and sees a confirmation.
+
+## User Flow
+
+1. Visitor lands on donation page.
+2. Enters donation amount and phone number.
+3. Clicks "Donate".
+4. Receives STK Push prompt on their phone.
+5. Enters M-Pesa PIN to authorize.
+6. Page updates to show "Thank you, donation received."
+7. If payment fails, page shows the reason and a retry button.
+
+## Complete Code
+
+### Server (server.ts)
+
+```typescript
+import express from 'express';
+import path from 'path';
+import { createClient } from '@daraja-kit/sdk';
+
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+// --- Donation API ---
+app.post('/api/donate', async (req, res) => {
+  const { amount, phone, name } = req.body;
+
+  // Validate
+  if (!amount || !phone) {
+    return res.status(400).json({
+      success: false,
+      message: 'Amount and phone number are required.',
+    });
+  }
+
+  if (amount < 1) {
+    return res.status(400).json({
+      success: false,
+      message: 'Minimum donation is KES 1.',
+    });
+  }
+
+  // Normalize phone: 0712... -> 254712..., +254712... -> 254712...
+  const normalizedPhone = phone
+    .replace(/\s+/g, '')
+    .replace(/^0/, '254')
+    .replace(/^\+/, '');
+
+  if (!/^254\d{9}$/.test(normalizedPhone)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid phone number. Use format 0712345678 or 254712345678.',
+    });
+  }
+
+  try {
+    const result = await mpesa.collect({
+      amount: Math.round(amount),
+      phone: normalizedPhone,
+      reference: 'Donation',
+      description: 'Donation',
+      pollTimeout: 70000, // Wait up to 70 seconds
+    });
+
+    switch (result.status) {
+      case 'success':
+        // TODO: Save donation to database
+        console.log(`Donation received: KES ${result.amount} from ${normalizedPhone} (${name || 'Anonymous'}). Receipt: ${result.transactionId}`);
+
+        return res.json({
+          success: true,
+          message: `Thank you! Your donation of KES ${result.amount} has been received.`,
+          transactionId: result.transactionId,
+        });
+
+      case 'failed':
+        return res.json({
+          success: false,
+          message: getDonationErrorMessage(result.errorCode),
+          errorCode: result.errorCode,
+        });
+
+      case 'pending':
+        return res.json({
+          success: false,
+          message: 'Payment is still processing. Please check your M-Pesa messages for confirmation.',
+        });
+    }
+  } catch (error) {
+    console.error('Donation error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Something went wrong. Please try again in a moment.',
+    });
+  }
+});
+
+function getDonationErrorMessage(errorCode?: string): string {
+  switch (errorCode) {
+    case '1032':
+      return 'You cancelled the payment. Click Donate to try again.';
+    case '1037':
+      return 'We could not reach your phone. Please check it is on and has signal, then try again.';
+    case '1001':
+      return 'Your phone has an active M-Pesa session. Please wait 2 minutes and try again.';
+    case '1':
+      return 'Insufficient M-Pesa balance. Please top up and try again.';
+    case '1025':
+    case '9999':
+      return 'Could not send the payment prompt. Please try again.';
+    default:
+      return 'Payment failed. Please try again.';
+  }
+}
+
+app.listen(3000, () => console.log('Donation server running on http://localhost:3000'));
+```
+
+### Frontend (public/index.html)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Donate via M-Pesa</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 480px; margin: 40px auto; background: white; border-radius: 12px; padding: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    p.subtitle { color: #666; margin-bottom: 24px; }
+    label { display: block; font-weight: 600; margin-bottom: 4px; margin-top: 16px; }
+    input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; }
+    input:focus { outline: none; border-color: #4CAF50; }
+    .amounts { display: flex; gap: 8px; margin-top: 8px; }
+    .amounts button { flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-size: 14px; }
+    .amounts button:hover { background: #f0f0f0; }
+    .amounts button.selected { background: #4CAF50; color: white; border-color: #4CAF50; }
+    .donate-btn { width: 100%; padding: 14px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; margin-top: 24px; }
+    .donate-btn:hover { background: #43A047; }
+    .donate-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .status { margin-top: 16px; padding: 12px; border-radius: 8px; display: none; }
+    .status.loading { display: block; background: #FFF3E0; color: #E65100; }
+    .status.success { display: block; background: #E8F5E9; color: #2E7D32; }
+    .status.error { display: block; background: #FFEBEE; color: #C62828; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Support Our Cause</h1>
+    <p class="subtitle">Make a donation via M-Pesa. Quick, safe, and secure.</p>
+
+    <label for="name">Your Name (optional)</label>
+    <input type="text" id="name" placeholder="Anonymous" />
+
+    <label for="amount">Donation Amount (KES)</label>
+    <input type="number" id="amount" placeholder="Enter amount" min="1" />
+    <div class="amounts">
+      <button onclick="setAmount(100)">100</button>
+      <button onclick="setAmount(500)">500</button>
+      <button onclick="setAmount(1000)">1,000</button>
+      <button onclick="setAmount(5000)">5,000</button>
+    </div>
+
+    <label for="phone">M-Pesa Phone Number</label>
+    <input type="tel" id="phone" placeholder="0712345678" />
+
+    <button class="donate-btn" id="donateBtn" onclick="donate()">Donate via M-Pesa</button>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <script>
+    function setAmount(value) {
+      document.getElementById('amount').value = value;
+      document.querySelectorAll('.amounts button').forEach(btn => {
+        btn.classList.toggle('selected', parseInt(btn.textContent.replace(',', '')) === value);
+      });
+    }
+
+    async function donate() {
+      const name = document.getElementById('name').value;
+      const amount = parseInt(document.getElementById('amount').value);
+      const phone = document.getElementById('phone').value;
+      const btn = document.getElementById('donateBtn');
+      const status = document.getElementById('status');
+
+      if (!amount || amount < 1) {
+        showStatus('Please enter a valid amount.', 'error');
+        return;
+      }
+      if (!phone) {
+        showStatus('Please enter your M-Pesa phone number.', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      showStatus('Sending M-Pesa prompt to your phone. Please enter your PIN when prompted.', 'loading');
+
+      try {
+        const res = await fetch('/api/donate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount, phone, name }),
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          showStatus(data.message + (data.transactionId ? ' Receipt: ' + data.transactionId : ''), 'success');
+          btn.textContent = 'Thank You!';
+        } else {
+          showStatus(data.message, 'error');
+          btn.disabled = false;
+          btn.textContent = 'Donate via M-Pesa';
+        }
+      } catch (err) {
+        showStatus('Network error. Please check your connection and try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Donate via M-Pesa';
+      }
+    }
+
+    function showStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = 'status ' + type;
+    }
+  </script>
+</body>
+</html>
+```
+
+## Error Handling Summary
+
+| Error Code | User Sees | UX Action |
+|------------|-----------|-----------|
+| 1032 | "You cancelled the payment..." | Show Donate button again |
+| 1037 | "We could not reach your phone..." | Suggest checking phone, show retry |
+| 1001 | "Your phone has an active session..." | Ask to wait 2 min, show retry |
+| 1 | "Insufficient M-Pesa balance..." | Show retry |
+| Timeout | "Payment is still processing..." | Ask to check M-Pesa messages |
+| Unknown | "Payment failed. Please try again." | Show retry |
+
+## Production Considerations
+
+1. **Store donations in a database.** Log every donation with: amount, phone, name, transaction ID, timestamp, status.
+2. **Send receipts.** After a successful donation, send an SMS or email receipt to the donor.
+3. **Idempotency.** Use the M-Pesa transaction ID as a unique key to prevent duplicate donation records from retries.
+4. **Analytics.** Track donation conversion rates, average amounts, and failure reasons to optimize the experience.
+5. **Tax receipts.** If your organization issues tax-deductible receipts, generate them automatically from the donation record.
+6. **Minimum amount.** Consider setting a minimum donation (e.g., KES 10) to avoid trivial amounts.
+7. **Thank you page.** Redirect to a proper thank-you page after success, not just an inline message.
+
+
+================================================================
+FILE: patterns/ecommerce-checkout.md
+================================================================
+
+# Pattern: E-Commerce Checkout
+
+Integrate M-Pesa STK Push into a product checkout flow. Customer browses products, adds to cart, enters phone at checkout, and pays via M-Pesa.
+
+## User Flow
+
+1. Customer browses products and adds items to cart.
+2. Customer proceeds to checkout.
+3. Checkout page shows order summary and asks for M-Pesa phone number.
+4. Customer enters phone and clicks "Pay with M-Pesa".
+5. Customer receives STK Push prompt, enters PIN.
+6. Page updates to show "Order confirmed" with order number.
+7. If payment fails, customer sees the reason and can retry.
+
+## Complete Code
+
+### Server (server.ts)
+
+```typescript
+import express from 'express';
+import path from 'path';
+import crypto from 'crypto';
+import { createClient } from '@daraja-kit/sdk';
+
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+// --- In-memory store (use a real database in production) ---
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+}
+
+interface Order {
+  id: string;
+  items: { productId: string; quantity: number; price: number }[];
+  total: number;
+  phone: string;
+  status: 'pending' | 'paid' | 'failed';
+  transactionId?: string;
+  createdAt: Date;
+}
+
+const products: Product[] = [
+  { id: 'p1', name: 'Basic T-Shirt', price: 1500 },
+  { id: 'p2', name: 'Denim Jeans', price: 3500 },
+  { id: 'p3', name: 'Sneakers', price: 5000 },
+  { id: 'p4', name: 'Baseball Cap', price: 800 },
+];
+
+const orders = new Map<string, Order>();
+
+// --- Products API ---
+app.get('/api/products', (_req, res) => {
+  res.json(products);
+});
+
+// --- Create Order and Pay ---
+app.post('/api/checkout', async (req, res) => {
+  const { items, phone } = req.body;
+
+  // Validate input
+  if (!items || !Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ success: false, message: 'Cart is empty.' });
+  }
+  if (!phone) {
+    return res.status(400).json({ success: false, message: 'Phone number is required.' });
+  }
+
+  // Normalize phone
+  const normalizedPhone = phone.replace(/\s+/g, '').replace(/^0/, '254').replace(/^\+/, '');
+  if (!/^254\d{9}$/.test(normalizedPhone)) {
+    return res.status(400).json({ success: false, message: 'Invalid phone number format.' });
+  }
+
+  // Calculate order total
+  const orderItems = items.map((item: { productId: string; quantity: number }) => {
+    const product = products.find(p => p.id === item.productId);
+    if (!product) throw new Error(`Product ${item.productId} not found`);
+    return {
+      productId: item.productId,
+      quantity: item.quantity,
+      price: product.price,
+    };
+  });
+
+  const total = orderItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+  // Create order
+  const orderId = `ORD-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+  const order: Order = {
+    id: orderId,
+    items: orderItems,
+    total,
+    phone: normalizedPhone,
+    status: 'pending',
+    createdAt: new Date(),
+  };
+  orders.set(orderId, order);
+
+  // Initiate M-Pesa payment
+  try {
+    const result = await mpesa.collect({
+      amount: total,
+      phone: normalizedPhone,
+      reference: orderId,
+      description: 'Order Payment',
+      pollTimeout: 70000,
+    });
+
+    switch (result.status) {
+      case 'success':
+        order.status = 'paid';
+        order.transactionId = result.transactionId;
+        orders.set(orderId, order);
+
+        console.log(`Order ${orderId} paid. Receipt: ${result.transactionId}`);
+
+        return res.json({
+          success: true,
+          message: 'Payment received. Your order is confirmed!',
+          orderId,
+          transactionId: result.transactionId,
+          total,
+        });
+
+      case 'failed':
+        order.status = 'failed';
+        orders.set(orderId, order);
+
+        return res.json({
+          success: false,
+          message: getCheckoutErrorMessage(result.errorCode),
+          orderId,
+          errorCode: result.errorCode,
+        });
+
+      case 'pending':
+        // Payment still processing -- keep order as pending
+        return res.json({
+          success: false,
+          message: 'Payment is still processing. Check your M-Pesa messages and refresh this page.',
+          orderId,
+        });
+    }
+  } catch (error) {
+    console.error(`Checkout error for order ${orderId}:`, error);
+    order.status = 'failed';
+    orders.set(orderId, order);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Payment service is temporarily unavailable. Please try again.',
+      orderId,
+    });
+  }
+});
+
+// --- Check Order Status ---
+app.get('/api/orders/:orderId', (req, res) => {
+  const order = orders.get(req.params.orderId);
+  if (!order) {
+    return res.status(404).json({ success: false, message: 'Order not found.' });
+  }
+  return res.json({ success: true, order });
+});
+
+// --- Retry Payment for Failed Order ---
+app.post('/api/orders/:orderId/retry', async (req, res) => {
+  const order = orders.get(req.params.orderId);
+  if (!order) {
+    return res.status(404).json({ success: false, message: 'Order not found.' });
+  }
+  if (order.status === 'paid') {
+    return res.json({ success: true, message: 'Order is already paid.' });
+  }
+
+  const phone = req.body.phone
+    ? req.body.phone.replace(/\s+/g, '').replace(/^0/, '254').replace(/^\+/, '')
+    : order.phone;
+
+  try {
+    order.status = 'pending';
+    orders.set(order.id, order);
+
+    const result = await mpesa.collect({
+      amount: order.total,
+      phone,
+      reference: order.id,
+      description: 'Order Payment',
+      pollTimeout: 70000,
+    });
+
+    if (result.status === 'success') {
+      order.status = 'paid';
+      order.transactionId = result.transactionId;
+      orders.set(order.id, order);
+
+      return res.json({
+        success: true,
+        message: 'Payment received. Your order is confirmed!',
+        orderId: order.id,
+        transactionId: result.transactionId,
+      });
+    }
+
+    order.status = 'failed';
+    orders.set(order.id, order);
+
+    return res.json({
+      success: false,
+      message: getCheckoutErrorMessage(result.errorCode),
+    });
+  } catch (error) {
+    console.error(`Retry error for order ${order.id}:`, error);
+    order.status = 'failed';
+    orders.set(order.id, order);
+
+    return res.status(500).json({
+      success: false,
+      message: 'Payment failed. Please try again.',
+    });
+  }
+});
+
+function getCheckoutErrorMessage(errorCode?: string): string {
+  switch (errorCode) {
+    case '1032':
+      return 'You cancelled the payment. Click Pay to try again.';
+    case '1037':
+      return 'Could not reach your phone. Check it is on and has signal, then retry.';
+    case '1001':
+      return 'Your phone has an active M-Pesa session. Wait 2 minutes and retry.';
+    case '1':
+      return 'Insufficient M-Pesa balance. Top up and try again.';
+    default:
+      return 'Payment failed. Please try again.';
+  }
+}
+
+app.listen(3000, () => console.log('E-commerce server running on http://localhost:3000'));
+```
+
+### Frontend (public/index.html)
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop - Pay with M-Pesa</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
+    .container { max-width: 800px; margin: 0 auto; }
+    h1 { margin-bottom: 24px; }
+    .products { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; margin-bottom: 32px; }
+    .product { background: white; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .product h3 { margin-bottom: 8px; }
+    .product .price { font-size: 18px; font-weight: 600; color: #4CAF50; }
+    .product button { margin-top: 12px; padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .cart { background: white; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 16px; }
+    .cart h2 { margin-bottom: 16px; }
+    .cart-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+    .cart-total { font-size: 20px; font-weight: 700; margin-top: 12px; text-align: right; }
+    .checkout { background: white; border-radius: 8px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .checkout input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; margin: 8px 0 16px; }
+    .pay-btn { width: 100%; padding: 14px; background: #4CAF50; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: 600; cursor: pointer; }
+    .pay-btn:disabled { background: #ccc; cursor: not-allowed; }
+    .status { margin-top: 16px; padding: 12px; border-radius: 8px; display: none; }
+    .status.loading { display: block; background: #FFF3E0; color: #E65100; }
+    .status.success { display: block; background: #E8F5E9; color: #2E7D32; }
+    .status.error { display: block; background: #FFEBEE; color: #C62828; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Shop</h1>
+    <div class="products" id="products"></div>
+
+    <div class="cart" id="cartSection" style="display:none">
+      <h2>Your Cart</h2>
+      <div id="cartItems"></div>
+      <div class="cart-total">Total: KES <span id="cartTotal">0</span></div>
+    </div>
+
+    <div class="checkout" id="checkoutSection" style="display:none">
+      <h2>Pay with M-Pesa</h2>
+      <label for="phone">M-Pesa Phone Number</label>
+      <input type="tel" id="phone" placeholder="0712345678" />
+      <button class="pay-btn" id="payBtn" onclick="checkout()">Pay with M-Pesa</button>
+      <div class="status" id="status"></div>
+    </div>
+  </div>
+
+  <script>
+    let products = [];
+    const cart = {};
+
+    async function loadProducts() {
+      const res = await fetch('/api/products');
+      products = await res.json();
+      const container = document.getElementById('products');
+      container.innerHTML = products.map(p =>
+        '<div class="product">' +
+        '<h3>' + p.name + '</h3>' +
+        '<div class="price">KES ' + p.price.toLocaleString() + '</div>' +
+        '<button onclick="addToCart(\'' + p.id + '\')">Add to Cart</button>' +
+        '</div>'
+      ).join('');
+    }
+
+    function addToCart(productId) {
+      cart[productId] = (cart[productId] || 0) + 1;
+      renderCart();
+    }
+
+    function renderCart() {
+      const items = Object.entries(cart);
+      if (items.length === 0) {
+        document.getElementById('cartSection').style.display = 'none';
+        document.getElementById('checkoutSection').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('cartSection').style.display = 'block';
+      document.getElementById('checkoutSection').style.display = 'block';
+
+      let total = 0;
+      const html = items.map(([productId, qty]) => {
+        const product = products.find(p => p.id === productId);
+        const subtotal = product.price * qty;
+        total += subtotal;
+        return '<div class="cart-item"><span>' + product.name + ' x' + qty + '</span><span>KES ' + subtotal.toLocaleString() + '</span></div>';
+      }).join('');
+
+      document.getElementById('cartItems').innerHTML = html;
+      document.getElementById('cartTotal').textContent = total.toLocaleString();
+    }
+
+    async function checkout() {
+      const phone = document.getElementById('phone').value;
+      const btn = document.getElementById('payBtn');
+
+      if (!phone) {
+        showStatus('Enter your M-Pesa phone number.', 'error');
+        return;
+      }
+
+      const items = Object.entries(cart).map(([productId, quantity]) => ({ productId, quantity }));
+
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+      showStatus('Sending M-Pesa prompt to your phone. Enter your PIN when prompted.', 'loading');
+
+      try {
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ items, phone }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          showStatus('Order confirmed! Order: ' + data.orderId + '. Receipt: ' + data.transactionId, 'success');
+          btn.textContent = 'Order Placed';
+          // Clear cart
+          Object.keys(cart).forEach(k => delete cart[k]);
+        } else {
+          showStatus(data.message, 'error');
+          btn.disabled = false;
+          btn.textContent = 'Pay with M-Pesa';
+        }
+      } catch (err) {
+        showStatus('Network error. Please try again.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Pay with M-Pesa';
+      }
+    }
+
+    function showStatus(message, type) {
+      const el = document.getElementById('status');
+      el.textContent = message;
+      el.className = 'status ' + type;
+    }
+
+    loadProducts();
+  </script>
+</body>
+</html>
+```
+
+## Order Management
+
+The example above uses in-memory storage. In production, you need:
+
+### Order Status Flow
+
+```
+pending  -->  paid     (payment succeeded)
+pending  -->  failed   (payment failed or cancelled)
+failed   -->  pending  (customer retries)
+paid     -->  refunded (you issue a reversal)
+```
+
+### Database Schema (conceptual)
+
+```sql
+CREATE TABLE orders (
+  id TEXT PRIMARY KEY,          -- 'ORD-A1B2C3D4'
+  total INTEGER NOT NULL,       -- amount in KES
+  phone TEXT NOT NULL,          -- '254712345678'
+  status TEXT NOT NULL,         -- 'pending', 'paid', 'failed', 'refunded'
+  transaction_id TEXT,          -- M-Pesa receipt number
+  created_at TIMESTAMP,
+  paid_at TIMESTAMP
+);
+
+CREATE TABLE order_items (
+  order_id TEXT REFERENCES orders(id),
+  product_id TEXT NOT NULL,
+  quantity INTEGER NOT NULL,
+  price INTEGER NOT NULL        -- price at time of purchase
+);
+```
+
+### Linking Payments to Orders
+
+The `reference` parameter in `mpesa.collect()` is set to the order ID. This lets you:
+- Match M-Pesa transaction receipts to orders in your database.
+- Look up order details from the M-Pesa SMS the customer receives.
+- Use `mpesa.status()` to verify a payment against a specific order later.
+
+## Production Considerations
+
+1. **Database persistence.** Replace in-memory maps with a real database (PostgreSQL, MongoDB, etc.).
+2. **Inventory management.** Check stock before accepting payment. Reserve items during payment processing.
+3. **Order expiry.** Expire pending orders after a timeout (e.g., 30 minutes) and release reserved stock.
+4. **Email/SMS confirmation.** Send order confirmation after successful payment.
+5. **Refunds.** Use `mpesa.reverse()` to process refunds. Track refund status in your order table.
+6. **Concurrency.** Handle concurrent purchases of the same item. Use database transactions for stock management.
+
+
+================================================================
+FILE: patterns/subscription-billing.md
+================================================================
+
+# Pattern: Subscription Billing
+
+Implement recurring M-Pesa payments for subscriptions, memberships, or monthly services.
+
+## The Challenge
+
+M-Pesa does not have native subscription or recurring payment support. You cannot set up automatic monthly debits from a customer's M-Pesa wallet. Every payment requires the customer to actively enter their PIN.
+
+## The Approach
+
+1. Store subscriber details: phone number, plan, billing date, status.
+2. Run a scheduled job (cron) on each subscriber's billing date.
+3. The job calls `mpesa.collect()` to send an STK Push to the subscriber's phone.
+4. If the subscriber enters their PIN, the payment is collected.
+5. If the payment fails (cancelled, phone off, insufficient funds), implement retry logic.
+6. After max retries, mark the subscription as lapsed and notify the subscriber.
+
+## Complete Code
+
+### Subscriber Management (server.ts)
+
+```typescript
+import express from 'express';
+import { createClient } from '@daraja-kit/sdk';
+
+const app = express();
+app.use(express.json());
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+// --- Types ---
+interface Subscriber {
+  id: string;
+  phone: string;
+  plan: 'basic' | 'premium';
+  amount: number;
+  status: 'active' | 'past_due' | 'lapsed' | 'cancelled';
+  nextBillingDate: Date;
+  retryCount: number;
+  lastPaymentDate?: Date;
+  lastTransactionId?: string;
+}
+
+// --- In-memory store (use a database in production) ---
+const subscribers = new Map<string, Subscriber>();
+
+const PLANS: Record<string, number> = {
+  basic: 500,
+  premium: 1500,
+};
+
+const MAX_RETRIES = 3;
+const RETRY_INTERVALS_HOURS = [1, 6, 24]; // Retry after 1h, 6h, 24h
+
+// --- Subscribe Endpoint ---
+app.post('/api/subscribe', async (req, res) => {
+  const { phone, plan } = req.body;
+
+  if (!phone || !plan) {
+    return res.status(400).json({ success: false, message: 'Phone and plan are required.' });
+  }
+
+  const normalizedPhone = phone.replace(/\s+/g, '').replace(/^0/, '254').replace(/^\+/, '');
+  const amount = PLANS[plan];
+
+  if (!amount) {
+    return res.status(400).json({ success: false, message: 'Invalid plan. Choose basic or premium.' });
+  }
+
+  // Collect first payment immediately
+  try {
+    const result = await mpesa.collect({
+      amount,
+      phone: normalizedPhone,
+      reference: `SUB-${plan.toUpperCase()}`,
+      description: 'Subscription',
+      pollTimeout: 70000,
+    });
+
+    if (result.status === 'success') {
+      const id = `sub_${Date.now()}`;
+      const nextBilling = new Date();
+      nextBilling.setMonth(nextBilling.getMonth() + 1);
+
+      const subscriber: Subscriber = {
+        id,
+        phone: normalizedPhone,
+        plan: plan as 'basic' | 'premium',
+        amount,
+        status: 'active',
+        nextBillingDate: nextBilling,
+        retryCount: 0,
+        lastPaymentDate: new Date(),
+        lastTransactionId: result.transactionId,
+      };
+
+      subscribers.set(id, subscriber);
+
+      return res.json({
+        success: true,
+        message: `Subscribed to ${plan} plan. Next billing: ${nextBilling.toDateString()}.`,
+        subscriberId: id,
+        transactionId: result.transactionId,
+      });
+    }
+
+    return res.json({
+      success: false,
+      message: `Payment failed: ${result.errorMessage || 'Unknown error'}. Subscription not created.`,
+    });
+  } catch (error) {
+    console.error('Subscription payment error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Payment service unavailable. Try again later.',
+    });
+  }
+});
+
+// --- Cancel Subscription ---
+app.post('/api/subscribe/:id/cancel', (req, res) => {
+  const subscriber = subscribers.get(req.params.id);
+  if (!subscriber) {
+    return res.status(404).json({ success: false, message: 'Subscriber not found.' });
+  }
+
+  subscriber.status = 'cancelled';
+  subscribers.set(subscriber.id, subscriber);
+
+  return res.json({
+    success: true,
+    message: 'Subscription cancelled. You will not be billed again.',
+  });
+});
+
+// --- Get Subscriber Info ---
+app.get('/api/subscribe/:id', (req, res) => {
+  const subscriber = subscribers.get(req.params.id);
+  if (!subscriber) {
+    return res.status(404).json({ success: false, message: 'Subscriber not found.' });
+  }
+  return res.json({ success: true, subscriber });
+});
+
+app.listen(3000, () => console.log('Subscription server running on port 3000'));
+```
+
+### Billing Job (billing.ts)
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+// In production, replace with your database queries
+import { subscribers } from './store'; // Shared subscriber store
+
+const MAX_RETRIES = 3;
+
+/**
+ * Process billing for all subscribers due today.
+ * Run this function daily via cron (e.g., node-cron, Railway cron, or system crontab).
+ */
+export async function processBilling(): Promise<void> {
+  const now = new Date();
+  const dueSubscribers: Array<{ id: string; phone: string; plan: string; amount: number }> = [];
+
+  // Find subscribers due for billing
+  for (const [id, subscriber] of subscribers.entries()) {
+    if (subscriber.status === 'cancelled') continue;
+    if (subscriber.status === 'lapsed') continue;
+    if (subscriber.nextBillingDate > now) continue;
+
+    dueSubscribers.push({
+      id,
+      phone: subscriber.phone,
+      plan: subscriber.plan,
+      amount: subscriber.amount,
+    });
+  }
+
+  console.log(`Billing run: ${dueSubscribers.length} subscribers due.`);
+
+  // Process each subscriber sequentially to avoid rate limits
+  for (const sub of dueSubscribers) {
+    await billSubscriber(sub.id);
+  }
+}
+
+async function billSubscriber(subscriberId: string): Promise<void> {
+  const subscriber = subscribers.get(subscriberId);
+  if (!subscriber) return;
+
+  console.log(`Billing ${subscriberId}: KES ${subscriber.amount} to ${subscriber.phone}`);
+
+  try {
+    const result = await mpesa.collect({
+      amount: subscriber.amount,
+      phone: subscriber.phone,
+      reference: `SUB-${subscriber.plan.toUpperCase()}`,
+      description: 'Subscription',
+      pollTimeout: 70000,
+    });
+
+    if (result.status === 'success') {
+      // Payment succeeded -- renew subscription
+      const nextBilling = new Date();
+      nextBilling.setMonth(nextBilling.getMonth() + 1);
+
+      subscriber.status = 'active';
+      subscriber.nextBillingDate = nextBilling;
+      subscriber.retryCount = 0;
+      subscriber.lastPaymentDate = new Date();
+      subscriber.lastTransactionId = result.transactionId;
+      subscribers.set(subscriberId, subscriber);
+
+      console.log(`  Success: ${result.transactionId}. Next billing: ${nextBilling.toDateString()}`);
+
+      // TODO: Send confirmation SMS/email to subscriber
+    } else {
+      // Payment failed -- schedule retry or lapse
+      handleBillingFailure(subscriberId, result.errorCode);
+    }
+  } catch (error) {
+    console.error(`  Error billing ${subscriberId}:`, error);
+    handleBillingFailure(subscriberId, 'unknown');
+  }
+}
+
+function handleBillingFailure(subscriberId: string, errorCode?: string): void {
+  const subscriber = subscribers.get(subscriberId);
+  if (!subscriber) return;
+
+  subscriber.retryCount += 1;
+
+  if (subscriber.retryCount >= MAX_RETRIES) {
+    // Max retries reached -- lapse the subscription
+    subscriber.status = 'lapsed';
+    subscribers.set(subscriberId, subscriber);
+
+    console.log(`  Lapsed: ${subscriberId} after ${MAX_RETRIES} failed attempts.`);
+
+    // TODO: Send "subscription lapsed" notification to subscriber
+    // TODO: Disable access to subscription features
+  } else {
+    // Schedule retry
+    subscriber.status = 'past_due';
+    subscribers.set(subscriberId, subscriber);
+
+    console.log(`  Failed (${errorCode}). Retry ${subscriber.retryCount}/${MAX_RETRIES}.`);
+
+    // TODO: Send "payment failed, please ensure M-Pesa is funded" SMS to subscriber
+  }
+}
+```
+
+### Scheduling with node-cron
+
+```typescript
+import cron from 'node-cron';
+import { processBilling } from './billing';
+
+// Run billing every day at 9:00 AM EAT (6:00 AM UTC)
+cron.schedule('0 6 * * *', async () => {
+  console.log('Starting daily billing run...');
+  await processBilling();
+  console.log('Billing run complete.');
+});
+
+// Also run retry billing at 3:00 PM EAT (12:00 PM UTC) for past_due subscribers
+cron.schedule('0 12 * * *', async () => {
+  console.log('Starting retry billing run...');
+  await processBilling(); // processBilling naturally picks up past_due subscribers
+  console.log('Retry billing run complete.');
+});
+```
+
+## Retry Strategy
+
+| Attempt | Timing | Action on Failure |
+|---------|--------|-------------------|
+| 1st (initial) | Billing date, 9 AM | Mark as past_due. Send "payment failed" SMS. |
+| 2nd (retry 1) | Same day, 3 PM | Send "please fund your M-Pesa" SMS. |
+| 3rd (retry 2) | Next day, 9 AM | Last attempt. Send "subscription will lapse" SMS. |
+| After 3rd | -- | Mark as lapsed. Disable access. Send "subscription expired" SMS. |
+
+## Reactivation
+
+Allow lapsed subscribers to reactivate by paying again:
+
+```typescript
+app.post('/api/subscribe/:id/reactivate', async (req, res) => {
+  const subscriber = subscribers.get(req.params.id);
+  if (!subscriber) {
+    return res.status(404).json({ success: false, message: 'Subscriber not found.' });
+  }
+
+  if (subscriber.status !== 'lapsed' && subscriber.status !== 'cancelled') {
+    return res.json({ success: false, message: 'Subscription is already active.' });
+  }
+
+  try {
+    const result = await mpesa.collect({
+      amount: subscriber.amount,
+      phone: subscriber.phone,
+      reference: `SUB-${subscriber.plan.toUpperCase()}`,
+      description: 'Subscription',
+      pollTimeout: 70000,
+    });
+
+    if (result.status === 'success') {
+      const nextBilling = new Date();
+      nextBilling.setMonth(nextBilling.getMonth() + 1);
+
+      subscriber.status = 'active';
+      subscriber.nextBillingDate = nextBilling;
+      subscriber.retryCount = 0;
+      subscriber.lastPaymentDate = new Date();
+      subscriber.lastTransactionId = result.transactionId;
+      subscribers.set(subscriber.id, subscriber);
+
+      return res.json({
+        success: true,
+        message: `Subscription reactivated! Next billing: ${nextBilling.toDateString()}.`,
+      });
+    }
+
+    return res.json({
+      success: false,
+      message: `Payment failed. ${result.errorMessage || 'Please try again.'}`,
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: 'Payment service unavailable.' });
+  }
+});
+```
+
+## Production Considerations
+
+1. **Database.** Store subscribers in a real database. The in-memory store above is for demonstration only.
+2. **Notifications.** Send SMS (Africa's Talking, Twilio) or email at each billing event: success, failure, retry, lapse.
+3. **Grace period.** Consider giving a 3-7 day grace period after first failure before disabling access.
+4. **Billing time.** Bill in the morning (9 AM local time) when customers are likely to have their phone on and funded.
+5. **Rate limiting.** Process subscribers sequentially with short delays between calls to avoid Daraja rate limits.
+6. **Idempotency.** Track billing attempts in your database. If the billing job crashes mid-run, it should not double-charge on restart.
+7. **Plan changes.** Allow customers to upgrade/downgrade. Prorate the difference or apply the new amount at the next billing cycle.
+8. **Receipts.** Keep a complete payment history per subscriber for accounting and support.
+
+
+================================================================
+FILE: patterns/b2c-disbursement.md
+================================================================
+
+# Pattern: B2C Disbursement
+
+Send money to multiple recipients in batch. Used for salary payments, refunds, promotional payouts, and any scenario where you need to disburse funds to a list of people.
+
+## Use Cases
+
+- **Salary payments:** Pay employees monthly.
+- **Refunds:** Batch-process refunds for cancelled orders.
+- **Promotional payouts:** Send rewards, bonuses, or cashback to customers.
+- **Supplier payments:** Pay individual suppliers or freelancers.
+- **Dividends:** Distribute earnings to stakeholders.
+
+## The Approach
+
+1. Prepare a list of recipients (from CSV, database, or API).
+2. Verify business float is sufficient for the total payout.
+3. Iterate through the list, calling `mpesa.send()` for each recipient.
+4. Track each disbursement's status via callbacks.
+5. Generate a report of successes and failures.
+6. Retry failed disbursements.
+
+## Complete Code
+
+### Disbursement Processor (disburse.ts)
+
+```typescript
+import { createClient } from '@daraja-kit/sdk';
+import fs from 'fs';
+
+const mpesa = createClient({
+  consumerKey: process.env.DARAJA_CONSUMER_KEY!,
+  consumerSecret: process.env.DARAJA_CONSUMER_SECRET!,
+});
+
+const CALLBACK_BASE = process.env.MPESA_CALLBACK_BASE_URL!;
+
+// --- Types ---
+interface Recipient {
+  name: string;
+  phone: string;
+  amount: number;
+  reference?: string;
+}
+
+interface DisbursementResult {
+  name: string;
+  phone: string;
+  amount: number;
+  status: 'sent' | 'failed';
+  conversationId?: string;
+  error?: string;
+}
+
+// --- Parse CSV ---
+function parseCSV(filePath: string): Recipient[] {
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const lines = content.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+
+  return lines.slice(1).map(line => {
+    const values = line.split(',').map(v => v.trim());
+    return {
+      name: values[headers.indexOf('name')] || 'Unknown',
+      phone: values[headers.indexOf('phone')],
+      amount: parseInt(values[headers.indexOf('amount')], 10),
+      reference: values[headers.indexOf('reference')] || undefined,
+    };
+  });
+}
+
+// --- Process Disbursements ---
+async function processDisbursements(recipients: Recipient[]): Promise<DisbursementResult[]> {
+  const results: DisbursementResult[] = [];
+
+  // Calculate total
+  const total = recipients.reduce((sum, r) => sum + r.amount, 0);
+  console.log(`Processing ${recipients.length} disbursements. Total: KES ${total.toLocaleString()}`);
+
+  for (let i = 0; i < recipients.length; i++) {
+    const recipient = recipients[i];
+    console.log(`[${i + 1}/${recipients.length}] Sending KES ${recipient.amount} to ${recipient.name} (${recipient.phone})`);
+
+    // Normalize phone
+    const phone = recipient.phone
+      .replace(/\s+/g, '')
+      .replace(/^0/, '254')
+      .replace(/^\+/, '');
+
+    try {
+      const result = await mpesa.send({
+        amount: recipient.amount,
+        phone,
+        type: 'business',
+        remarks: recipient.reference || `Disbursement to ${recipient.name}`,
+        callbackUrl: `${CALLBACK_BASE}/api/disbursement/callback`,
+      });
+
+      results.push({
+        name: recipient.name,
+        phone,
+        amount: recipient.amount,
+        status: 'sent',
+        conversationId: result.conversationId,
+      });
+
+      console.log(`  Sent. ConversationID: ${result.conversationId}`);
+    } catch (error: any) {
+      results.push({
+        name: recipient.name,
+        phone,
+        amount: recipient.amount,
+        status: 'failed',
+        error: error.message || 'Unknown error',
+      });
+
+      console.error(`  Failed: ${error.message}`);
+    }
+
+    // Small delay between requests to avoid rate limiting
+    if (i < recipients.length - 1) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
+  }
+
+  return results;
+}
+
+// --- Generate Report ---
+function generateReport(results: DisbursementResult[]): void {
+  const sent = results.filter(r => r.status === 'sent');
+  const failed = results.filter(r => r.status === 'failed');
+  const totalSent = sent.reduce((sum, r) => sum + r.amount, 0);
+
+  console.log('\n--- Disbursement Report ---');
+  console.log(`Total recipients: ${results.length}`);
+  console.log(`Sent: ${sent.length} (KES ${totalSent.toLocaleString()})`);
+  console.log(`Failed: ${failed.length}`);
+
+  if (failed.length > 0) {
+    console.log('\nFailed disbursements:');
+    for (const f of failed) {
+      console.log(`  ${f.name} (${f.phone}): KES ${f.amount} - ${f.error}`);
+    }
+  }
+
+  // Write results to file
+  const reportPath = `disbursement-report-${Date.now()}.json`;
+  fs.writeFileSync(reportPath, JSON.stringify(results, null, 2));
+  console.log(`\nFull report written to: ${reportPath}`);
+}
+
+// --- Main ---
+async function main() {
+  // Option 1: Load recipients from CSV
+  // CSV format: name,phone,amount,reference
+  // John Doe,0712345678,5000,Salary Jan
+  // Jane Smith,0723456789,7500,Salary Jan
+
+  const csvPath = process.argv[2];
+  if (!csvPath) {
+    console.error('Usage: npx tsx disburse.ts <recipients.csv>');
+    process.exit(1);
+  }
+
+  const recipients = parseCSV(csvPath);
+  console.log(`Loaded ${recipients.length} recipients from ${csvPath}`);
+
+  const results = await processDisbursements(recipients);
+  generateReport(results);
+}
+
+main().catch(console.error);
+```
+
+### Callback Server (server.ts)
+
+```typescript
+import express from 'express';
+
+const app = express();
+app.use(express.json());
+
+// --- Track Disbursement Results ---
+// In production, use a database
+const disbursementResults = new Map<string, any>();
+
+app.post('/api/disbursement/callback', (req, res) => {
+  const { Result } = req.body;
+  const conversationId = Result.ConversationID;
+
+  if (Result.ResultCode === 0) {
+    const params = Result.ResultParameters.ResultParameter;
+    const receipt = params.find((p: any) => p.Key === 'TransactionReceipt')?.Value;
+    const amount = params.find((p: any) => p.Key === 'TransactionAmount')?.Value;
+    const recipient = params.find((p: any) => p.Key === 'ReceiverPartyPublicName')?.Value;
+
+    console.log(`Disbursement confirmed: KES ${amount} to ${recipient}. Receipt: ${receipt}`);
+
+    disbursementResults.set(conversationId, {
+      status: 'confirmed',
+      receipt,
+      amount,
+      recipient,
+      completedAt: new Date(),
+    });
+  } else {
+    console.error(`Disbursement failed: ${Result.ResultCode} - ${Result.ResultDesc}`);
+
+    disbursementResults.set(conversationId, {
+      status: 'failed',
+      resultCode: Result.ResultCode,
+      resultDesc: Result.ResultDesc,
+      completedAt: new Date(),
+    });
+  }
+
+  res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
+});
+
+// --- Check Disbursement Status ---
+app.get('/api/disbursement/:conversationId', (req, res) => {
+  const result = disbursementResults.get(req.params.conversationId);
+  if (!result) {
+    return res.json({ status: 'pending', message: 'Waiting for callback.' });
+  }
+  return res.json(result);
+});
+
+// --- Get All Results ---
+app.get('/api/disbursements', (_req, res) => {
+  const all = Array.from(disbursementResults.entries()).map(([id, data]) => ({
+    conversationId: id,
+    ...data,
+  }));
+  return res.json(all);
+});
+
+app.listen(3000, () => console.log('Disbursement callback server running on port 3000'));
+```
+
+### Sample CSV (recipients.csv)
+
+```csv
+name,phone,amount,reference
+John Doe,0712345678,5000,Salary Jan 2026
+Jane Smith,0723456789,7500,Salary Jan 2026
+Bob Wilson,0734567890,4000,Salary Jan 2026
+Alice Njeri,0745678901,6000,Salary Jan 2026
+```
+
+### Running the Disbursement
+
+```bash
+# Terminal 1: Start the callback server
+npx tsx server.ts
+
+# Terminal 2: Start ngrok
+ngrok http 3000
+# Copy the HTTPS URL to MPESA_CALLBACK_BASE_URL
+
+# Terminal 3: Run the disbursement
+MPESA_CALLBACK_BASE_URL=https://abc123.ngrok-free.app npx tsx disburse.ts recipients.csv
+```
+
+## Status Tracking Flow
+
+```
+CSV loaded
+  |
+  v
+mpesa.send() called -----> "sent" (accepted by Daraja)
+  |                            |
+  |                            v
+  |                    Callback received?
+  |                    /              \
+  |                  Yes               No (timeout)
+  |                  |                  |
+  |            ResultCode 0?      Queue for status check
+  |            /          \         via mpesa.status()
+  |          Yes           No
+  |          |              |
+  |     "confirmed"    "failed"
+  |                        |
+  |                   Retry eligible?
+  |                   /          \
+  |                 Yes           No
+  |                  |             |
+  |            Retry send     Mark as failed
+  |                           in final report
+```
+
+## Reconciliation
+
+After all callbacks arrive (or after a reasonable timeout), reconcile:
+
+```typescript
+async function reconcile(
+  results: DisbursementResult[],
+  callbackResults: Map<string, any>
+): Promise<void> {
+  for (const result of results) {
+    if (result.status !== 'sent' || !result.conversationId) continue;
+
+    const callback = callbackResults.get(result.conversationId);
+
+    if (!callback) {
+      console.log(`No callback yet for ${result.name} (${result.conversationId}). Checking status...`);
+
+      // Use Transaction Status API to check
+      try {
+        await mpesa.status({
+          transactionId: result.conversationId,
+          callbackUrl: `${CALLBACK_BASE}/api/disbursement/callback`,
+        });
+      } catch (err) {
+        console.error(`Status check failed for ${result.conversationId}`);
+      }
+    } else if (callback.status === 'failed') {
+      console.log(`Disbursement to ${result.name} failed: ${callback.resultDesc}`);
+      // TODO: Queue for retry or escalate
+    }
+  }
+}
+```
+
+## Production Considerations
+
+1. **Pre-check balance.** Call `mpesa.balance()` before starting the batch to ensure sufficient float.
+2. **Rate limiting.** Daraja has rate limits. Add 1-2 second delays between sends. For large batches (100+), consider spreading across time.
+3. **Database tracking.** Store every disbursement attempt with: recipient, amount, conversationId, status, callback result, timestamp.
+4. **Idempotency.** Track which recipients have been paid in the current batch. If the script crashes and restarts, skip already-sent recipients.
+5. **Retry strategy.** For failed disbursements, retry up to 3 times with increasing delays. Some failures (wrong number) should not be retried.
+6. **Audit trail.** Keep a complete log of all disbursements for financial auditing and compliance.
+7. **Approval workflow.** For large batches, require manager approval before processing.
+8. **Notifications.** Notify the operator (Slack, email) when batch processing completes, especially if there are failures.
+
+

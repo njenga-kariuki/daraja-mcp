@@ -1,0 +1,13 @@
+{
+  "name": "mpesa-ecommerce",
+  "version": "1.0.0",
+  "description": "E-commerce store with M-Pesa checkout via STK Push",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@daraja-kit/sdk": "^0.1.0",
+    "express": "^4.21.0"
+  }
+}
