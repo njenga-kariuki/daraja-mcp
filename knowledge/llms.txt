@@ -1,10 +1,10 @@
-# daraja-kit
+# Daraja 4.0
 
-> Agent-forward toolkit for M-Pesa Daraja API integration. SDK with 6 methods, MCP server with 6 tools, structured knowledge base.
+> Agent-forward toolkit for M-Pesa Daraja API integration. SDK with 6 methods, MCP server with 8 tools, 19-doc knowledge base.
 
 ## SDK
 
-- @daraja-kit/sdk: Zero-config M-Pesa SDK. Methods: collect, send, status, balance, reverse, qr.
+- @daraja-4/sdk: Zero-config M-Pesa SDK. Methods: collect, send, status, balance, reverse, qr. 20+ error codes mapped with prevention guidance.
 
 ## Capabilities
 
@@ -34,3 +34,5 @@
 - [E-commerce Checkout](patterns/ecommerce-checkout.md): Integrate M-Pesa into product checkout flows
 - [Subscription Billing](patterns/subscription-billing.md): Recurring M-Pesa payments with cron-based re-prompting
 - [B2C Disbursement](patterns/b2c-disbursement.md): Send money to multiple recipients — batch processing pattern
+- [Resilience](patterns/resilience.md): Retry patterns, exponential backoff, deduplication, circuit breaker for M-Pesa integrations
+- [Callback Testing](patterns/callback-testing.md): Callback URL testing, troubleshooting, local dev setup with ngrok/cloudflared

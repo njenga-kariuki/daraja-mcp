@@ -18,6 +18,8 @@ import { handleDiagnose } from './tools/diagnose.js';
 import { handleExplain } from './tools/explain.js';
 import { handleGoLive } from './tools/go-live.js';
 import { handleTestSandbox } from './tools/test-sandbox.js';
+import { handlePreflight } from './tools/preflight.js';
+import { handleSetup } from './tools/setup.js';
 
 const app = express();
 
@@ -53,6 +55,14 @@ app.post('/api/tools/go-live', (req, res) => {
   try { res.json(handleGoLive(req.body)); }
   catch (err: any) { res.status(400).json({ error: err.message }); }
 });
+app.post('/api/tools/preflight', async (req, res) => {
+  try { res.json(await handlePreflight(req.body)); }
+  catch (err: any) { res.status(400).json({ error: err.message }); }
+});
+app.post('/api/tools/setup', async (req, res) => {
+  try { res.json(await handleSetup(req.body)); }
+  catch (err: any) { res.status(400).json({ error: err.message }); }
+});
 app.post('/api/live/test', async (req, res) => {
   try { res.json(await handleTestSandbox(req.body)); }
   catch (err: any) {
@@ -68,7 +78,7 @@ app.get('/mcp-info', (_req, res) => {
     mcp_endpoint: '/mcp',
     tools: [
       'daraja_explain', 'daraja_scaffold', 'daraja_validate',
-      'daraja_diagnose', 'daraja_test_sandbox', 'daraja_go_live', 'daraja_setup',
+      'daraja_diagnose', 'daraja_test_sandbox', 'daraja_go_live', 'daraja_setup', 'daraja_preflight',
     ],
   });
 });

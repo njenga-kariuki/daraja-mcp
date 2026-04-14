@@ -14,6 +14,7 @@ import { scaffoldSchema, handleScaffold } from './tools/scaffold.js';
 import { testSandboxSchema, handleTestSandbox } from './tools/test-sandbox.js';
 import { goLiveSchema, handleGoLive } from './tools/go-live.js';
 import { setupSchema, handleSetup } from './tools/setup.js';
+import { preflightSchema, handlePreflight } from './tools/preflight.js';
 import { getLlmsTxt, searchKnowledge } from './knowledge.js';
 
 export interface AuthContext {
@@ -21,7 +22,7 @@ export interface AuthContext {
   consumerSecret: string;
 }
 
-const TOOLS = [explainSchema, diagnoseSchema, validateSchema, scaffoldSchema, testSandboxSchema, goLiveSchema, setupSchema];
+const TOOLS = [explainSchema, diagnoseSchema, validateSchema, scaffoldSchema, testSandboxSchema, goLiveSchema, setupSchema, preflightSchema];
 
 export function createServer(authContext?: AuthContext): Server {
   const server = new Server(
@@ -68,6 +69,9 @@ export function createServer(authContext?: AuthContext): Server {
           break;
         case 'daraja_setup':
           result = await handleSetup(args as any);
+          break;
+        case 'daraja_preflight':
+          result = await handlePreflight(args as any);
           break;
         default:
           return {

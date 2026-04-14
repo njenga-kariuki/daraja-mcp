@@ -1048,14 +1048,14 @@
   <section id="hero" class="section-white">
     <div class="container">
       <div class="overline fade-in">DARAJA 4.0 &middot; AFRICA'S AGENTIC PAYMENTS PLATFORM</div>
-      <h1 class="fade-in">Where any human &mdash; and any AI agent &mdash;<br>can move money</h1>
+      <h1 class="fade-in">Build on M-Pesa in 3 lines of code.<br>Let AI handle the rest.</h1>
       <p class="subtitle fade-in">
-        Daraja 3.0 gave developers a modern REST API to the world's largest mobile money platform.
-        <strong>Daraja 4.0</strong> opens it to every builder &mdash; the student with an idea, the three-person fintech, the enterprise team, and the AI agent acting on their behalf.
+        Zero credentials needed. Zero callbacks to manage. <strong>Daraja 4.0</strong> opens the world's largest mobile money platform to every builder &mdash; the student with an idea, the three-person fintech, the enterprise team, and the AI agent acting on their behalf.
       </p>
       <div class="hero-ctas fade-in">
         <a href="#in-action" class="btn btn-primary">See How It Works</a>
         <a href="#tools" class="btn btn-secondary">Explore the Tools</a>
+        <a href="#tools" class="btn btn-outline-light" style="border-color:var(--green);color:var(--green)">Try the Sandbox</a>
       </div>
 
     </div>
@@ -1088,9 +1088,9 @@
   <section id="tools" class="section-light">
     <div class="container">
       <div class="overline fade-in">BUILT FOR EVERY AI</div>
-      <h2 class="section-title fade-in">Six tools. Any AI assistant. M-Pesa expertise, instant.</h2>
+      <h2 class="section-title fade-in">Eight tools. Any AI assistant. From first idea to production.</h2>
       <p class="section-subtitle fade-in">
-        Daraja 4.0 ships with an MCP server that turns <strong>Claude, Cursor, Copilot, and any MCP-compatible AI</strong> into M-Pesa experts on first use. Every tool works for human developers too.
+        Daraja 4.0 ships with an MCP server that turns <strong>Claude, Cursor, Copilot, and any MCP-compatible AI</strong> into M-Pesa experts on first use. Scaffold projects, validate code, diagnose errors with prevention guidance, check deployment readiness, and guide production go-live. Every tool works for human developers too.
       </p>
 
       <div class="tools-grid">
@@ -1141,6 +1141,10 @@ mpesa.collect({ amount, phone });</textarea>
               <option value="1032">Error 1032 — Request cancelled</option>
               <option value="1025">Error 1025 — STK delivery failed</option>
               <option value="1037">Error 1037 — Phone unreachable</option>
+              <option value="35">Error 35 — Duplicate transaction</option>
+              <option value="04">Error 04 — Amount above maximum</option>
+              <option value="10">Error 10 — Not registered on M-Pesa</option>
+              <option value="99">Error 99 — No transaction found</option>
               <option value="2001">Error 2001 — Invalid credentials</option>
               <option value="1001">Error 1001 — USSD session busy</option>
               <option value="401">Error 401 — Authentication failed</option>
@@ -1208,6 +1212,44 @@ mpesa.collect({ amount, phone });</textarea>
             </div>
             <button class="tool-btn" onclick="runTool('golive')">Check Readiness</button>
             <div class="tool-output" id="golive-output"></div>
+          </div>
+        </div>
+
+        <!-- Tool 7: Preflight -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x2705;</div>
+            <h3>Preflight</h3>
+            <div class="tool-name">daraja_preflight</div>
+            <p>Pre-deployment health check. Validates code, tests callback URL reachability, and verifies credentials &mdash; catches issues before they hit production.</p>
+          </div>
+          <div class="tool-card-body">
+            <textarea class="tool-input" id="preflight-code" rows="3" style="font-size:0.7rem;line-height:1.4" placeholder="Paste your M-Pesa integration code...">const result = await mpesa.send({ amount: 100, phone: '254712345678', callbackUrl: 'https://myapp.com/callback' });</textarea>
+            <input class="tool-input" id="preflight-url" placeholder="Callback URL to test (optional)" style="font-family:var(--font-mono)">
+            <button class="tool-btn" onclick="runTool('preflight')">Run Preflight Check</button>
+            <div class="tool-output" id="preflight-output"></div>
+          </div>
+        </div>
+
+        <!-- Tool 8: Setup -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x2699;&#xFE0F;</div>
+            <h3>Setup</h3>
+            <div class="tool-name">daraja_setup</div>
+            <p>Platform-specific setup for Cursor, Claude Code, Lovable, Replit, or Windsurf. Configured in under a minute.</p>
+          </div>
+          <div class="tool-card-body">
+            <select class="tool-input" id="setup-input" style="font-family:var(--font-sans)">
+              <option value="cursor">Cursor</option>
+              <option value="claude-code">Claude Code</option>
+              <option value="lovable">Lovable</option>
+              <option value="replit">Replit</option>
+              <option value="windsurf">Windsurf</option>
+              <option value="generic">Generic MCP Client</option>
+            </select>
+            <button class="tool-btn" onclick="runTool('setup')">Get Setup Guide</button>
+            <div class="tool-output" id="setup-output"></div>
           </div>
         </div>
 
@@ -1308,11 +1350,11 @@ mpesa.collect({ amount, phone });</textarea>
           </div>
           <div class="code-panel code-panel-kit">
             <div class="code-panel-header">
-              <span>With daraja-kit</span>
+              <span>With Daraja 4.0</span>
               <span class="code-panel-lines">1 file &middot; 5 lines</span>
             </div>
             <pre>
-<span class="kw">import</span> { createClient } <span class="kw">from</span> <span class="str">'@daraja-kit/sdk'</span>;
+<span class="kw">import</span> { createClient } <span class="kw">from</span> <span class="str">'@daraja-4/sdk'</span>;
 
 <span class="kw">const</span> mpesa = <span class="fn">createClient</span>();
 
@@ -1378,11 +1420,11 @@ mpesa.collect({ amount, phone });</textarea>
           </div>
           <div class="code-panel code-panel-kit">
             <div class="code-panel-header">
-              <span>With daraja-kit</span>
+              <span>With Daraja 4.0</span>
               <span class="code-panel-lines">1 file &middot; 6 lines</span>
             </div>
             <pre>
-<span class="kw">import</span> { createClient } <span class="kw">from</span> <span class="str">'@daraja-kit/sdk'</span>;
+<span class="kw">import</span> { createClient } <span class="kw">from</span> <span class="str">'@daraja-4/sdk'</span>;
 
 <span class="kw">const</span> mpesa = <span class="fn">createClient</span>();
 
@@ -1441,7 +1483,7 @@ mpesa.collect({ amount, phone });</textarea>
           </div>
           <div class="code-panel code-panel-kit">
             <div class="code-panel-header">
-              <span>With daraja-kit + AI</span>
+              <span>With Daraja 4.0 + AI</span>
               <span class="code-panel-lines">2 files &middot; 109 lines</span>
             </div>
             <pre><span class="cm">// Step 1: In Claude, Cursor, or Lovable, say:</span>
@@ -1452,7 +1494,7 @@ mpesa.collect({ amount, phone });</textarea>
 
 <span class="cm">// server.js (30 lines)</span>
 <span class="kw">import</span> express <span class="kw">from</span> <span class="str">'express'</span>;
-<span class="kw">import</span> { createClient } <span class="kw">from</span> <span class="str">'@daraja-kit/sdk'</span>;
+<span class="kw">import</span> { createClient } <span class="kw">from</span> <span class="str">'@daraja-4/sdk'</span>;
 
 <span class="kw">const</span> app = <span class="fn">express</span>();
 <span class="kw">const</span> mpesa = <span class="fn">createClient</span>();
@@ -1508,24 +1550,26 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
           </div>
           <div class="code-panel code-panel-kit">
             <div class="code-panel-header">
-              <span>With daraja-kit</span>
+              <span>With Daraja 4.0</span>
               <span class="code-panel-lines">Self-healing errors</span>
             </div>
             <pre><span class="kw">try</span> {
   <span class="kw">const</span> payment = <span class="kw">await</span> mpesa.<span class="fn">collect</span>({ amount: <span class="num">100</span>, phone });
 } <span class="kw">catch</span> (err) {
   <span class="cm">// err is a structured MpesaError:</span>
-  err.code;        <span class="cm">// "USER_CANCELLED"</span>
-  err.message;     <span class="cm">// "Payment cancelled by user"</span>
-  err.darajaCode;  <span class="cm">// "1032"</span>
-  err.suggestion;  <span class="cm">// "The customer cancelled the M-Pesa</span>
-                   <span class="cm">//  prompt or it timed out. You can</span>
-                   <span class="cm">//  retry with mpesa.collect()."</span>
+  err.code;        <span class="cm">// "DUPLICATE_TRANSACTION"</span>
+  err.message;     <span class="cm">// "Duplicate transaction"</span>
+  err.darajaCode;  <span class="cm">// "35"</span>
+  err.suggestion;  <span class="cm">// "Wait at least 30 seconds before</span>
+                   <span class="cm">//  retrying the same phone + amount."</span>
+
+  <span class="cm">// NEW: Prevention guidance — stop this class of error.</span>
+  err.prevention;  <span class="cm">// "Add a 30-second cooldown between</span>
+                   <span class="cm">//  same phone+amount requests."</span>
 
   <span class="cm">// Human-readable AND machine-readable.</span>
-  <span class="cm">// AI agents can act on .suggestion directly.</span>
-  <span class="cm">// Show err.suggestion to users — it's friendly.</span>
-  <span class="cm">// Every Daraja error code is mapped and explained.</span>
+  <span class="cm">// 20+ error codes mapped to actionable guidance.</span>
+  <span class="cm">// Every error teaches you how to prevent it.</span>
 }
 
 <span class="cm">// Errors become guidance, not dead ends.</span></pre>
@@ -1578,7 +1622,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
         </div>
       </div>
       <p class="foundation-note fade-in" style="margin-top:56px">
-        Intent + MCP is the democratisation layer. These three capabilities are what make it real &mdash; <strong>every build ships with intelligence embedded and trust in the rails, by default.</strong>
+        Intent + MCP is the democratisation layer. These three capabilities are what make it real &mdash; <strong>every build ships with intelligence embedded and trust in the rails, by default.</strong> And when something goes wrong, the same AI that built it can diagnose, fix, and prevent the issue &mdash; instantly.
       </p>
     </div>
   </section>
@@ -1589,7 +1633,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
   <section id="stories" class="section-white">
     <div class="container">
       <div class="overline fade-in">WHAT BECOMES POSSIBLE</div>
-      <h2 class="section-title fade-in">Four builds that cannot exist on any other rail in Africa today</h2>
+      <h2 class="section-title fade-in">Five moments that cannot happen on any other rail in Africa today</h2>
       <p class="section-subtitle fade-in">
         Each one points at a Daraja 4.0 capability. Each one is deliverable in 2026.
       </p>
@@ -1720,6 +1764,37 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
           <p class="story-tagline">Powered by: <strong>Intent API + Merchant Health Signal</strong></p>
         </div>
 
+        <!-- Build 5: Kisumu developer — MCP Diagnosis + Preflight -->
+        <div class="story-card fade-in">
+          <div class="story-persona">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#0D9488,#1E3A5F)">D</div>
+            <div class="story-persona-info">
+              <h4>The Kisumu developer</h4>
+              <span>Fixes a production issue at 2 AM without filing a ticket</span>
+            </div>
+          </div>
+          <ol class="story-steps">
+            <li class="story-step">
+              <div class="story-step-num">1</div>
+              <div class="story-step-text">B2C callbacks stop arriving. Opens <strong>Cursor</strong> and describes the problem in plain English.</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">2</div>
+              <div class="story-step-text">Daraja 4.0 MCP runs <code>daraja_diagnose</code> &mdash; identifies an expired SSL certificate on the callback URL</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">3</div>
+              <div class="story-step-text">Runs <code>daraja_preflight</code> on the fix &mdash; callback URL reachable again, OAuth valid, code clean</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">4</div>
+              <div class="story-step-text">Back in production in 10 minutes. No support ticket. No waiting for business hours.</div>
+            </li>
+          </ol>
+          <div class="story-time">&#x23F1;&#xFE0F; 2 AM to fixed: 10 minutes</div>
+          <p class="story-tagline">Powered by: <strong>MCP Diagnosis + Preflight</strong></p>
+        </div>
+
       </div>
     </div>
   </section>
@@ -1785,7 +1860,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
               <td><strong>Daraja 4.0</strong></td>
               <td>3 lines, 1 file</td>
               <td class="cell-check">No (auto-polls)</td>
-              <td class="cell-check">6 MCP tools</td>
+              <td class="cell-check">8 MCP tools</td>
               <td>5 minutes</td>
               <td class="cell-check">Yes (native)</td>
             </tr>
@@ -1809,7 +1884,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
         </div>
         <div class="diff-card fade-in">
           <h4>Self-Healing Errors</h4>
-          <p>Every error includes a <code>.suggestion</code> field with plain-English guidance. Both developers and AI agents can instantly understand what went wrong and how to fix it.</p>
+          <p>Every error includes a <code>.suggestion</code> field and a <code>.prevention</code> field &mdash; both developers and AI agents instantly know what went wrong, how to fix it, and how to never see it again. 20+ error codes mapped.</p>
         </div>
       </div>
     </div>
@@ -1829,16 +1904,16 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
       <div class="ai-path fade-in" style="max-width:560px;margin:40px auto 0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15)">
         <h4 style="color:white">One step: add this to your project</h4>
         <p style="color:rgba(255,255,255,0.7)">
-          Drop a <code style="background:rgba(255,255,255,0.1);color:white">.mcp.json</code> in your project root. Your AI assistant instantly gets 6 M-Pesa tools.
+          Drop a <code style="background:rgba(255,255,255,0.1);color:white">.mcp.json</code> in your project root. Your AI assistant instantly gets 8 M-Pesa tools.
           Works with Claude, Cursor, Copilot, and any MCP-compatible client.
         </p>
         <div class="step-code" style="text-align:left">
           <button class="copy-btn" onclick="copyCode(this)">Copy</button>
 {
   <span class="t-key">"mcpServers"</span>: {
-    <span class="t-key">"daraja-kit"</span>: {
+    <span class="t-key">"daraja-4"</span>: {
       <span class="t-key">"command"</span>: <span class="t-str">"npx"</span>,
-      <span class="t-key">"args"</span>: [<span class="t-str">"@daraja-kit/mcp"</span>]
+      <span class="t-key">"args"</span>: [<span class="t-str">"@daraja-4/mcp"</span>]
     }
   }
 }</div>
@@ -1854,13 +1929,13 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
       <div class="steps-grid fade-in" style="max-width:900px;margin:0 auto">
         <div class="step-card" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1)">
           <div class="step-num" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6)">1</div>
-          <h4 style="color:white">Get Free API Keys</h4>
-          <p style="color:rgba(255,255,255,0.6);font-size:0.8rem">developer.safaricom.co.ke &mdash; 2 minutes</p>
+          <h4 style="color:white">Start in Sandbox (No Keys Needed)</h4>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.8rem">Zero-config sandbox works immediately. Get your own keys when ready for production.</p>
         </div>
         <div class="step-card" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1)">
           <div class="step-num" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6)">2</div>
           <h4 style="color:white">Install the SDK</h4>
-          <p style="color:rgba(255,255,255,0.6);font-size:0.8rem">npm install @daraja-kit/sdk</p>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.8rem">npm install @daraja-4/sdk</p>
         </div>
         <div class="step-card" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1)">
           <div class="step-num" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6)">3</div>
@@ -1882,7 +1957,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
   <!-- Footer -->
   <footer>
     <div class="container">
-      Daraja 4.0 &mdash; Africa's agentic payments platform &middot; Built on Daraja 3.0
+      Daraja 4.0 &mdash; Africa's agentic payments platform &middot; 8 tools &middot; 20+ error codes &middot; Zero-config sandbox &middot; Built on Daraja 3.0
     </div>
   </footer>
 
@@ -1972,6 +2047,17 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
               has_go_live_letter: document.getElementById('golive-letter').checked,
             };
             break;
+          case 'preflight':
+            url = '/api/tools/preflight';
+            body = {
+              code: document.getElementById('preflight-code').value,
+              callbackUrl: document.getElementById('preflight-url').value || undefined,
+            };
+            break;
+          case 'setup':
+            url = '/api/tools/setup';
+            body = { action: 'instructions', platform: document.getElementById('setup-input').value };
+            break;
         }
 
         const res = await fetch(url, {
@@ -1990,7 +2076,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
     }
 
     function getButtonLabel(tool) {
-      const labels = { scaffold: 'Generate Project', validate: 'Validate Code', diagnose: 'Diagnose Error', explain: 'Explain', test: 'Run Live Test', golive: 'Check Readiness' };
+      const labels = { scaffold: 'Generate Project', validate: 'Validate Code', diagnose: 'Diagnose Error', explain: 'Explain', test: 'Run Live Test', golive: 'Check Readiness', preflight: 'Run Preflight Check', setup: 'Get Setup Guide' };
       return labels[tool];
     }
 
@@ -1998,10 +2084,19 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
       switch (tool) {
         case 'scaffold':
           let html = '<div style="margin-bottom:8px;font-weight:600;font-size:0.78rem;color:var(--success)">Generated project: ' + data.template + '</div>';
+          if (data.zeroConfigNote) {
+            html += '<div style="margin-bottom:10px;padding:8px 12px;background:#F0FDF4;border-radius:6px;font-size:0.72rem;color:var(--success);border-left:3px solid var(--success)">' + data.zeroConfigNote + '</div>';
+          }
           data.files.forEach(f => {
             html += `<div class="tool-output-file"><span class="tool-output-file-icon">&#x1F4C4;</span> ${f.path}</div>`;
           });
-          html += '<div style="margin-top:12px;font-size:0.72rem;color:var(--gray-500);white-space:pre-wrap">' + escapeHtml(data.instructions) + '</div>';
+          if (data.nextSteps && data.nextSteps.length) {
+            html += '<div style="margin-top:12px;font-size:0.72rem;color:var(--gray-700)">';
+            data.nextSteps.forEach(s => {
+              html += `<div style="margin-bottom:6px"><strong>${s.step}.</strong> ${s.detail}${s.command ? ' <code style="background:var(--gray-100);padding:1px 5px;border-radius:3px;font-size:0.68rem">' + s.command + '</code>' : ''}</div>`;
+            });
+            html += '</div>';
+          }
           el.innerHTML = html;
           break;
 
@@ -2024,6 +2119,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
             <h4 style="color:var(--error)">Error ${data.errorCode}: ${data.meaning}</h4>
             <p><strong>Root cause:</strong> ${data.rootCause}</p>
             <div class="fix"><strong>Fix:</strong> ${data.fix}</div>
+            ${data.prevention ? '<div style="margin-top:10px;padding:10px;background:#F0FDF4;border-radius:6px;border-left:3px solid var(--success);font-size:0.78rem"><strong>Prevention:</strong> ' + data.prevention + '</div>' : ''}
             ${data.codeExample ? '<pre style="margin-top:10px;padding:10px;background:var(--gray-50);border-radius:6px;font-size:0.7rem;font-family:var(--font-mono);overflow-x:auto">' + escapeHtml(data.codeExample) + '</pre>' : ''}
             ${data.relatedDocs?.length ? '<div style="margin-top:10px;font-size:0.7rem;color:var(--gray-400)">Docs: ' + data.relatedDocs.join(', ') + '</div>' : ''}
           </div>`;
@@ -2066,6 +2162,41 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
           el.innerHTML = ghtml;
           break;
         }
+
+        case 'preflight': {
+          let phtml = '';
+          const readyBg = data.overallReady ? '#F0FDF4' : '#FEF2F2';
+          const readyColor = data.overallReady ? 'var(--success)' : 'var(--error)';
+          const readyText = data.overallReady ? 'Ready for deployment' : 'Not ready — blockers found';
+          phtml += `<div style="padding:10px;background:${readyBg};border-radius:8px;margin-bottom:12px;font-weight:600;font-size:0.83rem;color:${readyColor}">${readyText}</div>`;
+          phtml += `<div style="font-size:0.78rem;margin-bottom:6px">Code Score: <strong>${data.codeScore}/100</strong></div>`;
+          phtml += `<div style="font-size:0.78rem;margin-bottom:6px">OAuth: <strong style="color:${data.oauthValid ? 'var(--success)' : 'var(--error)'}">${data.oauthValid ? 'Valid' : 'Failed'}</strong> ${data.oauthDetail ? '— ' + data.oauthDetail : ''}</div>`;
+          if (data.callbackReachable !== null) {
+            phtml += `<div style="font-size:0.78rem;margin-bottom:6px">Callback URL: <strong style="color:${data.callbackReachable ? 'var(--success)' : 'var(--error)'}">${data.callbackReachable ? 'Reachable' : 'Not Reachable'}</strong> ${data.callbackDetail ? '— ' + data.callbackDetail : ''}</div>`;
+          }
+          if (data.blockers?.length) {
+            phtml += '<div style="margin-top:8px;font-size:0.72rem;color:var(--error)"><strong>Blockers:</strong><ul style="margin:4px 0 0 16px">';
+            data.blockers.forEach(b => { phtml += '<li>' + b + '</li>'; });
+            phtml += '</ul></div>';
+          }
+          if (data.codeIssues?.length) {
+            data.codeIssues.forEach(issue => {
+              const cls = 'tool-issue tool-issue-' + issue.severity;
+              phtml += `<div class="${cls}" style="margin-top:6px"><span class="badge badge-${issue.severity}">${issue.severity}</span> ${issue.message}</div>`;
+            });
+          }
+          el.innerHTML = phtml;
+          break;
+        }
+
+        case 'setup': {
+          if (data.instructions) {
+            el.innerHTML = '<div style="font-size:0.78rem;line-height:1.6;color:var(--gray-700);white-space:pre-wrap">' + escapeHtml(typeof data.instructions === 'string' ? data.instructions : JSON.stringify(data.instructions, null, 2)) + '</div>';
+          } else {
+            el.innerHTML = '<pre style="font-size:0.72rem;line-height:1.5;color:var(--gray-700)">' + escapeHtml(JSON.stringify(data, null, 2)) + '</pre>';
+          }
+          break;
+        }
       }
     }
 
@@ -2092,7 +2223,13 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
       { type: 'tool', text: '▶ daraja_scaffold("donation page for school feeding program")' },
       { type: 'ai', text: 'Done. Your donation page is ready:\n\n✓ Mobile-friendly form, branded and shareable\n✓ M-Pesa checkout — tap, confirm on phone, done\n✓ Any Kenyan phone format accepted\n✓ Sandbox mode — zero charges until you go live' },
       { type: 'tool', text: '▶ daraja_validate(project)' },
-      { type: 'ai', text: 'Validated. No issues found.\n\n✓ Credentials secured\n✓ Payments tested\n✓ Production-ready\n\nSay "take me live" when you\'re ready — five minutes to launch.' },
+      { type: 'ai', text: 'Validated. No issues found.\n\n✓ Credentials secured\n✓ Error handling in place\n✓ Code quality: 100/100' },
+      { type: 'user', text: 'Users are reporting error 1032 when they try to pay. What\'s going on?' },
+      { type: 'tool', text: '▶ daraja_diagnose("1032")' },
+      { type: 'ai', text: 'Error 1032: Request cancelled by user.\n\n⚡ Fix: Show a "Payment cancelled" message and offer a retry button.\n\n🛡️ Prevention: Do not auto-retry cancelled payments — the customer chose to cancel. Track cancel rates to spot UX issues.' },
+      { type: 'user', text: 'Great. I\'m ready to go live — can you check everything?' },
+      { type: 'tool', text: '▶ daraja_preflight({ code, callbackUrl })' },
+      { type: 'ai', text: 'Preflight complete:\n\n✓ Code: no issues found\n✓ Callback URL: reachable\n✓ OAuth: valid\n\nYou\'re ready for production. Say "take me live" to begin.' },
     ];
 
     let inlineChatPlayed = false;

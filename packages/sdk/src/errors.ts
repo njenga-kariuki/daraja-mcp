@@ -82,6 +82,107 @@ export function mapDarajaError(
         darajaCode: code,
         raw,
       }),
+    '03': () =>
+      new ValidationError({
+        message: `Amount below minimum: ${desc}`,
+        code: 'AMOUNT_TOO_LOW',
+        suggestion: 'The amount is less than the minimum allowed (KES 1 for most APIs). Increase the amount to at least KES 1.',
+        darajaCode: code,
+        raw,
+      }),
+    '04': () =>
+      new ValidationError({
+        message: `Amount above maximum: ${desc}`,
+        code: 'AMOUNT_TOO_HIGH',
+        suggestion: 'The amount exceeds the per-transaction limit (KES 150,000 for STK Push). Reduce the amount or split into multiple transactions.',
+        darajaCode: code,
+        raw,
+      }),
+    '05': () =>
+      new TimeoutError({
+        message: `Transaction timeout: ${desc}`,
+        suggestion: 'The transaction took too long to process on Daraja\'s side. This is transient — retry after a few seconds.',
+        darajaCode: code,
+        raw,
+      }),
+    '08': () =>
+      new MpesaError({
+        message: `Daily transaction limit exceeded: ${desc}`,
+        code: 'DAILY_LIMIT',
+        suggestion: 'The customer has exceeded their daily M-Pesa transaction limit. They must wait until the next day or use a different payment method.',
+        darajaCode: code,
+        raw,
+      }),
+    '10': () =>
+      new ValidationError({
+        message: `Phone not registered on M-Pesa: ${desc}`,
+        code: 'NOT_REGISTERED',
+        suggestion: 'The phone number is not registered for M-Pesa. The customer must register for M-Pesa at a Safaricom agent first.',
+        darajaCode: code,
+        raw,
+      }),
+    '11': () =>
+      new MpesaError({
+        message: `Daraja system error: ${desc}`,
+        code: 'SYSTEM_ERROR',
+        suggestion: 'Internal Daraja system error. This is transient — retry after a short delay. If persistent, check Daraja status or contact Safaricom support.',
+        darajaCode: code,
+        raw,
+      }),
+    '12': () =>
+      new ValidationError({
+        message: `Transaction details mismatch: ${desc}`,
+        code: 'DETAILS_MISMATCH',
+        suggestion: 'Transaction details do not match — e.g., wrong shortcode/passkey combination. Verify your shortcode, passkey, and other parameters are correct for your environment (sandbox vs production).',
+        darajaCode: code,
+        raw,
+      }),
+    '29': () =>
+      new MpesaError({
+        message: `Daraja system downtime: ${desc}`,
+        code: 'SYSTEM_DOWNTIME',
+        suggestion: 'Daraja is undergoing maintenance or experiencing an outage. Do not retry aggressively — wait a few minutes and try again.',
+        darajaCode: code,
+        raw,
+      }),
+    '35': () =>
+      new MpesaError({
+        message: `Duplicate transaction: ${desc}`,
+        code: 'DUPLICATE_TRANSACTION',
+        suggestion: 'A transaction with the same parameters was just processed. Wait at least 30 seconds before retrying the same phone + amount combination.',
+        darajaCode: code,
+        raw,
+      }),
+    '36': () =>
+      new AuthError({
+        message: `Incorrect credentials: ${desc}`,
+        suggestion: 'Wrong passkey or shortcode. Verify your passkey and shortcode match your environment. For sandbox, use the sandbox passkey.',
+        darajaCode: code,
+        raw,
+      }),
+    '41': () =>
+      new ValidationError({
+        message: `Invalid phone number format: ${desc}`,
+        code: 'INVALID_MSISDN',
+        suggestion: 'The phone number format is invalid. Use format 254XXXXXXXXX (12 digits, starting with 254). The SDK normalizes automatically if you use mpesa.collect().',
+        darajaCode: code,
+        raw,
+      }),
+    '42': () =>
+      new AuthError({
+        message: `Passkey/paybill mismatch: ${desc}`,
+        suggestion: 'The passkey does not correspond to your shortcode. Ensure the passkey matches your shortcode. For sandbox, use the sandbox passkey with shortcode 174379.',
+        darajaCode: code,
+        raw,
+      }),
+    '99': () =>
+      new MpesaError({
+        message: `No transaction found: ${desc}`,
+        code: 'TRANSACTION_NOT_FOUND',
+        suggestion: 'The STK Query could not find the transaction. The STK prompt was likely not completed within 60 seconds, or the CheckoutRequestID is invalid. The SDK handles polling automatically — if you see this, the payment timed out.',
+        darajaCode: code,
+        raw,
+      }),
     '1001': () =>
       new MpesaError({
         message: `USSD session in progress: ${desc}`,

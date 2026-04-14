@@ -9,9 +9,20 @@ interface ScaffoldFile {
   content: string;
 }
 
+interface NextStep {
+  step: number;
+  action: string;
+  command?: string;
+  tool?: string;
+  params?: Record<string, unknown>;
+  detail: string;
+}
+
 interface ScaffoldOutput {
   files: ScaffoldFile[];
   instructions: string;
+  nextSteps: NextStep[];
+  zeroConfigNote: string;
   template: string;
 }
 
@@ -68,6 +79,54 @@ export function handleScaffold(input: ScaffoldInput): ScaffoldOutput {
   const gen = generators[template] ?? generateDonationPage;
   const files = gen();
 
+  const needsCallback = template === 'b2c-payroll';
+  const hasUI = template !== 'b2c-payroll';
+
+  const nextSteps: NextStep[] = [
+    {
+      step: 1,
+      action: 'write_files',
+      detail: 'Save the generated files to your project directory.',
+    },
+    {
+      step: 2,
+      action: 'install',
+      command: 'npm install',
+      detail: 'Installs @daraja-kit/sdk and express.',
+    },
+    {
+      step: 3,
+      action: 'start',
+      command: 'npm start',
+      detail: `Starts the server at http://localhost:3000.${hasUI ? ' Open this URL in your browser.' : ''}`,
+    },
+    {
+      step: 4,
+      action: 'test',
+      detail: hasUI
+        ? 'Enter phone number 254708374149 and amount 1, then submit. The sandbox simulates a successful payment — no real money is charged.'
+        : 'Send a test request: curl -X POST http://localhost:3000/api/send -H "Content-Type: application/json" -d \'{"phone":"254708374149","amount":10}\'',
+    },
+    {
+      step: 5,
+      action: 'verify',
+      tool: 'daraja_test_sandbox',
+      params: { test: 'auth' },
+      detail: 'Optionally run daraja_test_sandbox to verify sandbox connectivity independently.',
+    },
+  ];
+
+  if (needsCallback) {
+    nextSteps.splice(3, 0, {
+      step: 3.5,
+      action: 'setup_callback',
+      command: 'npx ngrok http 3000',
+      detail: 'B2C requires a public callback URL. Run ngrok and set MPESA_CALLBACK_BASE_URL to the https URL it provides.',
+    });
+    // Re-number steps
+    nextSteps.forEach((s, i) => { s.step = i + 1; });
+  }
+
   return {
     files,
     instructions:
@@ -78,6 +137,8 @@ export function handleScaffold(input: ScaffoldInput): ScaffoldOutput {
       `2. Open http://localhost:3000 in your browser.\n\n` +
       `The app runs in sandbox mode by default — no credentials needed, no real money charged.\n\n` +
       `To use your own credentials or go to production, use the daraja_setup tool.`,
+    nextSteps,
+    zeroConfigNote: 'No credentials, certificates, or environment variables needed. The SDK uses shared sandbox credentials automatically. Test phone: 254708374149.',
     template,
   };
 }
