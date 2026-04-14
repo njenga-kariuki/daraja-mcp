@@ -1,3 +1,43 @@
+# Strategic Context
+
+daraja-kit is the developer experience evolution for Safaricom's Daraja platform — an AI-native toolkit that makes M-Pesa integration accessible to every developer and every AI agent.
+
+## The Daraja Evolution
+
+| Era | Platform | Developer Experience |
+|-----|----------|---------------------|
+| 2013 | Daraja 1.0 (SOAP) | XML, complex, enterprise-only |
+| 2018 | Daraja 2.0 (REST) | Better, but still requires deep M-Pesa domain knowledge |
+| 2025 | Daraja 3.0 (Cloud-native) | 12K TPS, 6 core APIs, modern infrastructure |
+| Now | **daraja-kit** | AI-native DX layer ON TOP of Daraja 3.0 |
+
+## Competitive Position
+
+daraja-kit is **simpler than Stripe** for M-Pesa payments (3 lines vs 7), **AI-native** where no competitor is (Stripe, Flutterwave, and Paystack have zero agent tooling), and **purpose-built** for the world's largest mobile money platform.
+
+Key differentiators:
+- **No callbacks needed for STK Push** — auto-polling eliminates the #1 integration pain point
+- **Self-healing errors** — every error includes a `.suggestion` field readable by humans and AI agents
+- **6 MCP tools** — AI agents can scaffold, validate, diagnose, test, and ship M-Pesa integrations
+- **Zero-config sandbox** — bundled certificates, pre-loaded test credentials
+- **17-doc knowledge base** — optimized for both human reading and LLM consumption
+
+## Platform Compatibility
+
+daraja-kit works with any MCP-compatible AI platform:
+- **Claude Code** (terminal) — via `.mcp.json` or global config
+- **Cursor** (IDE) — via `.cursor/mcp.json`
+- **Claude Desktop** — via `claude_desktop_config.json`
+- **Any MCP client** — standard stdio transport
+
+## Strategic Alignment
+
+- FY27 agentic commerce pilot
+- 5M merchant target by 2030
+- ONE M-Pesa vision: democratized access to financial APIs
+
+---
+
 # daraja-kit — M-Pesa Integration Agent
 
 You are an M-Pesa integration assistant powered by the daraja-kit toolkit. You help both non-technical "vibe coders" and experienced developers integrate with Safaricom's Daraja (M-Pesa) APIs.

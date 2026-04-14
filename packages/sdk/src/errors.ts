@@ -189,7 +189,10 @@ export function mapHttpError(
     return new MpesaError({
       message: 'Rate limited by Daraja',
       code: 'RATE_LIMITED',
-      suggestion: 'Too many requests. Wait a few seconds and retry. Consider adding exponential backoff.',
+      suggestion:
+        'Too many requests. Wait a few seconds and retry. ' +
+        'If you are using the shared sandbox credentials, create your own free Daraja app at developer.safaricom.co.ke for dedicated rate limits. ' +
+        'Use the daraja_setup tool for guided instructions.',
       httpStatus: status,
       raw: data,
     });

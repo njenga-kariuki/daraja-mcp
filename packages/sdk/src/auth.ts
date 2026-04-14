@@ -62,18 +62,43 @@ export function createHttpClient(config: ResolvedConfig): AxiosInstance {
     return req;
   });
 
-  // Retry once on 401 (expired token).
+  // Retry once on auth failure.
+  // Note: Daraja sandbox returns 404 with "Invalid Access Token" instead of 401
+  // in two cases: (1) token genuinely expired, (2) app lacks API product access.
+  // We retry once (handles case 1). If it fails again, we give a targeted error.
   http.interceptors.response.use(
     (res) => res,
     async (err) => {
       if (!axios.isAxiosError(err)) throw err;
       const { response, config: reqConfig } = err;
       const retried = (reqConfig as Record<string, unknown>)?.__retried;
-      if (response?.status === 401 && !retried) {
+
+      const isDaraja404Auth =
+        response?.status === 404 &&
+        String(response?.data?.errorMessage ?? '').toLowerCase().includes('invalid access token');
+
+      const isAuthFailure = response?.status === 401 || isDaraja404Auth;
+
+      if (isAuthFailure && !retried) {
         (reqConfig as Record<string, unknown>).__retried = true;
         await getToken(true);
         return http(reqConfig!);
       }
+
+      // If we already retried and still get "Invalid Access Token" 404,
+      // the app likely lacks the required API product on the Daraja portal.
+      if (isDaraja404Auth && retried) {
+        throw new AuthError({
+          message: 'Daraja API access denied for this endpoint',
+          suggestion:
+            'Your Daraja app credentials are valid (OAuth works) but this specific API returned "Invalid Access Token". ' +
+            'This usually means your app does not have the required API product enabled. ' +
+            'Go to developer.safaricom.co.ke → My Apps → edit your app → ensure the relevant API (e.g., "Lipa Na M-Pesa Sandbox") is ticked.',
+          httpStatus: 404,
+          raw: response?.data,
+        });
+      }
+
       if (response) {
         throw mapHttpError(response.status, response.data);
       }

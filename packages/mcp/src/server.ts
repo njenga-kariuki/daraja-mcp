@@ -13,11 +13,17 @@ import { validateSchema, handleValidate } from './tools/validate.js';
 import { scaffoldSchema, handleScaffold } from './tools/scaffold.js';
 import { testSandboxSchema, handleTestSandbox } from './tools/test-sandbox.js';
 import { goLiveSchema, handleGoLive } from './tools/go-live.js';
+import { setupSchema, handleSetup } from './tools/setup.js';
 import { getLlmsTxt, searchKnowledge } from './knowledge.js';
 
-const TOOLS = [explainSchema, diagnoseSchema, validateSchema, scaffoldSchema, testSandboxSchema, goLiveSchema];
+export interface AuthContext {
+  consumerKey: string;
+  consumerSecret: string;
+}
 
-export function createServer(): Server {
+const TOOLS = [explainSchema, diagnoseSchema, validateSchema, scaffoldSchema, testSandboxSchema, goLiveSchema, setupSchema];
+
+export function createServer(authContext?: AuthContext): Server {
   const server = new Server(
     { name: 'daraja-mcp', version: '0.1.0' },
     { capabilities: { tools: {}, resources: {} } },
@@ -55,10 +61,13 @@ export function createServer(): Server {
           result = handleScaffold(args as any);
           break;
         case 'daraja_test_sandbox':
-          result = await handleTestSandbox(args as any);
+          result = await handleTestSandbox(args as any, authContext);
           break;
         case 'daraja_go_live':
           result = handleGoLive(args as any);
+          break;
+        case 'daraja_setup':
+          result = await handleSetup(args as any);
           break;
         default:
           return {

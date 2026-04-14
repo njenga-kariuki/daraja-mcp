@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>daraja-kit — The Next Chapter for Daraja</title>
+  <title>Daraja 4.0 — Africa's Agentic Payments Platform</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -176,7 +176,7 @@
        SECTION 1: HERO
        ═══════════════════════════════════════════════════════════════════ */
     #hero {
-      padding: 160px 0 140px;
+      padding: 140px 0 100px;
       text-align: center;
       position: relative;
       overflow: hidden;
@@ -210,27 +210,6 @@
       line-height: 1.7;
     }
     .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
-    .hero-stats {
-      display: flex;
-      gap: 40px;
-      justify-content: center;
-      margin-top: 64px;
-      flex-wrap: wrap;
-    }
-    .hero-stat {
-      text-align: center;
-    }
-    .hero-stat-value {
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--green);
-      line-height: 1;
-    }
-    .hero-stat-label {
-      font-size: 0.78rem;
-      color: var(--gray-400);
-      margin-top: 6px;
-    }
 
     /* ═══════════════════════════════════════════════════════════════════
        SECTION 2: FOUNDATION (Celebrate Daraja 3.0)
@@ -281,51 +260,6 @@
       font-style: italic;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       SECTION 3: OPPORTUNITY
-       ═══════════════════════════════════════════════════════════════════ */
-    .opportunity-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
-      margin-top: 48px;
-    }
-    .insight-card {
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      padding: 36px 28px;
-      color: var(--gray-900);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .insight-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-xl);
-    }
-    .insight-card-icon {
-      width: 48px;
-      height: 48px;
-      background: var(--light);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.4rem;
-      margin-bottom: 20px;
-    }
-    .insight-card h3 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-    .insight-card p {
-      font-size: 0.88rem;
-      color: var(--gray-600);
-      line-height: 1.65;
-    }
-    .insight-card em {
-      color: var(--green-dark);
-      font-style: italic;
-    }
 
     /* ═══════════════════════════════════════════════════════════════════
        SECTION 4: EVOLUTION (Before/After)
@@ -736,191 +670,7 @@
       font-style: italic;
     }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       SECTION 7: METRICS
-       ═══════════════════════════════════════════════════════════════════ */
-    .metrics-counters {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 32px;
-      margin-top: 48px;
-    }
-    .metric-counter {
-      text-align: center;
-    }
-    .metric-value {
-      font-size: 3.2rem;
-      font-weight: 800;
-      color: var(--green);
-      line-height: 1;
-      margin-bottom: 8px;
-    }
-    .metric-value-suffix {
-      font-size: 1.6rem;
-      color: rgba(53,168,57,0.7);
-    }
-    .metric-label {
-      font-size: 0.88rem;
-      color: rgba(255,255,255,0.6);
-    }
-    .metrics-table-wrapper {
-      margin-top: 64px;
-      overflow-x: auto;
-    }
-    .metrics-table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.83rem;
-    }
-    .metrics-table th {
-      padding: 14px 20px;
-      text-align: left;
-      font-weight: 700;
-      border-bottom: 1px solid rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.5);
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-    .metrics-table td {
-      padding: 14px 20px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.8);
-    }
-    .metrics-table tr:last-child td { border-bottom: none; }
-    .metrics-table td:last-child {
-      color: var(--green);
-      font-weight: 600;
-    }
 
-    /* ═══════════════════════════════════════════════════════════════════
-       SECTION 8: CHAT WIDGET
-       ═══════════════════════════════════════════════════════════════════ */
-    .chat-fab {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      width: 56px;
-      height: 56px;
-      background: var(--green);
-      border-radius: 50%;
-      border: none;
-      color: white;
-      font-size: 1.4rem;
-      cursor: pointer;
-      box-shadow: 0 4px 14px rgba(53,168,57,0.4);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.2s;
-      animation: pulse-green 2s infinite;
-    }
-    .chat-fab:hover { transform: scale(1.08); }
-    .chat-panel {
-      position: fixed;
-      bottom: 96px;
-      right: 28px;
-      width: 380px;
-      max-height: 520px;
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-xl);
-      border: 1px solid var(--gray-200);
-      z-index: 1000;
-      display: none;
-      flex-direction: column;
-      overflow: hidden;
-    }
-    .chat-panel.open { display: flex; }
-    .chat-panel-header {
-      padding: 16px 20px;
-      background: var(--green);
-      color: white;
-      font-weight: 700;
-      font-size: 0.88rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .chat-panel-close {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.2rem;
-      cursor: pointer;
-      opacity: 0.7;
-    }
-    .chat-panel-close:hover { opacity: 1; }
-    .chat-messages {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .chat-msg {
-      max-width: 85%;
-      padding: 10px 14px;
-      border-radius: 12px;
-      font-size: 0.78rem;
-      line-height: 1.55;
-      animation: fadeInMsg 0.3s ease;
-    }
-    @keyframes fadeInMsg {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .chat-msg-user {
-      align-self: flex-end;
-      background: var(--green);
-      color: white;
-      border-bottom-right-radius: 4px;
-    }
-    .chat-msg-ai {
-      align-self: flex-start;
-      background: var(--gray-50);
-      color: var(--gray-800);
-      border-bottom-left-radius: 4px;
-      border: 1px solid var(--gray-200);
-    }
-    .chat-msg-tool {
-      align-self: flex-start;
-      background: #F0FDF4;
-      color: var(--gray-700);
-      border: 1px solid #BBF7D0;
-      border-bottom-left-radius: 4px;
-      font-family: var(--font-mono);
-      font-size: 0.7rem;
-    }
-    .chat-typing {
-      align-self: flex-start;
-      padding: 10px 14px;
-      font-size: 0.78rem;
-      color: var(--gray-400);
-    }
-
-    /* ═══════════════════════════════════════════════════════════════════
-       SECTION 9: CTA + FOOTER
-       ═══════════════════════════════════════════════════════════════════ */
-    #cta {
-      text-align: center;
-      padding: 120px 0;
-    }
-    #cta h2 {
-      font-size: 2.4rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      margin-bottom: 20px;
-    }
-    #cta p {
-      font-size: 1.1rem;
-      color: rgba(255,255,255,0.75);
-      max-width: 640px;
-      margin: 0 auto 40px;
-      line-height: 1.7;
-    }
     footer {
       background: var(--dark);
       padding: 32px 0;
@@ -929,9 +679,324 @@
       color: rgba(255,255,255,0.35);
     }
 
+    /* ═══════════════════════════════════════════════════════════════════
+       STICKY NAV
+       ═══════════════════════════════════════════════════════════════════ */
+    .site-nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 999;
+      padding: 0 32px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
+    }
+    .site-nav.scrolled {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .nav-brand {
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--green);
+      text-decoration: none;
+    }
+    .nav-brand:hover { text-decoration: none; }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+    .nav-links a {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--gray-600);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--green); text-decoration: none; }
+    .nav-cta {
+      padding: 8px 20px !important;
+      background: var(--green) !important;
+      color: white !important;
+      border-radius: 6px !important;
+      font-weight: 600 !important;
+      font-size: 0.78rem !important;
+      transition: background 0.2s !important;
+    }
+    .nav-cta:hover { background: var(--green-dark) !important; }
+    .nav-hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--gray-700);
+      margin: 5px 0;
+      transition: all 0.3s;
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════════════
+       COMPETITIVE POSITIONING
+       ═══════════════════════════════════════════════════════════════════ */
+    .compare-table-wrapper {
+      overflow-x: auto;
+      margin-top: 48px;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+      background: var(--white);
+    }
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+    .compare-table th {
+      padding: 16px 20px;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--gray-500);
+      border-bottom: 2px solid var(--gray-200);
+      white-space: nowrap;
+    }
+    .compare-table td {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--gray-100);
+      color: var(--gray-700);
+      white-space: nowrap;
+    }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .compare-table .row-highlight {
+      background: #F0FDF4;
+    }
+    .compare-table .row-highlight td {
+      color: var(--dark);
+      font-weight: 600;
+    }
+    .compare-table .cell-check { color: var(--success); font-weight: 700; }
+    .compare-table .cell-cross { color: var(--gray-400); }
+    .compare-table .cell-partial { color: var(--warning); }
+    .differentiators {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-top: 48px;
+    }
+    .diff-card {
+      padding: 28px;
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1px solid var(--gray-200);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .diff-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+    }
+    .diff-card h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .diff-card p {
+      font-size: 0.83rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+
+
+    /* ═══════════════════════════════════════════════════════════════════
+       INLINE CHAT DEMO
+       ═══════════════════════════════════════════════════════════════════ */
+    .chat-demo-container {
+      max-width: 600px;
+      margin: 48px auto 0;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-xl);
+      overflow: hidden;
+      border: 1px solid var(--gray-200);
+    }
+    .chat-demo-header {
+      padding: 16px 24px;
+      background: var(--green);
+      color: white;
+      font-weight: 700;
+      font-size: 0.88rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .chat-demo-header-dot {
+      width: 8px;
+      height: 8px;
+      background: rgba(255,255,255,0.5);
+      border-radius: 50%;
+      animation: pulse-green 2s infinite;
+    }
+    .chat-demo-messages {
+      padding: 24px;
+      min-height: 360px;
+      max-height: 480px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: var(--gray-50);
+    }
+    .chat-demo-msg {
+      max-width: 88%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .chat-demo-msg.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .chat-demo-msg-user {
+      align-self: flex-end;
+      background: var(--green);
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-demo-msg-ai {
+      align-self: flex-start;
+      background: var(--white);
+      color: var(--gray-800);
+      border-bottom-left-radius: 4px;
+      border: 1px solid var(--gray-200);
+    }
+    .chat-demo-msg-tool {
+      align-self: flex-start;
+      background: #F0FDF4;
+      color: var(--gray-700);
+      border: 1px solid #BBF7D0;
+      border-bottom-left-radius: 4px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       GET STARTED
+       ═══════════════════════════════════════════════════════════════════ */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      margin-top: 48px;
+    }
+    .step-card {
+      text-align: center;
+    }
+    .step-num {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--green);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin: 0 auto 16px;
+    }
+    .step-card h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .step-card p {
+      font-size: 0.83rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .step-code {
+      background: var(--gray-900);
+      color: #e0e0e0;
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      line-height: 1.6;
+      text-align: left;
+      position: relative;
+      overflow-x: auto;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      color: rgba(255,255,255,0.5);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: all 0.2s;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+    .step-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 48px 0;
+      color: var(--gray-400);
+      font-size: 0.83rem;
+      font-weight: 500;
+    }
+    .step-divider::before, .step-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-200);
+    }
+    .ai-path {
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .ai-path h4 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .ai-path p {
+      font-size: 0.88rem;
+      color: var(--gray-500);
+      margin-bottom: 20px;
+    }
+    .ai-path .step-code {
+      max-width: 100%;
+    }
+
     /* ── Responsive ────────────────────────────────────────────────────── */
     @media (max-width: 1024px) {
-      .foundation-grid, .opportunity-grid, .tools-grid, .metrics-counters { grid-template-columns: repeat(2, 1fr); }
+      .foundation-grid, .tools-grid, .differentiators, .steps-grid { grid-template-columns: repeat(2, 1fr); }
       .comparison-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 768px) {
@@ -940,113 +1005,214 @@
       #hero { padding: 100px 0 80px; }
       #hero h1 { font-size: 2.2rem; }
       .section-title { font-size: 1.8rem; }
-      .foundation-grid, .opportunity-grid, .tools-grid, .stories-grid, .metrics-counters { grid-template-columns: 1fr; }
-      .chat-panel { width: calc(100vw - 32px); right: 16px; }
+      .foundation-grid, .tools-grid, .stories-grid, .differentiators, .steps-grid { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+      .nav-hamburger { display: block; }
+      .nav-links.open {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 64px;
+        left: 0;
+        right: 0;
+        background: white;
+        padding: 16px 32px;
+        box-shadow: var(--shadow-md);
+        gap: 16px;
+      }
     }
   </style>
 </head>
 <body>
 
   <!-- ═══════════════════════════════════════════════════════════════════
+       STICKY NAV
+       ═══════════════════════════════════════════════════════════════════ -->
+  <nav class="site-nav" id="site-nav">
+    <a href="#hero" class="nav-brand">Daraja 4.0</a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#in-action">Demo</a></li>
+      <li><a href="#tools">Tools</a></li>
+      <li><a href="#evolution">Code</a></li>
+      <li><a href="#stories">Stories</a></li>
+      <li><a href="#get-started" class="nav-cta">Get Started</a></li>
+    </ul>
+    <button class="nav-hamburger" id="nav-hamburger" onclick="document.getElementById('nav-links').classList.toggle('open')">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
        SECTION 1: HERO
        ═══════════════════════════════════════════════════════════════════ -->
   <section id="hero" class="section-white">
     <div class="container">
-      <div class="overline fade-in">THE NEXT CHAPTER FOR DARAJA</div>
-      <h1 class="fade-in">From World-Class APIs<br>to Universal Access</h1>
+      <div class="overline fade-in">DARAJA 4.0 &middot; AFRICA'S AGENTIC PAYMENTS PLATFORM</div>
+      <h1 class="fade-in">Where any human &mdash; and any AI agent &mdash;<br>can move money</h1>
       <p class="subtitle fade-in">
-        Daraja 3.0 built the most powerful M-Pesa platform in the world.
-        <strong>daraja-kit</strong> makes it accessible to every developer &mdash; and every AI agent.
+        Daraja 3.0 gave developers a modern REST API to the world's largest mobile money platform.
+        <strong>Daraja 4.0</strong> opens it to every builder &mdash; the student with an idea, the three-person fintech, the enterprise team, and the AI agent acting on their behalf.
       </p>
       <div class="hero-ctas fade-in">
-        <a href="#foundation" class="btn btn-primary">Explore the Evolution</a>
-        <a href="#tools" class="btn btn-secondary">See It Live</a>
+        <a href="#in-action" class="btn btn-primary">See How It Works</a>
+        <a href="#tools" class="btn btn-secondary">Explore the Tools</a>
       </div>
-      <div class="hero-stats fade-in">
-        <div class="hero-stat">
-          <div class="hero-stat-value" data-count="6">0</div>
-          <div class="hero-stat-label">APIs Wrapped</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value" data-count="6">0</div>
-          <div class="hero-stat-label">AI Tools</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value" data-count="20">0</div>
-          <div class="hero-stat-label">Knowledge Docs</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-value">0</div>
-          <div class="hero-stat-label">Config Required</div>
-        </div>
-      </div>
+
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
-       SECTION 2: THE FOUNDATION
+       SEE IT IN ACTION
        ═══════════════════════════════════════════════════════════════════ -->
-  <section id="foundation" class="section-light">
-    <div class="container">
-      <div class="overline fade-in">THE FOUNDATION</div>
-      <h2 class="section-title fade-in">Daraja 3.0: The Platform That Powers It All</h2>
-      <div class="foundation-grid">
-        <div class="stat-card fade-in">
-          <div class="stat-card-value">12K</div>
-          <div class="stat-card-label">Transactions Per Second</div>
-          <div class="stat-card-desc">Cloud-native, enterprise-grade infrastructure built for Africa's scale</div>
-        </div>
-        <div class="stat-card fade-in">
-          <div class="stat-card-value">6</div>
-          <div class="stat-card-label">Core APIs</div>
-          <div class="stat-card-desc">Payments, disbursements, QR codes, status queries, balances, reversals</div>
-        </div>
-        <div class="stat-card fade-in">
-          <div class="stat-card-value">100K+</div>
-          <div class="stat-card-label">Developers</div>
-          <div class="stat-card-desc">Africa's largest and most active fintech developer ecosystem</div>
-        </div>
-      </div>
-      <p class="foundation-note fade-in">
-        "Daraja 3.0 delivers the most comprehensive M-Pesa API suite ever built. Every capability a developer needs is here.
-        The question is: <strong>how do we make these powerful APIs accessible to the next million builders?</strong>"
+  <section id="in-action" class="section-light">
+    <div class="container" style="text-align:center">
+      <div class="overline fade-in">SEE IT IN ACTION</div>
+      <h2 class="section-title fade-in">From Idea to Live Payment Page</h2>
+      <p class="section-subtitle fade-in" style="margin:0 auto">
+        A founder describes what she needs. An AI agent builds, validates, and ships it &mdash; with M-Pesa payments working out of the box.
       </p>
+
+      <div class="chat-demo-container fade-in" id="chat-demo">
+        <div class="chat-demo-header">
+          <div class="chat-demo-header-dot"></div>
+          Claude Code + Daraja 4.0 MCP
+        </div>
+        <div class="chat-demo-messages" id="chat-demo-messages"></div>
+      </div>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
-       SECTION 3: THE OPPORTUNITY
+       AI-NATIVE TOOLS
        ═══════════════════════════════════════════════════════════════════ -->
-  <section id="opportunity" class="section-dark">
+  <section id="tools" class="section-light">
     <div class="container">
-      <div class="overline overline-light fade-in">THE OPPORTUNITY</div>
-      <h2 class="section-title fade-in">Meeting Developers Where They Are</h2>
-      <div class="opportunity-grid">
-        <div class="insight-card fade-in">
-          <div class="insight-card-icon">&#x1F680;</div>
-          <h3>The Expert Path</h3>
-          <p>
-            Today's Daraja APIs are feature-complete and powerful. A skilled developer can build anything.
-            <em>But what about the 10x more builders who have great ideas but aren't API experts?</em>
-          </p>
+      <div class="overline fade-in">BUILT FOR EVERY AI</div>
+      <h2 class="section-title fade-in">Six tools. Any AI assistant. M-Pesa expertise, instant.</h2>
+      <p class="section-subtitle fade-in">
+        Daraja 4.0 ships with an MCP server that turns <strong>Claude, Cursor, Copilot, and any MCP-compatible AI</strong> into M-Pesa experts on first use. Every tool works for human developers too.
+      </p>
+
+      <div class="tools-grid">
+
+        <!-- Tool 1: Build (Scaffold) -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1F3D7;&#xFE0F;</div>
+            <h3>Build</h3>
+            <div class="tool-name">daraja_scaffold</div>
+            <p>Generate a complete M-Pesa project from a description. Any non-technical founder can go from idea to payment page.</p>
+          </div>
+          <div class="tool-card-body">
+            <input class="tool-input" id="scaffold-input" value="Build me a donation page with M-Pesa" placeholder="Describe what you want to build...">
+            <button class="tool-btn" onclick="runTool('scaffold')">Generate Project</button>
+            <div class="tool-output" id="scaffold-output"></div>
+          </div>
         </div>
-        <div class="insight-card fade-in">
-          <div class="insight-card-icon">&#x1F916;</div>
-          <h3>The Agentic Shift</h3>
-          <p>
-            AI coding assistants are writing 40%+ of new code globally.
-            <em>They need machine-readable knowledge and structured tools to integrate M-Pesa correctly.</em>
-          </p>
+
+        <!-- Tool 2: Validate -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1F50D;</div>
+            <h3>Validate</h3>
+            <div class="tool-name">daraja_validate</div>
+            <p>Expert-level code review for M-Pesa integrations. Catches credential leaks, URL issues, and field limits.</p>
+          </div>
+          <div class="tool-card-body">
+            <textarea class="tool-input" id="validate-input" rows="4" style="font-size:0.7rem;line-height:1.4">const consumerKey = 'abc123def456ghi789';
+const callbackUrl = 'http://mysite.com/callback';
+const ref = 'PAYMENT-REF-12345';
+mpesa.collect({ amount, phone });</textarea>
+            <button class="tool-btn" onclick="runTool('validate')">Validate Code</button>
+            <div class="tool-output" id="validate-output"></div>
+          </div>
         </div>
-        <div class="insight-card fade-in">
-          <div class="insight-card-icon">&#x26A1;</div>
-          <h3>The Global Standard</h3>
-          <p>
-            Developers worldwide benchmark against Stripe's &ldquo;5-line integration.&rdquo;
-            <em>What if M-Pesa could match that &mdash; while handling African payments complexity automatically?</em>
-          </p>
+
+        <!-- Tool 3: Diagnose -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1FA7A;</div>
+            <h3>Diagnose</h3>
+            <div class="tool-name">daraja_diagnose</div>
+            <p>Instant root cause analysis for any Daraja error. Paste an error code into Cursor, Claude, or any AI assistant and get the fix &mdash; no forums, no guesswork, no ticket escalation.</p>
+          </div>
+          <div class="tool-card-body">
+            <select class="tool-input" id="diagnose-input" style="font-family:var(--font-sans)">
+              <option value="1032">Error 1032 — Request cancelled</option>
+              <option value="1025">Error 1025 — STK delivery failed</option>
+              <option value="1037">Error 1037 — Phone unreachable</option>
+              <option value="2001">Error 2001 — Invalid credentials</option>
+              <option value="1001">Error 1001 — USSD session busy</option>
+              <option value="401">Error 401 — Authentication failed</option>
+            </select>
+            <button class="tool-btn" onclick="runTool('diagnose')">Diagnose Error</button>
+            <div class="tool-output" id="diagnose-output"></div>
+          </div>
         </div>
+
+        <!-- Tool 4: Learn (Explain) -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1F4DA;</div>
+            <h3>Learn</h3>
+            <div class="tool-name">daraja_explain</div>
+            <p>Plain-language explanations of any M-Pesa concept. Structured documentation searchable by humans and AI.</p>
+          </div>
+          <div class="tool-card-body">
+            <select class="tool-input" id="explain-input" style="font-family:var(--font-sans)">
+              <option value="SecurityCredential">What is SecurityCredential?</option>
+              <option value="STK Push flow">How does STK Push work?</option>
+              <option value="callbacks">How do callbacks work?</option>
+              <option value="going live production">How do I go live?</option>
+              <option value="authentication OAuth">How does authentication work?</option>
+            </select>
+            <button class="tool-btn" onclick="runTool('explain')">Explain</button>
+            <div class="tool-output" id="explain-output"></div>
+          </div>
+        </div>
+
+        <!-- Tool 5: Test -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1F9EA;</div>
+            <h3>Test</h3>
+            <div class="tool-name">daraja_test_sandbox</div>
+            <p>Run real tests against the Daraja sandbox. Verify your integration before writing backend code.</p>
+          </div>
+          <div class="tool-card-body">
+            <select class="tool-input" id="test-input" style="font-family:var(--font-sans)">
+              <option value="qr">Test: QR Code Generation</option>
+              <option value="auth">Test: STK Push (requires Lipa Na M-Pesa API)</option>
+            </select>
+            <button class="tool-btn" onclick="runTool('test')">Run Live Test</button>
+            <div class="tool-output" id="test-output"></div>
+          </div>
+        </div>
+
+        <!-- Tool 6: Ship (Go Live) -->
+        <div class="tool-card fade-in">
+          <div class="tool-card-header">
+            <div class="tool-card-icon">&#x1F6A2;</div>
+            <h3>Ship</h3>
+            <div class="tool-name">daraja_go_live</div>
+            <p>Production readiness checklist. Guided path from sandbox to live &mdash; no steps missed.</p>
+          </div>
+          <div class="tool-card-body">
+            <div style="display:flex;gap:12px;margin-bottom:12px">
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;cursor:pointer">
+                <input type="checkbox" id="golive-shortcode"> Has shortcode
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;cursor:pointer">
+                <input type="checkbox" id="golive-letter"> Has go-live letter
+              </label>
+            </div>
+            <button class="tool-btn" onclick="runTool('golive')">Check Readiness</button>
+            <div class="tool-output" id="golive-output"></div>
+          </div>
+        </div>
+
       </div>
+
     </div>
   </section>
 
@@ -1055,11 +1221,10 @@
        ═══════════════════════════════════════════════════════════════════ -->
   <section id="evolution" class="section-white">
     <div class="container">
-      <div class="overline fade-in">THE EVOLUTION</div>
-      <h2 class="section-title fade-in">Same Powerful APIs. Radically Simpler Interface.</h2>
+      <div class="overline fade-in">INTENT-BASED BUILDING</div>
+      <h2 class="section-title fade-in">Describe what you want. Ship it.</h2>
       <p class="section-subtitle fade-in">
-        daraja-kit wraps Daraja 3.0's APIs in an intent-based SDK that handles authentication,
-        security, polling, and error handling automatically.
+        Daraja 3.0's APIs are unchanged underneath. Daraja 4.0 wraps them in intent-based methods that collapse weeks of boilerplate into a handful of lines &mdash; and exposes the same methods to every AI coding assistant a builder might use.
       </p>
 
       <div class="tabs" role="tablist">
@@ -1279,8 +1444,9 @@
               <span>With daraja-kit + AI</span>
               <span class="code-panel-lines">2 files &middot; 109 lines</span>
             </div>
-            <pre><span class="cm">// Step 1: Tell an AI assistant what you want</span>
-<span class="cm">// "Build me a donation page with M-Pesa"</span>
+            <pre><span class="cm">// Step 1: In Claude, Cursor, or Lovable, say:</span>
+<span class="cm">// "Build me a school fees app that lets parents</span>
+<span class="cm">//  pay in instalments and sends receipts"</span>
 <span class="cm">//</span>
 <span class="cm">// Step 2: MCP scaffold tool generates:</span>
 
@@ -1373,137 +1539,47 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
-       SECTION 5: AI-NATIVE TOOLS
+       SECTION 4.5: INTELLIGENCE IN EVERY CALL
        ═══════════════════════════════════════════════════════════════════ -->
-  <section id="tools" class="section-light">
+  <section id="intelligence" class="section-light">
     <div class="container">
-      <div class="overline fade-in">AGENTIC-READY</div>
-      <h2 class="section-title fade-in">6 AI Tools That Democratize M-Pesa Integration</h2>
+      <div class="overline fade-in">INTELLIGENCE IN EVERY CALL</div>
+      <h2 class="section-title fade-in">The trust layer that makes it real</h2>
       <p class="section-subtitle fade-in">
-        The MCP server gives any AI assistant &mdash; Claude, GPT, Copilot &mdash; deep M-Pesa expertise.
-        Every tool works for humans too.
+        Every Daraja 4.0 call returns a payment receipt <strong>plus intelligence</strong>. Three capabilities ship embedded in every call &mdash; so a three-person fintech can launch a regulated product without a vendor stack, and a consumer app can personalise without ever seeing raw transaction data.
       </p>
-
-      <div class="tools-grid">
-
-        <!-- Tool 1: Build (Scaffold) -->
-        <div class="tool-card fade-in">
-          <div class="tool-card-header">
-            <div class="tool-card-icon">&#x1F3D7;&#xFE0F;</div>
-            <h3>Build</h3>
-            <div class="tool-name">daraja_scaffold</div>
-            <p>Generate a complete M-Pesa project from a description. Any non-technical founder can go from idea to payment page.</p>
-          </div>
-          <div class="tool-card-body">
-            <input class="tool-input" id="scaffold-input" value="Build me a donation page with M-Pesa" placeholder="Describe what you want to build...">
-            <button class="tool-btn" onclick="runTool('scaffold')">Generate Project</button>
-            <div class="tool-output" id="scaffold-output"></div>
-          </div>
+      <div class="foundation-grid">
+        <div class="stat-card fade-in" style="text-align:left">
+          <div style="color:var(--green);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px">Capability 1</div>
+          <h3 style="font-size:1.25rem;font-weight:800;margin-bottom:14px;color:var(--gray-900);line-height:1.3">Identity &amp; Verification</h3>
+          <p style="font-size:0.9rem;color:var(--gray-700);line-height:1.65;margin-bottom:16px"><strong style="color:var(--gray-900)">KYC in 60 seconds.</strong> One Daraja call returns identity confidence, device consistency, location check, and a risk score &mdash; grounded in GSM and financial data only M-Pesa has.</p>
+          <p style="font-size:0.8rem;color:var(--gray-500);line-height:1.55;margin-bottom:16px"><strong style="color:var(--gray-700)">Use case:</strong> A three-person fintech in Nairobi approves a microloan in 60 seconds &mdash; one API call replaces their entire KYC vendor stack.</p>
+          <div class="step-code" style="margin-top:0;font-size:0.72rem;text-align:left;padding:12px 14px"><span class="t-comment">// One call. Borrower verified in 60 seconds.</span>
+{ confidence: <span class="t-num">0.94</span>, device_match: <span class="t-num">true</span>,
+  location_ok: <span class="t-num">true</span>, risk: <span class="t-str">"low"</span> }</div>
         </div>
-
-        <!-- Tool 2: Validate -->
-        <div class="tool-card fade-in">
-          <div class="tool-card-header">
-            <div class="tool-card-icon">&#x1F50D;</div>
-            <h3>Validate</h3>
-            <div class="tool-name">daraja_validate</div>
-            <p>Expert-level code review for M-Pesa integrations. Catches credential leaks, URL issues, and field limits.</p>
-          </div>
-          <div class="tool-card-body">
-            <textarea class="tool-input" id="validate-input" rows="4" style="font-size:0.7rem;line-height:1.4">const consumerKey = 'abc123def456ghi789';
-const callbackUrl = 'http://mysite.com/callback';
-const ref = 'PAYMENT-REF-12345';
-mpesa.collect({ amount, phone });</textarea>
-            <button class="tool-btn" onclick="runTool('validate')">Validate Code</button>
-            <div class="tool-output" id="validate-output"></div>
-          </div>
+        <div class="stat-card fade-in" style="text-align:left">
+          <div style="color:var(--green);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px">Capability 2</div>
+          <h3 style="font-size:1.25rem;font-weight:800;margin-bottom:14px;color:var(--gray-900);line-height:1.3">Customer Intelligence</h3>
+          <p style="font-size:0.9rem;color:var(--gray-700);line-height:1.65;margin-bottom:16px"><strong style="color:var(--gray-900)">Consented signals, zero raw data.</strong> Apps consume derived patterns &mdash; spending rhythm, next predicted activity, primary categories &mdash; behind a scope-limited, revocable consent flow. No transaction history ever crosses the API boundary.</p>
+          <p style="font-size:0.8rem;color:var(--gray-500);line-height:1.55;margin-bottom:16px"><strong style="color:var(--gray-700)">Use case:</strong> A consumer app warns you before cash runs short and flags subscriptions you've stopped using &mdash; without ever seeing your raw transactions.</p>
+          <div class="step-code" style="margin-top:0;font-size:0.72rem;text-align:left;padding:12px 14px"><span class="t-comment">// Consented signals. Never raw transactions.</span>
+{ rhythm: <span class="t-str">"weekly"</span>, next_low: <span class="t-str">"Jan 15"</span>,
+  categories: [<span class="t-str">"groceries"</span>, <span class="t-str">"transport"</span>] }</div>
         </div>
-
-        <!-- Tool 3: Diagnose -->
-        <div class="tool-card fade-in">
-          <div class="tool-card-header">
-            <div class="tool-card-icon">&#x1FA7A;</div>
-            <h3>Diagnose</h3>
-            <div class="tool-name">daraja_diagnose</div>
-            <p>Instant root cause analysis for any Daraja error. No more searching forums &mdash; the answer is immediate.</p>
-          </div>
-          <div class="tool-card-body">
-            <select class="tool-input" id="diagnose-input" style="font-family:var(--font-sans)">
-              <option value="1032">Error 1032 — Request cancelled</option>
-              <option value="1025">Error 1025 — STK delivery failed</option>
-              <option value="1037">Error 1037 — Phone unreachable</option>
-              <option value="2001">Error 2001 — Invalid credentials</option>
-              <option value="1001">Error 1001 — USSD session busy</option>
-              <option value="401">Error 401 — Authentication failed</option>
-            </select>
-            <button class="tool-btn" onclick="runTool('diagnose')">Diagnose Error</button>
-            <div class="tool-output" id="diagnose-output"></div>
-          </div>
+        <div class="stat-card fade-in" style="text-align:left">
+          <div style="color:var(--green);font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px">Capability 3</div>
+          <h3 style="font-size:1.25rem;font-weight:800;margin-bottom:14px;color:var(--gray-900);line-height:1.3">Merchant Health Signal</h3>
+          <p style="font-size:0.9rem;color:var(--gray-700);line-height:1.65;margin-bottom:16px"><strong style="color:var(--gray-900)">A real-time categorical read on every merchant.</strong> Stable, growing, declining, at-risk &mdash; computed on two-sided visibility across 3M+ merchants that no global platform can match.</p>
+          <p style="font-size:0.8rem;color:var(--gray-500);line-height:1.55;margin-bottom:16px"><strong style="color:var(--gray-700)">Use case:</strong> A wholesaler's AI agent checks merchant health before every supplier payment &mdash; financing priced in real time, no credit bureau needed.</p>
+          <div class="step-code" style="margin-top:0;font-size:0.72rem;text-align:left;padding:12px 14px"><span class="t-comment">// Real-time read on 3M+ merchants.</span>
+{ status: <span class="t-str">"growing"</span>, trend: <span class="t-str">"+12% MoM"</span>,
+  risk_flag: <span class="t-num">null</span> }</div>
         </div>
-
-        <!-- Tool 4: Learn (Explain) -->
-        <div class="tool-card fade-in">
-          <div class="tool-card-header">
-            <div class="tool-card-icon">&#x1F4DA;</div>
-            <h3>Learn</h3>
-            <div class="tool-name">daraja_explain</div>
-            <p>Plain-language explanations of any M-Pesa concept. 20 structured documents searchable by humans and AI.</p>
-          </div>
-          <div class="tool-card-body">
-            <select class="tool-input" id="explain-input" style="font-family:var(--font-sans)">
-              <option value="SecurityCredential">What is SecurityCredential?</option>
-              <option value="STK Push flow">How does STK Push work?</option>
-              <option value="callbacks">How do callbacks work?</option>
-              <option value="going live production">How do I go live?</option>
-              <option value="authentication OAuth">How does authentication work?</option>
-            </select>
-            <button class="tool-btn" onclick="runTool('explain')">Explain</button>
-            <div class="tool-output" id="explain-output"></div>
-          </div>
-        </div>
-
-        <!-- Tool 5: Test -->
-        <div class="tool-card fade-in">
-          <div class="tool-card-header">
-            <div class="tool-card-icon">&#x1F9EA;</div>
-            <h3>Test</h3>
-            <div class="tool-name">daraja_test_sandbox</div>
-            <p>Run real tests against the Daraja sandbox. Verify your integration before writing backend code.</p>
-          </div>
-          <div class="tool-card-body">
-            <select class="tool-input" id="test-input" style="font-family:var(--font-sans)">
-              <option value="auth">Test: OAuth Authentication</option>
-              <option value="stk_push">Test: STK Push</option>
-              <option value="qr">Test: QR Code Generation</option>
-            </select>
-            <button class="tool-btn" onclick="runTool('test')">Run Live Test</button>
-            <div class="tool-output" id="test-output"></div>
-          </div>
-        </div>
-
-        <!-- Tool 6: Ship (Go Live) -->
-        <div class="tool-card fade-in">
-          <div class="tool-card-header">
-            <div class="tool-card-icon">&#x1F6A2;</div>
-            <h3>Ship</h3>
-            <div class="tool-name">daraja_go_live</div>
-            <p>Production readiness checklist. Guided path from sandbox to live &mdash; no steps missed.</p>
-          </div>
-          <div class="tool-card-body">
-            <div style="display:flex;gap:12px;margin-bottom:12px">
-              <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;cursor:pointer">
-                <input type="checkbox" id="golive-shortcode"> Has shortcode
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;font-size:0.78rem;cursor:pointer">
-                <input type="checkbox" id="golive-letter"> Has go-live letter
-              </label>
-            </div>
-            <button class="tool-btn" onclick="runTool('golive')">Check Readiness</button>
-            <div class="tool-output" id="golive-output"></div>
-          </div>
-        </div>
-
       </div>
+      <p class="foundation-note fade-in" style="margin-top:56px">
+        Intent + MCP is the democratisation layer. These three capabilities are what make it real &mdash; <strong>every build ships with intelligence embedded and trust in the rails, by default.</strong>
+      </p>
     </div>
   </section>
 
@@ -1512,180 +1588,304 @@ mpesa.collect({ amount, phone });</textarea>
        ═══════════════════════════════════════════════════════════════════ -->
   <section id="stories" class="section-white">
     <div class="container">
-      <div class="overline fade-in">UNIVERSAL ACCESS</div>
-      <h2 class="section-title fade-in">Built for Everyone Who Builds on M-Pesa</h2>
+      <div class="overline fade-in">WHAT BECOMES POSSIBLE</div>
+      <h2 class="section-title fade-in">Four builds that cannot exist on any other rail in Africa today</h2>
+      <p class="section-subtitle fade-in">
+        Each one points at a Daraja 4.0 capability. Each one is deliverable in 2026.
+      </p>
 
       <div class="stories-grid">
-        <!-- Story 1: Vibe Coder -->
-        <div class="story-card fade-in">
-          <div class="story-persona">
-            <div class="story-avatar" style="background:linear-gradient(135deg,#35A839,#059669)">A</div>
-            <div class="story-persona-info">
-              <h4>Amara</h4>
-              <span>University student &middot; Building a campus marketplace</span>
-            </div>
-          </div>
-          <ol class="story-steps">
-            <li class="story-step">
-              <div class="story-step-num">1</div>
-              <div class="story-step-text">Opens Claude and says: <em>"I want to accept M-Pesa payments for my campus delivery app"</em></div>
-            </li>
-            <li class="story-step">
-              <div class="story-step-num">2</div>
-              <div class="story-step-text">MCP <code>daraja_scaffold</code> generates a complete project &mdash; server, frontend, payment flow</div>
-            </li>
-            <li class="story-step">
-              <div class="story-step-num">3</div>
-              <div class="story-step-text"><code>npm install && npm start</code> &mdash; accepting payments on campus</div>
-            </li>
-          </ol>
-          <div class="story-time">&#x23F1;&#xFE0F; Idea to first payment: 5 minutes</div>
-          <p class="story-tagline">"No backend experience. No API docs. Just describe what you want."</p>
-        </div>
 
-        <!-- Story 2: Expert Developer -->
+        <!-- Build 1: Nairobi student — Intent + MCP -->
         <div class="story-card fade-in">
           <div class="story-persona">
-            <div class="story-avatar" style="background:linear-gradient(135deg,#2563EB,#7C3AED)">K</div>
+            <div class="story-avatar" style="background:linear-gradient(135deg,#35A839,#059669)">S</div>
             <div class="story-persona-info">
-              <h4>Kevin</h4>
-              <span>Senior engineer &middot; Fintech startup</span>
+              <h4>The Nairobi student</h4>
+              <span>Ships an M-Pesa app the weekend she thinks of it</span>
             </div>
           </div>
           <ol class="story-steps">
             <li class="story-step">
               <div class="story-step-num">1</div>
-              <div class="story-step-text"><code>npm install @daraja-kit/sdk</code> &mdash; one dependency, zero config for sandbox</div>
+              <div class="story-step-text">Opens <strong>Claude, Cursor, or Lovable</strong> and describes a boda fare-splitting app in plain English</div>
             </li>
             <li class="story-step">
               <div class="story-step-num">2</div>
-              <div class="story-step-text">5 lines of code for STK Push &mdash; auth, security, polling all handled</div>
+              <div class="story-step-text">An AI agent writes, tests, and deploys it against Daraja &mdash; she never reads an API reference, never signs a KYC vendor contract</div>
             </li>
             <li class="story-step">
               <div class="story-step-num">3</div>
-              <div class="story-step-text"><code>daraja_validate</code> catches a hardcoded credential and HTTP callback before production</div>
+              <div class="story-step-text">Every payment her app initiates returns with a risk score, a receipt, and an audit entry</div>
             </li>
             <li class="story-step">
               <div class="story-step-num">4</div>
-              <div class="story-step-text"><code>daraja_go_live</code> generates a 10-point production checklist &mdash; nothing missed</div>
+              <div class="story-step-text">The app is live before the weekend ends</div>
             </li>
           </ol>
-          <div class="story-time">&#x23F1;&#xFE0F; Production-ready in an afternoon, not a sprint</div>
-          <p class="story-tagline">"Everything you know about Daraja still applies. The SDK just removes the boilerplate."</p>
+          <div class="story-time">&#x23F1;&#xFE0F; Idea to live app: one weekend</div>
+          <p class="story-tagline">Powered by: <strong>Intent API + MCP Server</strong></p>
         </div>
+
+        <!-- Build 2: Nairobi lender — Identity -->
+        <div class="story-card fade-in">
+          <div class="story-persona">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#2563EB,#7C3AED)">L</div>
+            <div class="story-persona-info">
+              <h4>The Nairobi lender</h4>
+              <span>Three engineers. Approves a microloan in 60 seconds.</span>
+            </div>
+          </div>
+          <ol class="story-steps">
+            <li class="story-step">
+              <div class="story-step-num">1</div>
+              <div class="story-step-text">Calls a single Daraja endpoint with an MSISDN and a transaction context</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">2</div>
+              <div class="story-step-text">Response carries identity confidence, device consistency, location check, and a risk score &mdash; grounded in GSM and financial data only M-Pesa has</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">3</div>
+              <div class="story-step-text">Borrower verified, loan disbursed</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">4</div>
+              <div class="story-step-text">The lender never built a KYC vendor stack because they never needed one</div>
+            </li>
+          </ol>
+          <div class="story-time">&#x23F1;&#xFE0F; Onboarding to disbursement: under a minute</div>
+          <p class="story-tagline">Powered by: <strong>Identity &amp; Verification API</strong></p>
+        </div>
+
+        <!-- Build 3: Malindi mother — Customer Intelligence -->
+        <div class="story-card fade-in">
+          <div class="story-persona">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#F59E0B,#DC2626)">M</div>
+            <div class="story-persona-info">
+              <h4>The Malindi mother</h4>
+              <span>Uses the first AI financial companion built for mobile money</span>
+            </div>
+          </div>
+          <ol class="story-steps">
+            <li class="story-step">
+              <div class="story-step-num">1</div>
+              <div class="story-step-text">Grants scope-limited, revocable consent for an app to read derived signals &mdash; never her raw transactions</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">2</div>
+              <div class="story-step-text">The app flags a subscription she stopped using and tells her when cash will run short before she notices</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">3</div>
+              <div class="story-step-text">Suggests a savings lock for her Eid budget &mdash; useful, specific, timely</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">4</div>
+              <div class="story-step-text">The data stayed on M-Pesa rails. The trust stayed with M-Pesa.</div>
+            </li>
+          </ol>
+          <div class="story-time">&#x1F4A1; A product category that cannot exist on any other rail in Africa</div>
+          <p class="story-tagline">Powered by: <strong>Customer Intelligence API</strong></p>
+        </div>
+
+        <!-- Build 4: Mombasa wholesaler — Intent + Merchant Health -->
+        <div class="story-card fade-in">
+          <div class="story-persona">
+            <div class="story-avatar" style="background:linear-gradient(135deg,#0891B2,#1E40AF)">W</div>
+            <div class="story-persona-info">
+              <h4>The Mombasa wholesaler</h4>
+              <span>Runs his payables cycle through an AI agent</span>
+            </div>
+          </div>
+          <ol class="story-steps">
+            <li class="story-step">
+              <div class="story-step-num">1</div>
+              <div class="story-step-text">Sets budget caps, merchant categories, and approval thresholds once</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">2</div>
+              <div class="story-step-text">The agent pays suppliers on due dates and staff on payroll day &mdash; every payment routed through the M-Pesa intent API</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">3</div>
+              <div class="story-step-text">Every transaction carries a decision trace queryable by his bookkeeper, his auditor, and the regulator</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">4</div>
+              <div class="story-step-text">He approves exceptions on his phone. Everything else runs itself.</div>
+            </li>
+          </ol>
+          <div class="story-time">&#x23F1;&#xFE0F; Hours of bookkeeping per week, reclaimed</div>
+          <p class="story-tagline">Powered by: <strong>Intent API + Merchant Health Signal</strong></p>
+        </div>
+
       </div>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
-       SECTION 7: METRICS
+       COMPETITIVE POSITIONING
        ═══════════════════════════════════════════════════════════════════ -->
-  <section id="metrics" class="section-dark">
+  <section id="compare" class="section-light">
     <div class="container">
-      <div class="overline overline-light fade-in">THE IMPACT</div>
-      <h2 class="section-title fade-in">Developer Experience, Quantified</h2>
+      <div class="overline fade-in">HOW WE COMPARE</div>
+      <h2 class="section-title fade-in">The Simplest M-Pesa Integration. Period.</h2>
+      <p class="section-subtitle fade-in">
+        Developers worldwide benchmark payment APIs against Stripe. Here&rsquo;s how Daraja 4.0 stacks up &mdash;
+        not just against Stripe, but against every option for accepting M-Pesa payments.
+      </p>
 
-      <div class="metrics-counters">
-        <div class="metric-counter fade-in">
-          <div class="metric-value"><span data-count="97">0</span><span class="metric-value-suffix">%</span></div>
-          <div class="metric-label">Fewer lines of code</div>
-        </div>
-        <div class="metric-counter fade-in">
-          <div class="metric-value" data-count="6">0</div>
-          <div class="metric-label">AI-native tools</div>
-        </div>
-        <div class="metric-counter fade-in">
-          <div class="metric-value" data-count="20">0</div>
-          <div class="metric-label">Knowledge documents</div>
-        </div>
-        <div class="metric-counter fade-in">
-          <div class="metric-value"><span data-count="5">0</span><span class="metric-value-suffix"> min</span></div>
-          <div class="metric-label">Zero to first payment</div>
-        </div>
-      </div>
-
-      <div class="metrics-table-wrapper fade-in">
-        <table class="metrics-table">
+      <div class="compare-table-wrapper fade-in">
+        <table class="compare-table">
           <thead>
             <tr>
-              <th></th>
-              <th>Standard Daraja</th>
-              <th>With daraja-kit</th>
+              <th>Platform</th>
+              <th>Lines of Code</th>
+              <th>Callbacks Required?</th>
+              <th>AI Agent Tools</th>
+              <th>Time to First Payment</th>
+              <th>M-Pesa Native</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>STK Push setup</td>
-              <td>Multi-file, multi-step</td>
-              <td>5 lines, 1 file</td>
+              <td><strong>Raw Daraja API</strong></td>
+              <td>~187 lines, 3 files</td>
+              <td class="cell-cross">Yes (complex)</td>
+              <td class="cell-cross">None</td>
+              <td>Days to weeks</td>
+              <td class="cell-check">Yes</td>
             </tr>
             <tr>
-              <td>Auth management</td>
-              <td>Manual OAuth + refresh</td>
-              <td>Automatic (zero-config)</td>
+              <td><strong>Flutterwave</strong></td>
+              <td>~15&ndash;40 lines</td>
+              <td class="cell-cross">Yes</td>
+              <td class="cell-cross">None</td>
+              <td>Hours</td>
+              <td class="cell-partial">Via aggregation</td>
             </tr>
             <tr>
-              <td>Security credential</td>
-              <td>Manual RSA encryption</td>
-              <td>Automatic</td>
+              <td><strong>Paystack</strong></td>
+              <td>~5 lines (popup)</td>
+              <td class="cell-cross">Yes</td>
+              <td class="cell-cross">None</td>
+              <td>Hours</td>
+              <td class="cell-cross">No</td>
             </tr>
             <tr>
-              <td>Error guidance</td>
-              <td>Result code reference</td>
-              <td>.suggestion field (human + AI)</td>
+              <td><strong>Stripe</strong></td>
+              <td>~7 lines</td>
+              <td class="cell-cross">Yes (webhooks)</td>
+              <td class="cell-cross">None built-in</td>
+              <td>~30 minutes</td>
+              <td class="cell-cross">No</td>
             </tr>
-            <tr>
-              <td>Project scaffolding</td>
-              <td>Manual setup</td>
-              <td>AI generates complete projects</td>
-            </tr>
-            <tr>
-              <td>Production readiness</td>
-              <td>Manual checklist</td>
-              <td>Automated 10-point verification</td>
+            <tr class="row-highlight">
+              <td><strong>Daraja 4.0</strong></td>
+              <td>3 lines, 1 file</td>
+              <td class="cell-check">No (auto-polls)</td>
+              <td class="cell-check">6 MCP tools</td>
+              <td>5 minutes</td>
+              <td class="cell-check">Yes (native)</td>
             </tr>
           </tbody>
         </table>
       </div>
-    </div>
-  </section>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       SECTION 9: CTA
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section id="cta" class="section-gradient">
-    <div class="container">
-      <h2 class="fade-in">The Agentic Future of M-Pesa</h2>
-      <p class="fade-in">
-        Daraja 3.0 made M-Pesa programmable. daraja-kit makes it conversational.
-        Together, they open M-Pesa to every developer, every AI agent, and every idea &mdash; across Africa and beyond.
+      <p class="foundation-note fade-in" style="margin-top:32px">
+        Built on two-sided transaction visibility across 40 million customers and 3 million merchants &mdash;
+        <strong>a data density no card network or global platform can match in Africa.</strong>
       </p>
-      <div class="fade-in" style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap">
-        <a href="#" class="btn btn-dark">Let's Build This Together</a>
-        <a href="#tools" class="btn btn-outline-light">Try the Tools</a>
+
+      <div class="differentiators">
+        <div class="diff-card fade-in">
+          <h4>AI-Native</h4>
+          <p>The only payment SDK with a built-in MCP server. AI agents scaffold complete projects, validate code, diagnose errors, and guide production deployment.</p>
+        </div>
+        <div class="diff-card fade-in">
+          <h4>No Callbacks Needed</h4>
+          <p>STK Push auto-polls for results. No webhook server, no ngrok, no public URL. The #1 integration pain point &mdash; eliminated.</p>
+        </div>
+        <div class="diff-card fade-in">
+          <h4>Self-Healing Errors</h4>
+          <p>Every error includes a <code>.suggestion</code> field with plain-English guidance. Both developers and AI agents can instantly understand what went wrong and how to fix it.</p>
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- ═══════════════════════════════════════════════════════════════════
+       GET STARTED
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="get-started" class="section-gradient">
+    <div class="container" style="text-align:center">
+      <div class="overline overline-light fade-in">GET STARTED</div>
+      <h2 class="section-title fade-in">Tell AI What You Want to Build</h2>
+      <p class="section-subtitle section-subtitle-light fade-in" style="margin:0 auto">
+        Add Daraja 4.0 to your AI assistant. Describe what you want. The AI handles the rest.
+      </p>
+
+      <div class="ai-path fade-in" style="max-width:560px;margin:40px auto 0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15)">
+        <h4 style="color:white">One step: add this to your project</h4>
+        <p style="color:rgba(255,255,255,0.7)">
+          Drop a <code style="background:rgba(255,255,255,0.1);color:white">.mcp.json</code> in your project root. Your AI assistant instantly gets 6 M-Pesa tools.
+          Works with Claude, Cursor, Copilot, and any MCP-compatible client.
+        </p>
+        <div class="step-code" style="text-align:left">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+{
+  <span class="t-key">"mcpServers"</span>: {
+    <span class="t-key">"daraja-kit"</span>: {
+      <span class="t-key">"command"</span>: <span class="t-str">"npx"</span>,
+      <span class="t-key">"args"</span>: [<span class="t-str">"@daraja-kit/mcp"</span>]
+    }
+  }
+}</div>
+        <div style="margin-top:16px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap">
+          <span style="color:rgba(255,255,255,0.45);font-size:0.78rem">Using Lovable, Replit, or Bolt?</span>
+          <code style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);padding:4px 10px;border-radius:4px;font-size:0.72rem">https://daraja-kit-mcp-production.up.railway.app/mcp</code>
+          <button onclick="navigator.clipboard.writeText('https://daraja-kit-mcp-production.up.railway.app/mcp').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.textContent='Copy'},1500)})" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.5);padding:4px 8px;border-radius:4px;font-size:0.65rem;cursor:pointer;font-family:var(--font-sans)">Copy</button>
+        </div>
+      </div>
+
+      <div class="step-divider fade-in" style="color:rgba(255,255,255,0.5)">Or build it yourself</div>
+
+      <div class="steps-grid fade-in" style="max-width:900px;margin:0 auto">
+        <div class="step-card" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1)">
+          <div class="step-num" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6)">1</div>
+          <h4 style="color:white">Get Free API Keys</h4>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.8rem">developer.safaricom.co.ke &mdash; 2 minutes</p>
+        </div>
+        <div class="step-card" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1)">
+          <div class="step-num" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6)">2</div>
+          <h4 style="color:white">Install the SDK</h4>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.8rem">npm install @daraja-kit/sdk</p>
+        </div>
+        <div class="step-card" style="background:rgba(255,255,255,0.06);border-color:rgba(255,255,255,0.1)">
+          <div class="step-num" style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.6)">3</div>
+          <h4 style="color:white">Collect a Payment</h4>
+          <p style="color:rgba(255,255,255,0.6);font-size:0.8rem">3 lines. SDK handles the rest.</p>
+        </div>
+      </div>
+
+      <p class="foundation-note fade-in" style="margin-top:56px;color:rgba(255,255,255,0.6);font-style:normal">
+        Same rails. Same trust. Where mobile money meets the agentic era &mdash; <strong style="color:white">and where the next generation of African fintech gets built.</strong>
+      </p>
+      <div class="fade-in" style="margin-top:24px">
+        <a href="#tools" class="btn btn-primary" style="background:white;color:var(--dark)">Start building</a>
+      </div>
+    </div>
+  </section>
+
+
   <!-- Footer -->
   <footer>
     <div class="container">
-      daraja-kit &mdash; An evolution of Daraja 3.0 for the agentic era
+      Daraja 4.0 &mdash; Africa's agentic payments platform &middot; Built on Daraja 3.0
     </div>
   </footer>
 
-  <!-- ═══════════════════════════════════════════════════════════════════
-       SECTION 8: CHAT WIDGET
-       ═══════════════════════════════════════════════════════════════════ -->
-  <button class="chat-fab" id="chat-fab" onclick="toggleChat()" title="Ask Daraja AI">&#x1F4AC;</button>
-
-  <div class="chat-panel" id="chat-panel">
-    <div class="chat-panel-header">
-      <span>Ask Daraja AI</span>
-      <button class="chat-panel-close" onclick="toggleChat()">&times;</button>
-    </div>
-    <div class="chat-messages" id="chat-messages"></div>
-  </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════
        JAVASCRIPT
@@ -1873,58 +2073,71 @@ mpesa.collect({ amount, phone });</textarea>
       return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // ── Chat Widget ────────────────────────────────────────────────────
-    let chatOpen = false;
-    let chatPlayed = false;
-
-    function toggleChat() {
-      chatOpen = !chatOpen;
-      document.getElementById('chat-panel').classList.toggle('open', chatOpen);
-      if (chatOpen && !chatPlayed) {
-        chatPlayed = true;
-        playChat();
-      }
-    }
-
-    const chatScript = [
-      { type: 'user', text: 'How do I accept M-Pesa payments in my app?' },
-      { type: 'tool', text: 'Using daraja_explain: "STK Push payments"' },
-      { type: 'ai', text: 'STK Push (Lipa Na M-Pesa Online) sends a payment prompt directly to a customer\'s phone. They enter their M-Pesa PIN to confirm. With daraja-kit, it\'s one method call:\n\nawait mpesa.collect({ amount: 100, phone: \'0712345678\' })\n\nThe SDK handles auth, polling, and phone format automatically. No callback server needed.' },
-      { type: 'user', text: 'Build me a donation page for my NGO' },
-      { type: 'tool', text: 'Using daraja_scaffold: "donation page"' },
-      { type: 'ai', text: 'Done! I\'ve generated a complete project:\n\n- package.json\n- server.js (30 lines)\n- public/index.html (79 lines)\n\nRun: npm install && npm start\n\nYour donation page will be at localhost:3000. It uses sandbox mode by default — no real charges.' },
-      { type: 'user', text: 'I\'m getting error 1032 when I test' },
-      { type: 'tool', text: 'Using daraja_diagnose: "error 1032"' },
-      { type: 'ai', text: 'Error 1032 means the customer cancelled the M-Pesa prompt (or it timed out). This is normal user behavior in sandbox testing.\n\nYour code should handle it:\nif (result.status === \'cancelled\') {\n  // Show retry button\n}\n\nThe SDK maps this automatically — check result.status after collect().' },
-    ];
-
-    async function playChat() {
-      const container = document.getElementById('chat-messages');
-      for (const msg of chatScript) {
-        await sleep(800);
-        const div = document.createElement('div');
-        div.className = 'chat-msg chat-msg-' + msg.type;
-        div.style.whiteSpace = 'pre-wrap';
-        container.appendChild(div);
-        container.scrollTop = container.scrollHeight;
-
-        // Typewriter effect
-        for (let i = 0; i <= msg.text.length; i++) {
-          div.textContent = msg.text.slice(0, i);
-          container.scrollTop = container.scrollHeight;
-          await sleep(msg.type === 'tool' ? 20 : 12);
-        }
-        await sleep(400);
-      }
-    }
 
     function sleep(ms) {
       return new Promise(r => setTimeout(r, ms));
     }
 
+    // ── Sticky Nav Scroll ────────────────────────────────────────────
+    const siteNav = document.getElementById('site-nav');
+    window.addEventListener('scroll', () => {
+      siteNav.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+
+    // ── Inline Chat Demo ──────────────────────────────────────────────
+    const chatDemoEl = document.getElementById('chat-demo-messages');
+    const inlineChatScript = [
+      { type: 'user', text: 'I run a school feeding program in Kibera. Build me a donation page — supporters pay via M-Pesa from their phones.' },
+      { type: 'tool', text: '▶ daraja_scaffold("donation page for school feeding program")' },
+      { type: 'ai', text: 'Done. Your donation page is ready:\n\n✓ Mobile-friendly form, branded and shareable\n✓ M-Pesa checkout — tap, confirm on phone, done\n✓ Any Kenyan phone format accepted\n✓ Sandbox mode — zero charges until you go live' },
+      { type: 'tool', text: '▶ daraja_validate(project)' },
+      { type: 'ai', text: 'Validated. No issues found.\n\n✓ Credentials secured\n✓ Payments tested\n✓ Production-ready\n\nSay "take me live" when you\'re ready — five minutes to launch.' },
+    ];
+
+    let inlineChatPlayed = false;
+    const chatDemoObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !inlineChatPlayed) {
+          inlineChatPlayed = true;
+          playInlineChat();
+        }
+      });
+    }, { threshold: 0.3 });
+    if (chatDemoEl) chatDemoObserver.observe(chatDemoEl.parentElement);
+
+    async function playInlineChat() {
+      chatDemoEl.innerHTML = '';
+      for (const msg of inlineChatScript) {
+        await sleep(700);
+        const div = document.createElement('div');
+        div.className = 'chat-demo-msg chat-demo-msg-' + msg.type;
+        div.style.whiteSpace = 'pre-wrap';
+        chatDemoEl.appendChild(div);
+
+        for (let i = 0; i <= msg.text.length; i++) {
+          div.textContent = msg.text.slice(0, i);
+          chatDemoEl.scrollTop = chatDemoEl.scrollHeight;
+          await sleep(msg.type === 'tool' ? 18 : 10);
+        }
+        div.classList.add('show');
+        await sleep(350);
+      }
+    }
+
+    // ── Copy Button ──────────────────────────────────���────────────────
+    function copyCode(btn) {
+      const codeEl = btn.parentElement;
+      const text = codeEl.textContent.replace('Copy', '').trim();
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+      });
+    }
+
     // ── Keyboard Navigation ────────────────────────────────────────────
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && chatOpen) toggleChat();
+      // reserved for future use
     });
   </script>
 </body>

@@ -17,22 +17,29 @@ export function resolveConfig(opts: MpesaConfig = {}): ResolvedConfig {
   const env = opts.env ?? (process.env.DARAJA_ENV as 'sandbox' | 'production') ?? 'sandbox';
   const isSandbox = env === 'sandbox';
 
-  const consumerKey =
+  let consumerKey =
     opts.consumerKey ?? process.env.DARAJA_CONSUMER_KEY ?? '';
-  const consumerSecret =
+  let consumerSecret =
     opts.consumerSecret ?? process.env.DARAJA_CONSUMER_SECRET ?? '';
 
   if (!consumerKey || !consumerSecret) {
-    throw new AuthError({
-      message: 'Missing Daraja consumer key and/or secret',
-      suggestion:
-        'Create a free Daraja app at developer.safaricom.co.ke (takes 2 minutes):\n' +
-        '1. Sign up or log in\n' +
-        '2. Go to My Apps → Add a New App\n' +
-        '3. Copy your Consumer Key and Consumer Secret\n' +
-        '4. Set them as DARAJA_CONSUMER_KEY and DARAJA_CONSUMER_SECRET environment variables,\n' +
-        '   or pass them to createClient({ consumerKey, consumerSecret })',
-    });
+    if (isSandbox) {
+      // Zero-config sandbox: fall back to shared daraja-kit community credentials.
+      // These are sandbox-only — no real money, same class as the public passkey/shortcode.
+      consumerKey = SANDBOX.consumerKey;
+      consumerSecret = SANDBOX.consumerSecret;
+    } else {
+      throw new AuthError({
+        message: 'Missing Daraja credentials for production',
+        suggestion:
+          'Production requires your own credentials. Get them free at developer.safaricom.co.ke:\n' +
+          '1. Sign up or log in\n' +
+          '2. Go to My Apps → Add a New App\n' +
+          '3. Copy your Consumer Key and Consumer Secret\n' +
+          '4. Set them as DARAJA_CONSUMER_KEY and DARAJA_CONSUMER_SECRET environment variables,\n' +
+          '   or pass them to createClient({ consumerKey, consumerSecret })',
+      });
+    }
   }
 
   return {

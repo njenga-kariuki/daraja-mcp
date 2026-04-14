@@ -72,15 +72,12 @@ export function handleScaffold(input: ScaffoldInput): ScaffoldOutput {
     files,
     instructions:
       `## Setup\n` +
-      `1. Set your Daraja credentials:\n` +
-      `   export DARAJA_CONSUMER_KEY=your_key\n` +
-      `   export DARAJA_CONSUMER_SECRET=your_secret\n` +
-      `   (Get these free at developer.safaricom.co.ke)\n\n` +
-      `2. Install and run:\n` +
+      `1. Install and run:\n` +
       `   npm install\n` +
       `   npm start\n\n` +
-      `3. Open http://localhost:3000 in your browser.\n\n` +
-      `The app runs in sandbox mode by default — no real money is charged.`,
+      `2. Open http://localhost:3000 in your browser.\n\n` +
+      `The app runs in sandbox mode by default — no credentials needed, no real money charged.\n\n` +
+      `To use your own credentials or go to production, use the daraja_setup tool.`,
     template,
   };
 }

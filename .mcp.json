@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "daraja-kit": {
+      "command": "node",
+      "args": ["packages/mcp/dist/index.js"]
+    }
+  }
+}

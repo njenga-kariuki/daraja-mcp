@@ -1,5 +1,10 @@
 import { createClient } from '@daraja-kit/sdk';
 
+interface AuthContext {
+  consumerKey: string;
+  consumerSecret: string;
+}
+
 interface TestSandboxInput {
   test: 'auth' | 'stk_push' | 'stk_push_query' | 'b2c' | 'balance' | 'qr';
   params?: Record<string, unknown>;
@@ -34,11 +39,14 @@ export const testSandboxSchema = {
   },
 };
 
-export async function handleTestSandbox(input: TestSandboxInput): Promise<TestSandboxOutput> {
+export async function handleTestSandbox(input: TestSandboxInput, authContext?: AuthContext): Promise<TestSandboxOutput> {
   const start = Date.now();
 
   try {
-    const mpesa = createClient();
+    const mpesa = createClient(authContext ? {
+      consumerKey: authContext.consumerKey,
+      consumerSecret: authContext.consumerSecret,
+    } : undefined);
     const phone = (input.params?.phone as string) ?? '254708374149';
     const amount = Number(input.params?.amount ?? 1);
 
