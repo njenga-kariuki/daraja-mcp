@@ -7,6 +7,8 @@ import { handleValidate } from '../packages/mcp/src/tools/validate.js';
 import { handleDiagnose } from '../packages/mcp/src/tools/diagnose.js';
 import { handleExplain } from '../packages/mcp/src/tools/explain.js';
 import { handleGoLive } from '../packages/mcp/src/tools/go-live.js';
+import { handlePreflight } from '../packages/mcp/src/tools/preflight.js';
+import { handleSetup } from '../packages/mcp/src/tools/setup.js';
 import { handleTestSandbox } from '../packages/mcp/src/tools/test-sandbox.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -56,6 +58,24 @@ app.post('/api/tools/explain', (req, res) => {
 app.post('/api/tools/go-live', (req, res) => {
   try {
     const result = handleGoLive(req.body);
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/tools/preflight', async (req, res) => {
+  try {
+    const result = await handlePreflight(req.body);
+    res.json(result);
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.post('/api/tools/setup', async (req, res) => {
+  try {
+    const result = await handleSetup(req.body);
     res.json(result);
   } catch (err: any) {
     res.status(400).json({ error: err.message });
