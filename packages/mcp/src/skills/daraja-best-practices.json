@@ -1,0 +1,78 @@
+{
+  "name": "daraja-best-practices",
+  "version": "1.0.0",
+  "description": "Best practices for M-Pesa Daraja API integration using the @daraja-kit/sdk. Guides agents on SDK usage, credential handling, error patterns, phone formatting, and callback requirements.",
+  "instructions": [
+    {
+      "category": "SDK Usage",
+      "rules": [
+        "Always use `createClient()` from `@daraja-kit/sdk` to create an M-Pesa client. Never make raw HTTP calls to the Daraja API.",
+        "The SDK provides 6 methods: `collect()` (STK Push), `send()` (B2C), `status()`, `balance()`, `reverse()`, and `qr()`. Use these methods exclusively.",
+        "For sandbox testing, `createClient()` with no arguments works immediately — bundled credentials and certificates are included.",
+        "For production, pass `env: 'production'` plus your consumer key, secret, shortcode, passkey, initiator name, and initiator password."
+      ]
+    },
+    {
+      "category": "Credentials",
+      "rules": [
+        "Never hardcode consumer keys, consumer secrets, or passwords. Use environment variables: `DARAJA_CONSUMER_KEY`, `DARAJA_CONSUMER_SECRET`.",
+        "OAuth tokens are managed automatically by the SDK — never generate, cache, or refresh tokens manually.",
+        "SecurityCredentials for B2C are encrypted automatically using bundled Safaricom certificates. Never do RSA encryption manually.",
+        "Get free sandbox credentials at https://developer.safaricom.co.ke. Register, create an app, and copy the consumer key and secret."
+      ]
+    },
+    {
+      "category": "Callbacks",
+      "rules": [
+        "STK Push (`collect()`) does NOT need a callback URL. The SDK auto-polls the STK Query endpoint for the result.",
+        "B2C (`send()`), transaction status (`status()`), account balance (`balance()`), and reversal (`reverse()`) all REQUIRE a callback URL.",
+        "QR code generation (`qr()`) does NOT need a callback URL.",
+        "Callback URLs must use HTTPS. Never use HTTP or localhost URLs.",
+        "For local development, use ngrok or cloudflared to create a public HTTPS URL pointing to your local server."
+      ]
+    },
+    {
+      "category": "Error Handling",
+      "rules": [
+        "Always wrap M-Pesa calls in try/catch blocks.",
+        "Every `MpesaError` has a `.suggestion` field with actionable guidance. Surface this to users.",
+        "Every `MpesaError` also has `.code`, `.darajaCode`, `.httpStatus`, and `.raw` fields for debugging.",
+        "Specific error classes: `AuthError` (credential issues), `ValidationError` (bad input), `TimeoutError` (request timed out), `InsufficientFundsError` (not enough balance).",
+        "Common STK Push error codes: 1032 (user cancelled — don't auto-retry), 1037 (phone unreachable — ask user to check phone), 1 (insufficient funds — prompt top-up)."
+      ]
+    },
+    {
+      "category": "Phone Numbers",
+      "rules": [
+        "Accept any Kenyan phone format from users: 0712345678, +254712345678, or 254712345678. The SDK normalizes all formats to 254XXXXXXXXX.",
+        "The sandbox test phone number is 254708374149. Use it in all sandbox examples.",
+        "Never reject a phone number for format — pass it to the SDK and let it normalize."
+      ]
+    },
+    {
+      "category": "Amounts and Limits",
+      "rules": [
+        "Amounts must be whole numbers in KES. No decimals. Minimum 1 KES.",
+        "STK Push maximum per transaction: KES 150,000.",
+        "`AccountReference` (the `reference` parameter) has a maximum of 12 characters.",
+        "`TransactionDesc` (the `description` parameter) has a maximum of 13 characters in the request. Longer values cause error 1025/9999.",
+        "Duplicate transaction protection: wait at least 30 seconds before retrying the same phone + amount combination."
+      ]
+    },
+    {
+      "category": "Code Generation",
+      "rules": [
+        "Always generate complete, runnable code — not snippets. Include package.json with dependencies, server file, and any HTML/CSS needed.",
+        "Include clear setup instructions: npm install, environment variables, npm start.",
+        "Default to sandbox mode. Production is an explicit upgrade that requires go-live approval.",
+        "Include error handling with try/catch in every example. Show how to use the `.suggestion` field."
+      ]
+    }
+  ],
+  "metadata": {
+    "platform": "Safaricom Daraja",
+    "sdk": "@daraja-kit/sdk",
+    "documentation": "https://developer.safaricom.co.ke",
+    "sandbox_test_phone": "254708374149"
+  }
+}

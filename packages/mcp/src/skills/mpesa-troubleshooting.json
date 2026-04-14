@@ -1,0 +1,79 @@
+{
+  "name": "mpesa-troubleshooting",
+  "version": "1.0.0",
+  "description": "Troubleshooting guide for M-Pesa Daraja API errors. Covers error code decision trees, common failure patterns, callback debugging, OAuth issues, and production migration problems.",
+  "instructions": [
+    {
+      "category": "STK Push Errors",
+      "rules": [
+        "Error 1032 (User Cancelled): The customer dismissed the STK prompt. Show 'Payment cancelled. Tap Pay to try again.' Do NOT auto-retry — the user intentionally cancelled.",
+        "Error 1037 (Phone Unreachable): Phone is off, airplane mode, no signal, or iOS eSIM issue. Ask user to check their phone. For iOS, restarting often fixes eSIM issues. Retry after 10-30 seconds.",
+        "Error 1001 (USSD Session Active): Customer has an active *334# or USSD session blocking STK. Ask them to cancel the USSD dialog and wait 2-3 minutes before retrying.",
+        "Error 1025/9999 (STK Delivery Failed): Usually caused by `description` exceeding 13 characters. Shorten `description` parameter and retry.",
+        "Error 1 (Insufficient Funds): Customer doesn't have enough M-Pesa balance. Prompt them to top up.",
+        "Error 35 (Duplicate Transaction): Same phone + amount sent too quickly. Wait 30 seconds before retrying.",
+        "Error 99 (No Transaction Found): STK Query can't find the transaction — the 60-second window expired. Re-initiate the STK Push.",
+        "Status stays 'pending': The customer hasn't acted on the STK prompt. Ask them to check their phone for the M-Pesa prompt."
+      ]
+    },
+    {
+      "category": "Authentication Errors",
+      "rules": [
+        "HTTP 401 (Unauthorized): Invalid or expired OAuth token. The SDK auto-refreshes tokens — if you see this, your consumer key or secret is wrong. Verify them on the Daraja portal.",
+        "HTTP 403 (Forbidden): App not subscribed to this API, or IP not whitelisted (production). Check your app's API subscriptions on the portal.",
+        "HTTP 404 with 'Invalid Access Token': Daraja returns 404 (not 401) for some token errors. The SDK handles this automatically with retry. If persistent, regenerate credentials.",
+        "Error 2001 (Invalid Initiator Credentials): Wrong initiator name or password for B2C/status/balance/reversal. Sandbox defaults: initiatorName='testapi', password='Safaricom999!*!'. Check your certificate is correct.",
+        "'Invalid Consumer Key' or 'Invalid Consumer Secret': Your credentials are wrong. Go to developer.safaricom.co.ke, verify your app's keys, and update your .env file."
+      ]
+    },
+    {
+      "category": "Callback Issues",
+      "rules": [
+        "Callbacks never arrive: Check that your URL is publicly accessible (not localhost), uses HTTPS, and responds with HTTP 200. Use ngrok for local dev.",
+        "Callback URL validation: Daraja validates callback URLs when you call B2C/status/balance/reversal. If the URL is unreachable, the API call may still succeed but you won't get results.",
+        "Testing callbacks locally: Use `ngrok http 3000` to get a public HTTPS URL. Update your callback URL to use the ngrok URL.",
+        "Remember: STK Push (collect) does NOT use callbacks. If you're debugging STK Push, the issue is not callback-related — check the polling result instead.",
+        "Callback response format: Always respond with HTTP 200 to Daraja's callback POST request. If you return an error status, Daraja may retry the callback."
+      ]
+    },
+    {
+      "category": "Environment Issues",
+      "rules": [
+        "Wrong environment: If you get unexpected errors, verify you're using the right environment. Sandbox credentials don't work in production and vice versa.",
+        "Sandbox flakiness: The Daraja sandbox occasionally returns timeout or 500 errors. This is normal sandbox behavior. Wait a few seconds and retry.",
+        "Missing passkey: Each shortcode has its own passkey. Sandbox passkey is bundled in the SDK. Production passkey is provided by Safaricom with your go-live credentials.",
+        "Certificate mismatch: Sandbox and production use different Safaricom certificates. The SDK bundles the sandbox certificate. For production, you need the production certificate from Safaricom.",
+        "Base URL mismatch: Never hardcode Daraja URLs. Use `env: 'sandbox'` or `env: 'production'` and let the SDK handle URLs."
+      ]
+    },
+    {
+      "category": "Common Mistakes",
+      "rules": [
+        "Decimal amounts: Daraja rejects amounts with decimals. Round to the nearest integer. 100.50 → 101.",
+        "AccountReference too long: Max 12 characters. Truncate if needed.",
+        "TransactionDesc too long: Max 13 characters in the request. Longer values cause silent failures (error 1025/9999).",
+        "Phone number format: The SDK accepts any Kenyan format and normalizes it. If you're manually formatting, use 254XXXXXXXXX (no + prefix, 12 digits).",
+        "Retrying cancelled payments: Never auto-retry error 1032. The user chose to cancel. Always ask before retrying.",
+        "Missing error handling: Not wrapping M-Pesa calls in try/catch. Always catch errors and check the `.suggestion` field for guidance."
+      ]
+    },
+    {
+      "category": "Diagnostic Steps",
+      "rules": [
+        "Step 1: Check the error code. Use the MCP `daraja_diagnose` tool or refer to the error codes documentation.",
+        "Step 2: Check the `.suggestion` field on any MpesaError for immediate guidance.",
+        "Step 3: Verify credentials — can you call `createClient()` and make a simple request?",
+        "Step 4: Verify environment — are you in sandbox or production? Do your credentials match?",
+        "Step 5: Check network — can you reach sandbox.safaricom.co.ke or api.safaricom.co.ke?",
+        "Step 6: For callback-based APIs, verify your callback URL is publicly accessible and responds with 200.",
+        "Step 7: If nothing works, check the Daraja portal for service status or contact Safaricom support."
+      ]
+    }
+  ],
+  "metadata": {
+    "platform": "Safaricom Daraja",
+    "sdk": "@daraja-kit/sdk",
+    "support": "https://developer.safaricom.co.ke",
+    "sandbox_test_phone": "254708374149"
+  }
+}

@@ -8,6 +8,7 @@
 import express from 'express';
 import cors from 'cors';
 import path from 'node:path';
+import fs from 'node:fs';
 import { randomUUID } from 'node:crypto';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -20,16 +21,59 @@ import { handleGoLive } from './tools/go-live.js';
 import { handleTestSandbox } from './tools/test-sandbox.js';
 import { handlePreflight } from './tools/preflight.js';
 import { handleSetup } from './tools/setup.js';
+import { getLlmsTxt } from './knowledge.js';
+import { skillsRouter } from './skills/index.js';
+import { DarajaOAuthProvider } from './auth/provider.js';
+import { mcpAuthRouter } from '@modelcontextprotocol/sdk/server/auth/router.js';
+import { requireBearerAuth } from '@modelcontextprotocol/sdk/server/auth/middleware/bearerAuth.js';
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
+// ── OAuth 2.1 authentication (enabled via DARAJA_MCP_AUTH=true) ─────────────
+const authEnabled = process.env.DARAJA_MCP_AUTH === 'true';
+const oauthProvider = new DarajaOAuthProvider();
+const baseUrl = process.env.DARAJA_MCP_BASE_URL || `http://localhost:${Number(process.env.PORT) || 8080}`;
+
+if (authEnabled) {
+  app.use(mcpAuthRouter({
+    provider: oauthProvider,
+    issuerUrl: new URL(baseUrl),
+    serviceDocumentationUrl: new URL('https://developer.safaricom.co.ke'),
+    scopesSupported: ['mcp:tools'],
+  }));
+}
+
+// Bearer auth middleware — only applied to /mcp endpoints when auth is enabled
+const mcpAuth = authEnabled
+  ? requireBearerAuth({ verifier: oauthProvider })
+  : ((_req: any, _res: any, next: any) => next());
+
 // Health check
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', server: 'daraja-kit-mcp', version: '0.1.0' });
 });
+
+// ── llms.txt — machine-readable documentation for AI agents ─────────────────
+const knowledgeDir = path.resolve(process.cwd(), 'knowledge');
+
+app.get('/llms.txt', (_req, res) => {
+  res.type('text/plain; charset=utf-8').send(getLlmsTxt());
+});
+
+app.get('/llms-full.txt', (_req, res) => {
+  const filePath = path.join(knowledgeDir, 'llms-full.txt');
+  if (!fs.existsSync(filePath)) {
+    res.status(404).send('llms-full.txt not found');
+    return;
+  }
+  res.type('text/plain; charset=utf-8').send(fs.readFileSync(filePath, 'utf-8'));
+});
+
+// ── Agent Skills — installable best-practice instructions ───────────────────
+app.use('/.well-known/skills', skillsRouter());
 
 // ── Demo page + tool API routes ──────────────────────────────────────────────
 const demoDir = path.resolve(process.cwd(), 'demo');
@@ -103,7 +147,7 @@ setInterval(() => {
   }
 }, 5 * 60 * 1000);
 
-app.post('/mcp', async (req, res) => {
+app.post('/mcp', mcpAuth, async (req, res) => {
   const sessionId = req.headers['mcp-session-id'] as string | undefined;
 
   if (sessionId && sessions.has(sessionId)) {
@@ -138,7 +182,7 @@ app.post('/mcp', async (req, res) => {
 });
 
 // GET for SSE streaming (optional, used for server-initiated notifications)
-app.get('/mcp', async (req, res) => {
+app.get('/mcp', mcpAuth, async (req, res) => {
   const sessionId = req.headers['mcp-session-id'] as string | undefined;
   if (!sessionId || !sessions.has(sessionId)) {
     res.status(400).json({ error: 'Missing or invalid mcp-session-id', jsonrpc: '2.0' });
@@ -150,7 +194,7 @@ app.get('/mcp', async (req, res) => {
 });
 
 // DELETE to close a session
-app.delete('/mcp', async (req, res) => {
+app.delete('/mcp', mcpAuth, async (req, res) => {
   const sessionId = req.headers['mcp-session-id'] as string | undefined;
   if (!sessionId || !sessions.has(sessionId)) {
     res.status(404).json({ error: 'Session not found', jsonrpc: '2.0' });
@@ -168,4 +212,7 @@ const PORT = Number(process.env.PORT) || 8080;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`daraja-kit MCP server (HTTP) listening on http://0.0.0.0:${PORT}`);
   console.log(`MCP endpoint: http://0.0.0.0:${PORT}/mcp`);
+  console.log(`Auth: ${authEnabled ? 'OAuth 2.1 enabled' : 'disabled (set DARAJA_MCP_AUTH=true to enable)'}`);
+  console.log(`llms.txt: http://0.0.0.0:${PORT}/llms.txt`);
+  console.log(`Skills: http://0.0.0.0:${PORT}/.well-known/skills/index.json`);
 });

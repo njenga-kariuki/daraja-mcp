@@ -1,0 +1,53 @@
+{
+  "name": "@daraja-kit/agent-toolkit",
+  "version": "0.1.0",
+  "description": "Multi-framework agent toolkit for M-Pesa Daraja integration — works with OpenAI, LangChain, and Vercel AI SDK",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./openai": {
+      "import": "./dist/adapters/openai.js",
+      "types": "./dist/adapters/openai.d.ts"
+    },
+    "./langchain": {
+      "import": "./dist/adapters/langchain.js",
+      "types": "./dist/adapters/langchain.d.ts"
+    },
+    "./vercel-ai": {
+      "import": "./dist/adapters/vercel-ai.js",
+      "types": "./dist/adapters/vercel-ai.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch"
+  },
+  "dependencies": {
+    "@daraja-kit/sdk": "*"
+  },
+  "peerDependencies": {
+    "openai": ">=4.0.0",
+    "@langchain/core": ">=0.2.0",
+    "ai": ">=3.0.0",
+    "zod": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "openai": { "optional": true },
+    "@langchain/core": { "optional": true },
+    "ai": { "optional": true },
+    "zod": { "optional": true }
+  },
+  "devDependencies": {
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "zod": "^3.23.0"
+  }
+}
