@@ -1204,7 +1204,7 @@
       <div class="overline fade-in">BUILT FOR EVERY AI</div>
       <h2 class="section-title fade-in">Eight tools. Any AI assistant. From first idea to production.</h2>
       <p class="section-subtitle fade-in">
-        An MCP server that turns <strong>Claude Code, Cursor, Copilot, Lovable, Replit, and any MCP-compatible coding assistant</strong> into an M-Pesa expert. Scaffold, validate, diagnose, test, and ship &mdash; every tool works for human developers too.
+        An MCP server plus a multi-framework agent toolkit. Works with <strong>Claude Code, Cursor, Copilot, Lovable, Replit</strong> &mdash; and any app built on <strong>OpenAI Agents SDK, LangChain, or Vercel AI SDK</strong>. Scaffold, validate, diagnose, test, and ship &mdash; every tool works for human developers too.
       </p>
 
       <div class="tools-grid">
@@ -1919,7 +1919,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
               <th>Platform</th>
               <th>Lines of Code</th>
               <th>Callbacks Required?</th>
-              <th>AI Agent Tools</th>
+              <th>Agent Stack</th>
               <th>Time to First Payment</th>
               <th>M-Pesa Native</th>
             </tr>
@@ -1953,7 +1953,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
               <td><strong>Stripe</strong></td>
               <td>~7 lines</td>
               <td class="cell-cross">Yes (webhooks)</td>
-              <td class="cell-cross">None built-in</td>
+              <td class="cell-partial">MCP + Toolkit</td>
               <td>~30 minutes</td>
               <td class="cell-cross">No</td>
             </tr>
@@ -1961,7 +1961,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
               <td><strong>Daraja 4.0</strong></td>
               <td>3 lines, 1 file</td>
               <td class="cell-check">No (auto-polls)</td>
-              <td class="cell-check">8 MCP tools</td>
+              <td class="cell-check">MCP + Toolkit + Skills + llms.txt</td>
               <td>5 minutes</td>
               <td class="cell-check">Yes (native)</td>
             </tr>
@@ -1976,8 +1976,8 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
 
       <div class="differentiators">
         <div class="diff-card fade-in">
-          <h4>AI-Native</h4>
-          <p>The only payment SDK with a built-in MCP server. AI agents scaffold complete projects, validate code, diagnose errors, and guide production deployment.</p>
+          <h4>Complete Agent Stack</h4>
+          <p>8 MCP tools, agent toolkit for OpenAI/LangChain/Vercel AI SDK, 3 installable agent skills, and an llms.txt that programs how every AI model talks about M-Pesa. The first complete agentic commerce stack for mobile money.</p>
         </div>
         <div class="diff-card fade-in">
           <h4>No Callbacks Needed</h4>
@@ -2023,6 +2023,16 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
           <code style="background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.8);padding:4px 10px;border-radius:4px;font-size:0.72rem">https://daraja-kit-mcp-production.up.railway.app/mcp</code>
           <button onclick="navigator.clipboard.writeText('https://daraja-kit-mcp-production.up.railway.app/mcp').then(()=>{this.textContent='Copied!';setTimeout(()=>{this.textContent='Copy'},1500)})" style="background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.5);padding:4px 8px;border-radius:4px;font-size:0.65rem;cursor:pointer;font-family:var(--font-sans)">Copy</button>
         </div>
+      </div>
+
+      <div class="ai-path fade-in" style="max-width:560px;margin:24px auto 0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1)">
+        <h4 style="color:white">Building an AI agent?</h4>
+        <p style="color:rgba(255,255,255,0.7)">
+          The agent toolkit gives any OpenAI, LangChain, or Vercel AI SDK app native M-Pesa tools.
+        </p>
+        <div class="step-code" style="text-align:left">
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+npm install @daraja-kit/agent-toolkit</div>
       </div>
 
       <div class="step-divider fade-in" style="color:rgba(255,255,255,0.5)">Or build it yourself</div>
