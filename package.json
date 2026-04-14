@@ -8,7 +8,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
+    "build": "npm run build -w @daraja-kit/sdk && npm run build -w @daraja-kit/mcp && npm run build -w @daraja-kit/agent-toolkit",
     "test": "npm run test --workspaces --if-present",
     "test:sandbox": "cd packages/sdk && npm run test -- --testPathPattern sandbox",
     "test:mcp": "cd packages/mcp && npm run test",
