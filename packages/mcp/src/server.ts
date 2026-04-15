@@ -16,13 +16,47 @@ import { goLiveSchema, handleGoLive } from './tools/go-live.js';
 import { setupSchema, handleSetup } from './tools/setup.js';
 import { preflightSchema, handlePreflight } from './tools/preflight.js';
 import { getLlmsTxt, searchKnowledge } from './knowledge.js';
+import { sanitize, sanitizeText } from './sanitize.js';
 
 export interface AuthContext {
   consumerKey: string;
   consumerSecret: string;
 }
 
+// ── Tool annotations (MCP spec: readOnlyHint, destructiveHint) ──────────
+// MCP-compliant clients auto-prompt for confirmation on destructive tools.
+
+const TOOL_ANNOTATIONS: Record<string, { readOnlyHint?: boolean; destructiveHint?: boolean }> = {
+  daraja_explain:      { readOnlyHint: true,  destructiveHint: false },
+  daraja_diagnose:     { readOnlyHint: true,  destructiveHint: false },
+  daraja_validate:     { readOnlyHint: true,  destructiveHint: false },
+  daraja_scaffold:     { readOnlyHint: false, destructiveHint: false },
+  daraja_setup:        { readOnlyHint: false, destructiveHint: false },
+  daraja_test_sandbox: { readOnlyHint: false, destructiveHint: true  },
+  daraja_go_live:      { readOnlyHint: true,  destructiveHint: false },
+  daraja_preflight:    { readOnlyHint: false, destructiveHint: false },
+};
+
 const TOOLS = [explainSchema, diagnoseSchema, validateSchema, scaffoldSchema, testSandboxSchema, goLiveSchema, setupSchema, preflightSchema];
+
+/** Emit structured audit log to stderr (MCP convention: stdout = protocol, stderr = logging). */
+function emitAudit(
+  tool: string,
+  args: unknown,
+  status: 'success' | 'error',
+  durationMs: number,
+  errorMessage?: string,
+): void {
+  const entry = {
+    timestamp: new Date().toISOString(),
+    tool,
+    args: sanitize(args),
+    status,
+    duration_ms: durationMs,
+    ...(errorMessage ? { error: sanitizeText(errorMessage) } : {}),
+  };
+  process.stderr.write(JSON.stringify(entry) + '\n');
+}
 
 export function createServer(authContext?: AuthContext): Server {
   const server = new Server(
@@ -37,6 +71,7 @@ export function createServer(authContext?: AuthContext): Server {
       name: t.name,
       description: t.description,
       inputSchema: t.inputSchema,
+      annotations: TOOL_ANNOTATIONS[t.name] ?? {},
     })),
   }));
 
@@ -44,6 +79,7 @@ export function createServer(authContext?: AuthContext): Server {
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
     const { name, arguments: args } = request.params;
+    const startTime = Date.now();
 
     try {
       let result: unknown;
@@ -80,13 +116,20 @@ export function createServer(authContext?: AuthContext): Server {
           };
       }
 
+      // ── Audit trail (structured JSON to stderr) ──────────────────────
+      emitAudit(name, args, 'success', Date.now() - startTime);
+
+      // ── PII sanitization (mask phone numbers before returning to agent)
+      const sanitizedOutput = sanitizeText(JSON.stringify(result, null, 2));
+
       return {
-        content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+        content: [{ type: 'text', text: sanitizedOutput }],
       };
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
+      emitAudit(name, args, 'error', Date.now() - startTime, message);
       return {
-        content: [{ type: 'text', text: `Error: ${message}` }],
+        content: [{ type: 'text', text: `Error: ${sanitizeText(message)}` }],
         isError: true,
       };
     }

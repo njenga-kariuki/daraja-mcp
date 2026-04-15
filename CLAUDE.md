@@ -20,7 +20,21 @@ Key differentiators:
 - **Self-healing errors** — every error includes a `.suggestion` field and every diagnosis includes a `.prevention` field — readable by humans and AI agents
 - **8 MCP tools** — AI agents can scaffold, validate, diagnose, preflight, test, and ship M-Pesa integrations
 - **Zero-config sandbox** — bundled certificates, pre-loaded test credentials
-- **19-doc knowledge base** — optimized for both human reading and LLM consumption
+- **20-doc knowledge base** — optimized for both human reading and LLM consumption
+
+## Trust Layer (Security & Privacy)
+
+Daraja 4.0 pairs its DX story with an equally sharp trust story — security that developers get for free, invisible on the happy path:
+
+- **MCP tool annotations** — read-only tools run freely; `daraja_test_sandbox` (destructive) requires human confirmation
+- **PII sanitization** — phone numbers masked (254708\*\*\*149) in all MCP tool outputs before entering agent context
+- **Self-preventing errors** — every `MpesaError` has `.suggestion` (what to do now) AND `.prevention` (how to avoid it next time)
+- **Callback verification** — `verifyCallback()` utility provides zero-config Safaricom IP whitelist + idempotency deduplication
+- **Secure-by-default templates** — all scaffolded code includes rate limiting, amount validation, batch guards
+- **Audit trail** — every MCP tool invocation logged as structured JSON to stderr (PII-sanitized)
+- **Security knowledge doc** — `knowledge/concepts/security.md` covers what the SDK handles, what you handle, incident response, compliance
+
+M-Pesa's inherent security advantages for agentic commerce: STK Push requires customer PIN entry (human-in-the-loop for every payment), phone-possession factor (SIM required), Safaricom GNN fraud detection.
 
 ## Platform Compatibility
 
@@ -120,26 +134,28 @@ const { qrCode } = await mpesa.qr({ amount: 100 });
 ## When Generating Code, Always:
 
 1. Use the `@daraja-4/sdk` — never raw Daraja API calls
-2. Wrap M-Pesa calls in try/catch — use `err.suggestion` for user-facing errors
+2. Wrap M-Pesa calls in try/catch — use `err.suggestion` for user-facing errors, `err.prevention` for long-term guidance
 3. Use environment variables for credentials — never hardcode
 4. Default to sandbox mode — production is an explicit upgrade
 5. Generate complete, runnable code — not snippets
-6. Include a package.json with correct dependencies
+6. Include a package.json with correct dependencies (including `express-rate-limit`)
 7. Include clear setup instructions (env vars, npm install, npm start)
+8. Add server-side amount validation (1–150,000 KES) before SDK calls
+9. Use `verifyCallback()` from the SDK for callback endpoints (B2C, status, balance, reversal)
 
 ## Knowledge Base
 
 Detailed documentation is in the `knowledge/` directory:
 - `capabilities/` — How to use each SDK method
-- `concepts/` — Authentication, callbacks, environments, going live
+- `concepts/` — Authentication, callbacks, environments, going live, security & trust
 - `errors/` — Error codes and troubleshooting decision trees
 - `patterns/` — Complete integration patterns (donation, ecommerce, subscriptions, B2C)
 
 ## Project Structure
 
 ```
-packages/sdk/     — @daraja-4/sdk (6-method M-Pesa SDK)
-packages/mcp/     — @Daraja 4.0/mcp (MCP server with 6 tools)
+packages/sdk/     — @daraja-4/sdk (6 payment methods + verifyCallback utility)
+packages/mcp/     — @Daraja 4.0/mcp (MCP server with 8 annotated tools)
 knowledge/        — Agent-consumable documentation
 templates/        — Complete runnable project templates
 ```

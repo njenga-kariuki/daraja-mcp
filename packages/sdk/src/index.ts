@@ -55,3 +55,5 @@ export {
   InsufficientFundsError,
 } from './errors.js';
 export { SANDBOX } from './constants.js';
+export { verifyCallback } from './callback.js';
+export type { VerifyOptions, VerifyResult } from './callback.js';

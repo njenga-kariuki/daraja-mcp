@@ -22,7 +22,7 @@ export const explainSchema = {
     properties: {
       topic: {
         type: 'string',
-        description: 'What to explain.',
+        description: 'What to explain. Examples: "STK Push", "callbacks", "security", "going live".',
       },
       depth: {
         type: 'string',

@@ -106,6 +106,50 @@ const CHECKS: Array<{
   },
 ];
 
+// ── Context-aware security checks ─────────────────────────────────────
+// These only fire when a prerequisite pattern is found in the code.
+
+const SECURITY_CHECKS: Array<{
+  guard: RegExp;
+  absent: RegExp;
+  severity: Issue['severity'];
+  message: string;
+  fix: string;
+}> = [
+  // Unbounded batch loop — fires when code loops over a payments/recipients array
+  {
+    guard: /for\s*\(.*(?:payments|recipients|batch)\b/i,
+    absent: /\.length\s*>\s*\d+|\.slice\s*\(/,
+    severity: 'error',
+    message: 'Unbounded batch loop — no size limit on payment array',
+    fix: 'Add a batch size guard: if (payments.length > 100) throw new Error("Max 100 payments per batch"). Prevents accidental mass disbursement.',
+  },
+  // Missing amount bounds — fires when amount comes from user input (req.body)
+  {
+    guard: /req\.body\.amount|req\.body\)?\s*;\s*.*amount/,
+    absent: /amount\s*[<>]\s*\d|amount\s*>=?\s*1|amount\s*<=?\s*150/,
+    severity: 'warning',
+    message: 'User-supplied amount passed without bounds checking',
+    fix: 'Add server-side validation: if (amount < 1 || amount > 150000) return res.status(400).json({ error: "Amount must be 1-150,000 KES" })',
+  },
+  // Callback without IP verification — fires when callback POST handler exists
+  {
+    guard: /(?:app|router)\s*\.post\s*\(\s*['"].*callback/i,
+    absent: /(?:req\.ip|x-forwarded|allowedIPs|verifyCallback|safaricom.*ip)/i,
+    severity: 'warning',
+    message: 'Callback endpoint has no IP verification — anyone can POST fake callbacks',
+    fix: 'Use verifyCallback() from @daraja-kit/sdk to validate the request source. Daraja callbacks come from Safaricom IPs only.',
+  },
+  // Callback without idempotency — fires when callback handler exists
+  {
+    guard: /(?:app|router)\s*\.post\s*\(\s*['"].*callback/i,
+    absent: /ConversationID|processedIds|idempoten|duplicate|verifyCallback/i,
+    severity: 'info',
+    message: 'Callback handler does not track processed transactions — duplicates may be processed twice',
+    fix: 'Track ConversationID or TransactionID to prevent duplicate processing. verifyCallback() from @daraja-kit/sdk includes built-in idempotency.',
+  },
+];
+
 export function handleValidate(input: ValidateInput): ValidateOutput {
   const issues: Issue[] = [];
   const lines = input.code.split('\n');
@@ -117,6 +161,26 @@ export function handleValidate(input: ValidateInput): ValidateOutput {
       let lineNum: number | undefined;
       for (let i = 0; i < lines.length; i++) {
         if (check.pattern.test(lines[i])) {
+          lineNum = i + 1;
+          break;
+        }
+      }
+      issues.push({
+        severity: check.severity,
+        line: lineNum,
+        message: check.message,
+        fix: check.fix,
+      });
+    }
+  }
+
+  // Context-aware security checks: only flag when the relevant pattern exists.
+  for (const check of SECURITY_CHECKS) {
+    if (check.guard.test(input.code) && !check.absent.test(input.code)) {
+      // Find the line matching the guard pattern.
+      let lineNum: number | undefined;
+      for (let i = 0; i < lines.length; i++) {
+        if (check.guard.test(lines[i])) {
           lineNum = i + 1;
           break;
         }

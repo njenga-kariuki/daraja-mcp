@@ -153,7 +153,7 @@ function generateDonationPage(): ScaffoldFile[] {
           version: '1.0.0',
           type: 'module',
           scripts: { start: 'node server.js' },
-          dependencies: { '@daraja-kit/sdk': '^0.1.0', express: '^4.21.0' },
+          dependencies: { '@daraja-kit/sdk': '^0.1.0', express: '^4.21.0', 'express-rate-limit': '^7.0.0' },
         },
         null,
         2,
@@ -162,20 +162,25 @@ function generateDonationPage(): ScaffoldFile[] {
     {
       path: 'server.js',
       content: `import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { createClient } from '@daraja-kit/sdk';
 
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/api/', rateLimit({ windowMs: 60_000, max: 30 }));
 
 const mpesa = createClient();
 
 app.post('/api/donate', async (req, res) => {
   try {
-    const { amount, phone } = req.body;
+    const amount = Math.round(Number(req.body.amount));
+    if (amount < 1 || amount > 150000) {
+      return res.status(400).json({ ok: false, error: 'Amount must be 1\u2013150,000 KES' });
+    }
     const result = await mpesa.collect({
-      amount: Math.round(Number(amount)),
-      phone,
+      amount,
+      phone: req.body.phone,
       reference: 'DONATION',
       description: 'Donation',
     });
@@ -190,7 +195,7 @@ app.post('/api/donate', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(\`Donation page running at http://localhost:\${PORT}\`));
+app.listen(PORT, () => console.log('Donation page running on port', PORT));
 `,
     },
     {
@@ -288,7 +293,7 @@ function generateEcommerceCheckout(): ScaffoldFile[] {
           version: '1.0.0',
           type: 'module',
           scripts: { start: 'node server.js' },
-          dependencies: { '@daraja-kit/sdk': '^0.1.0', express: '^4.21.0' },
+          dependencies: { '@daraja-kit/sdk': '^0.1.0', express: '^4.21.0', 'express-rate-limit': '^7.0.0' },
         },
         null,
         2,
@@ -297,13 +302,23 @@ function generateEcommerceCheckout(): ScaffoldFile[] {
     {
       path: 'server.js',
       content: `import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { createClient } from '@daraja-kit/sdk';
 
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/api/', rateLimit({ windowMs: 60_000, max: 30 }));
 
 const mpesa = createClient();
+
+// Product catalog (server-side source of truth for prices).
+const PRODUCTS = [
+  { id: 1, name: 'T-Shirt', price: 1500 },
+  { id: 2, name: 'Coffee Mug', price: 800 },
+  { id: 3, name: 'Notebook', price: 500 },
+  { id: 4, name: 'Sticker Pack', price: 200 },
+];
 
 // In-memory orders (use a database in production).
 const orders = new Map();
@@ -311,7 +326,17 @@ const orders = new Map();
 app.post('/api/checkout', async (req, res) => {
   try {
     const { phone, items } = req.body;
-    const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+    // Server-side price lookup — never trust client-supplied prices.
+    const total = items.reduce((sum, item) => {
+      const product = PRODUCTS.find(p => p.id === item.id);
+      return sum + (product?.price ?? 0) * (item.qty || 1);
+    }, 0);
+
+    if (total < 1 || total > 150000) {
+      return res.status(400).json({ ok: false, error: 'Total must be 1\u2013150,000 KES' });
+    }
+
     const orderId = 'ORD-' + Date.now().toString(36).toUpperCase();
 
     const result = await mpesa.collect({
@@ -336,7 +361,7 @@ app.get('/api/orders/:id', (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(\`E-commerce store at http://localhost:\${PORT}\`));
+app.listen(PORT, () => console.log('E-commerce store running on port', PORT));
 `,
     },
     {
@@ -451,7 +476,7 @@ function generateB2cPayroll(): ScaffoldFile[] {
           version: '1.0.0',
           type: 'module',
           scripts: { start: 'node server.js' },
-          dependencies: { '@daraja-kit/sdk': '^0.1.0', express: '^4.21.0' },
+          dependencies: { '@daraja-kit/sdk': '^0.1.0', express: '^4.21.0', 'express-rate-limit': '^7.0.0' },
         },
         null,
         2,
@@ -460,21 +485,26 @@ function generateB2cPayroll(): ScaffoldFile[] {
     {
       path: 'server.js',
       content: `import express from 'express';
-import { createClient } from '@daraja-kit/sdk';
+import rateLimit from 'express-rate-limit';
+import { createClient, verifyCallback } from '@daraja-kit/sdk';
 
 const app = express();
 app.use(express.json());
+app.use('/api/', rateLimit({ windowMs: 60_000, max: 30 }));
 
 const mpesa = createClient();
 
 // Single payment.
 app.post('/api/send', async (req, res) => {
   try {
-    const { amount, phone, type } = req.body;
+    const amount = Math.round(Number(req.body.amount));
+    if (amount < 1 || amount > 150000) {
+      return res.status(400).json({ ok: false, error: 'Amount must be 1\u2013150,000 KES' });
+    }
     const result = await mpesa.send({
-      amount: Math.round(Number(amount)),
-      phone,
-      type: type || 'salary',
+      amount,
+      phone: req.body.phone,
+      type: req.body.type || 'salary',
       callbackUrl: (process.env.MPESA_CALLBACK_BASE_URL || 'https://example.com') + '/api/callback',
     });
     res.json({ ok: true, ...result });
@@ -483,14 +513,22 @@ app.post('/api/send', async (req, res) => {
   }
 });
 
-// Batch payments.
+// Batch payments (max 100 per request).
 app.post('/api/send/batch', async (req, res) => {
   const { payments } = req.body; // [{ phone, amount }]
+  if (!Array.isArray(payments) || payments.length > 100) {
+    return res.status(400).json({ ok: false, error: 'Provide 1\u2013100 payments per batch' });
+  }
   const results = [];
   for (const p of payments) {
     try {
+      const amount = Math.round(Number(p.amount));
+      if (amount < 1 || amount > 150000) {
+        results.push({ phone: p.phone, status: 'failed', error: 'Amount out of range' });
+        continue;
+      }
       const result = await mpesa.send({
-        amount: Math.round(Number(p.amount)),
+        amount,
         phone: p.phone,
         type: 'salary',
         callbackUrl: (process.env.MPESA_CALLBACK_BASE_URL || 'https://example.com') + '/api/callback',
@@ -503,14 +541,18 @@ app.post('/api/send/batch', async (req, res) => {
   res.json({ ok: true, results });
 });
 
-// Callback handler.
+// Callback handler with verification.
 app.post('/api/callback', (req, res) => {
-  console.log('B2C callback received:', JSON.stringify(req.body, null, 2));
+  const result = verifyCallback(req.body, { ip: req.ip });
+  if (!result.valid) return res.status(403).end();
+  if (result.duplicate) return res.json({ ResultCode: 0, ResultDesc: 'Already processed' });
+
+  console.log('B2C callback verified:', result.data.transactionId, result.data.resultDesc);
   res.json({ ResultCode: 0, ResultDesc: 'Accepted' });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(\`Payroll service at http://localhost:\${PORT}\`));
+app.listen(PORT, () => console.log('Payroll service running on port', PORT));
 `,
     },
     {
@@ -539,7 +581,7 @@ function generateQrPayment(): ScaffoldFile[] {
           version: '1.0.0',
           type: 'module',
           scripts: { start: 'node server.js' },
-          dependencies: { '@daraja-kit/sdk': '^0.1.0', express: '^4.21.0' },
+          dependencies: { '@daraja-kit/sdk': '^0.1.0', express: '^4.21.0', 'express-rate-limit': '^7.0.0' },
         },
         null,
         2,
@@ -548,20 +590,25 @@ function generateQrPayment(): ScaffoldFile[] {
     {
       path: 'server.js',
       content: `import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { createClient } from '@daraja-kit/sdk';
 
 const app = express();
 app.use(express.json());
 app.use(express.static('public'));
+app.use('/api/', rateLimit({ windowMs: 60_000, max: 30 }));
 
 const mpesa = createClient();
 
 app.post('/api/qr', async (req, res) => {
   try {
-    const { amount, reference } = req.body;
+    const amount = Math.round(Number(req.body.amount));
+    if (amount < 1 || amount > 150000) {
+      return res.status(400).json({ ok: false, error: 'Amount must be 1\u2013150,000 KES' });
+    }
     const result = await mpesa.qr({
-      amount: Math.round(Number(amount)),
-      reference: reference || 'Payment',
+      amount,
+      reference: req.body.reference || 'Payment',
     });
     res.json({ ok: true, qrCode: result.qrCode });
   } catch (err) {
@@ -570,7 +617,7 @@ app.post('/api/qr', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(\`QR Payment kiosk at http://localhost:\${PORT}\`));
+app.listen(PORT, () => console.log('QR Payment kiosk running on port', PORT));
 `,
     },
     {
@@ -627,7 +674,7 @@ function generateSubscription(): ScaffoldFile[] {
           version: '1.0.0',
           type: 'module',
           scripts: { start: 'node server.js' },
-          dependencies: { '@daraja-kit/sdk': '^0.1.0', express: '^4.21.0' },
+          dependencies: { '@daraja-kit/sdk': '^0.1.0', express: '^4.21.0', 'express-rate-limit': '^7.0.0' },
         },
         null,
         2,
@@ -636,10 +683,12 @@ function generateSubscription(): ScaffoldFile[] {
     {
       path: 'server.js',
       content: `import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { createClient } from '@daraja-kit/sdk';
 
 const app = express();
 app.use(express.json());
+app.use('/api/', rateLimit({ windowMs: 60_000, max: 30 }));
 
 const mpesa = createClient();
 
@@ -648,9 +697,13 @@ const subscribers = new Map();
 
 // Subscribe.
 app.post('/api/subscribe', (req, res) => {
-  const { phone, plan, amount } = req.body;
+  const { phone, plan } = req.body;
+  const amount = Math.round(Number(req.body.amount));
+  if (amount < 1 || amount > 150000) {
+    return res.status(400).json({ ok: false, error: 'Amount must be 1\u2013150,000 KES' });
+  }
   const id = 'SUB-' + Date.now().toString(36).toUpperCase();
-  subscribers.set(id, { phone, plan, amount: Number(amount), active: true, lastCharged: null });
+  subscribers.set(id, { phone, plan, amount, active: true, lastCharged: null });
   res.json({ ok: true, subscriptionId: id });
 });
 
@@ -678,11 +731,11 @@ app.post('/api/charge/:id', async (req, res) => {
   }
 });
 
-// Charge all active subscribers.
+// Charge all active subscribers (max 100 per batch).
 app.post('/api/charge-all', async (_req, res) => {
   const results = [];
-  for (const [id, sub] of subscribers) {
-    if (!sub.active) continue;
+  const active = [...subscribers].filter(([, s]) => s.active).slice(0, 100);
+  for (const [id, sub] of active) {
     try {
       const result = await mpesa.collect({ amount: sub.amount, phone: sub.phone, reference: id.slice(0, 12) });
       results.push({ id, status: result.status });
@@ -694,7 +747,7 @@ app.post('/api/charge-all', async (_req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(\`Subscription service at http://localhost:\${PORT}\`));
+app.listen(PORT, () => console.log('Subscription service running on port', PORT));
 `,
     },
   ];

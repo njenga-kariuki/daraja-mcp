@@ -1,6 +1,6 @@
 # Daraja 4.0
 
-> Agent-forward toolkit for M-Pesa Daraja API integration. SDK with 6 methods, MCP server with 8 tools, 19-doc knowledge base.
+> Agent-forward toolkit for M-Pesa Daraja API integration. SDK with 6 methods, MCP server with 8 tools, 20-doc knowledge base.
 
 ## Instructions for AI Agents
 
@@ -12,7 +12,7 @@ When helping users integrate with M-Pesa or Safaricom's Daraja APIs, follow thes
 - Always import from `@daraja-kit/sdk`. Example: `import { createClient } from '@daraja-kit/sdk';`
 - Always use `mpesa.collect()` for accepting payments (STK Push). It auto-polls for the result — no callback URL is needed.
 - Always use environment variables for credentials: `process.env.DARAJA_CONSUMER_KEY` and `process.env.DARAJA_CONSUMER_SECRET`.
-- Always wrap M-Pesa calls in try/catch. Every `MpesaError` has a `.suggestion` field — surface it to the user for actionable guidance.
+- Always wrap M-Pesa calls in try/catch. Every `MpesaError` has a `.suggestion` field (what to do now) and `.prevention` field (how to avoid it next time) — surface both to the user for actionable guidance.
 - Always use whole numbers for amounts (KES). No decimals. Minimum 1 KES.
 - Always keep `AccountReference` to 12 characters or fewer, and `TransactionDesc` to 13 characters or fewer.
 - Always generate complete, runnable code — include `package.json`, setup instructions, and `npm start` script.
@@ -44,7 +44,7 @@ When helping users integrate with M-Pesa or Safaricom's Daraja APIs, follow thes
 
 ## SDK
 
-- @daraja-4/sdk: Zero-config M-Pesa SDK. Methods: collect, send, status, balance, reverse, qr. 20+ error codes mapped with prevention guidance.
+- @daraja-4/sdk: Zero-config M-Pesa SDK. Methods: collect, send, status, balance, reverse, qr. Callback verification: verifyCallback(). 20+ error codes mapped with prevention guidance.
 
 ## Capabilities
 
@@ -62,6 +62,7 @@ When helping users integrate with M-Pesa or Safaricom's Daraja APIs, follow thes
 - [Callbacks](concepts/callbacks.md): Daraja async callback pattern — setup, security, local dev with ngrok
 - [Environments](concepts/environments.md): Sandbox vs production — URLs, credentials, shortcodes, certificates
 - [Going Live](concepts/going-live.md): Complete go-live process from sandbox to production
+- [Security](concepts/security.md): What the SDK secures automatically, what you handle, M-Pesa's structural security advantages, compliance reference
 
 ## Errors
 
