@@ -986,6 +986,21 @@
       box-shadow: 0 0 0 3px rgba(53,168,57,0.12);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
+    /* Progress bar fill */
+    .demo-progress {
+      position: relative;
+    }
+    .demo-progress-fill {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: var(--green);
+      transition: width 0.6s ease;
+      z-index: 1;
+    }
+    /* File reveal */
     .demo-file-reveal {
       opacity: 0;
       transform: translateY(8px);
@@ -995,6 +1010,12 @@
       opacity: 1;
       transform: translateY(0);
     }
+    .demo-file-desc {
+      color: var(--gray-400);
+      font-size: 0.72rem;
+      margin-left: 4px;
+    }
+    /* Metric reveal */
     .demo-metric-reveal {
       opacity: 0;
       transform: translateY(6px);
@@ -1003,6 +1024,89 @@
     .demo-metric-reveal.demo-metric-visible {
       opacity: 1;
       transform: translateY(0);
+    }
+    /* Shimmer skeleton */
+    .demo-shimmer-bar {
+      height: 12px;
+      border-radius: 6px;
+      background: linear-gradient(90deg, var(--gray-100) 25%, var(--gray-200) 50%, var(--gray-100) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s ease infinite;
+      margin-bottom: 10px;
+    }
+    .demo-shimmer-bar:nth-child(1) { width: 85%; }
+    .demo-shimmer-bar:nth-child(2) { width: 65%; }
+    .demo-shimmer-bar:nth-child(3) { width: 45%; }
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    /* SVG checkmark */
+    .demo-checkmark-wrap {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .demo-checkmark circle {
+      stroke: var(--green);
+      stroke-width: 2;
+      fill: none;
+      stroke-dasharray: 150;
+      stroke-dashoffset: 150;
+      animation: checkCircle 0.5s ease forwards;
+    }
+    .demo-checkmark path {
+      stroke: var(--green);
+      stroke-width: 2.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 30;
+      stroke-dashoffset: 30;
+      animation: checkDraw 0.35s ease 0.4s forwards;
+    }
+    @keyframes checkCircle {
+      to { stroke-dashoffset: 0; }
+    }
+    @keyframes checkDraw {
+      to { stroke-dashoffset: 0; }
+    }
+    /* Pulse dot */
+    .demo-pulse-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      margin-right: 8px;
+      vertical-align: middle;
+      animation: dotPulse 0.6s ease;
+    }
+    @keyframes dotPulse {
+      0% { transform: scale(1); opacity: 0.4; }
+      50% { transform: scale(1.6); opacity: 1; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    /* Receipt card */
+    .demo-receipt {
+      text-align: left;
+      font-size: 0.78rem;
+      line-height: 2;
+    }
+    .demo-receipt-label {
+      color: var(--gray-400);
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .demo-receipt-value {
+      color: var(--gray-800);
+      font-weight: 600;
+    }
+    .demo-receipt-status {
+      color: var(--success);
+      font-weight: 700;
     }
     .demo-note-reveal {
       opacity: 0;
@@ -1193,24 +1297,25 @@
 
       <div class="demo-container fade-in" id="live-demo">
         <div class="demo-progress">
+          <div class="demo-progress-fill" id="demo-progress-fill"></div>
           <div class="demo-progress-step active" data-demo-step="1">1. Describe</div>
-          <div class="demo-progress-step" data-demo-step="2">2. Build + Validate</div>
-          <div class="demo-progress-step" data-demo-step="3">3. Ship</div>
+          <div class="demo-progress-step" data-demo-step="2">2. Build</div>
+          <div class="demo-progress-step" data-demo-step="3">3. Go Live</div>
         </div>
 
         <!-- Step 1: Describe -->
         <div class="demo-step active" id="demo-step-1">
-          <div class="demo-step-label">What do you need?</div>
+          <div class="demo-step-label">Just say what you need</div>
           <h4>Describe what you want to build</h4>
-          <p>Type a plain-language description. Your AI assistant handles the rest.</p>
+          <p>No technical knowledge needed. Just describe it in your own words.</p>
           <input class="tool-input" id="demo-intent" value="" readonly style="margin-bottom:16px;font-family:var(--font-sans);font-size:0.88rem">
           <button class="demo-btn" id="demo-btn-generate" onclick="demoGenerate()">Generate Project</button>
         </div>
 
-        <!-- Step 2: Build + Validate -->
+        <!-- Step 2: Build -->
         <div class="demo-step" id="demo-step-2">
-          <div class="demo-step-label">daraja_scaffold + daraja_validate</div>
-          <h4>Project generated and validated</h4>
+          <div class="demo-step-label">AI generates your project</div>
+          <h4>Your payment app is ready</h4>
           <div class="demo-output-panel" id="demo-scaffold-output"></div>
           <div id="demo-validate-result"></div>
           <div class="demo-actions">
@@ -1218,10 +1323,10 @@
           </div>
         </div>
 
-        <!-- Step 3: Ship -->
+        <!-- Step 3: Go Live -->
         <div class="demo-step" id="demo-step-3">
-          <div class="demo-step-label">daraja_preflight</div>
-          <h4>Preflight check complete</h4>
+          <div class="demo-step-label">Everything checks out</div>
+          <h4>You're ready to accept payments</h4>
           <div class="demo-output-panel" id="demo-preflight-output"></div>
           <div class="demo-actions">
             <a href="#tools" class="demo-btn demo-btn-outline">Try all 8 tools yourself</a>
@@ -2366,28 +2471,39 @@ npm install @daraja-kit/agent-toolkit</div>
     let demoHasPlayed = false;
     let demoTimeouts = [];
 
-    const DEMO_INTENT = 'Build me a donation page with M-Pesa';
+    const DEMO_INTENT = 'Build me an app to collect contributions for our community clean-up in Kibera';
     const DEMO_FILES = [
-      { path: 'package.json',      icon: '&#x1F4E6;' },
-      { path: 'server.js',         icon: '&#x1F4C4;' },
-      { path: 'public/index.html', icon: '&#x1F4C4;' },
+      { path: 'package.json',      icon: '&#x1F4E6;', desc: 'Project dependencies' },
+      { path: 'server.js',         icon: '&#x1F4C4;', desc: 'M-Pesa payment logic' },
+      { path: 'public/index.html', icon: '&#x1F4C4;', desc: 'Your donation page' },
     ];
-    const DEMO_ZERO_CONFIG = 'No credentials, certificates, or environment variables needed. The SDK uses shared sandbox credentials automatically. Test phone: 254708374149.';
-    const DEMO_SCORE = 95;
+    const DEMO_ZERO_CONFIG = 'M-Pesa sandbox connected automatically &mdash; no setup needed.';
+    const DEMO_SHIMMER = '<div class="demo-shimmer-bar"></div><div class="demo-shimmer-bar"></div><div class="demo-shimmer-bar"></div>';
+    const DEMO_CHECKMARK = '<div class="demo-checkmark-wrap"><svg class="demo-checkmark" width="48" height="48" viewBox="0 0 48 48"><circle cx="24" cy="24" r="21"/><path d="M15 25l6 6 12-14"/></svg></div>';
+    const DEMO_RECEIPT = [
+      { label: 'Cause', value: 'Kibera Community Clean-Up' },
+      { label: 'Amount', value: 'KES 500' },
+      { label: 'Phone', value: '2547083***49' },
+      { label: 'M-Pesa Ref', value: 'QKJ41HAY4I' },
+      { label: 'Status', value: 'Completed', status: true },
+    ];
 
     function demoSetStep(n) {
-      document.querySelectorAll('.demo-step').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.demo-progress-step').forEach(el => {
-        const s = Number(el.dataset.demoStep);
+      document.querySelectorAll('.demo-step').forEach(function(el) { el.classList.remove('active'); });
+      document.querySelectorAll('.demo-progress-step').forEach(function(el) {
+        var s = Number(el.dataset.demoStep);
         el.classList.remove('active', 'done');
         if (s === n) el.classList.add('active');
         else if (s < n) el.classList.add('done');
       });
       document.getElementById('demo-step-' + n).classList.add('active');
+      // Drive progress bar fill
+      var fill = document.getElementById('demo-progress-fill');
+      if (fill) fill.style.width = (n === 1 ? '0' : n === 2 ? '50' : '100') + '%';
     }
 
     function demoTypewriter(el, text, charDelay, callback) {
-      let i = 0;
+      var i = 0;
       el.value = '';
       el.classList.add('demo-typing');
       function typeNext() {
@@ -2408,7 +2524,7 @@ npm install @daraja-kit/agent-toolkit</div>
         demoTimeouts.push(setTimeout(function() {
           var div = document.createElement('div');
           div.className = 'tool-output-file demo-file-reveal';
-          div.innerHTML = '<span class="tool-output-file-icon">' + file.icon + '</span> ' + file.path;
+          div.innerHTML = '<span class="tool-output-file-icon">' + file.icon + '</span> ' + file.path + '<span class="demo-file-desc"> &mdash; ' + file.desc + '</span>';
           container.appendChild(div);
           requestAnimationFrame(function() { div.classList.add('demo-file-visible'); });
           if (index === files.length - 1 && callback) {
@@ -2418,20 +2534,22 @@ npm install @daraja-kit/agent-toolkit</div>
       });
     }
 
-    function demoAnimateScore(targetEl, targetScore, duration, callback) {
-      var start = performance.now();
-      function tick(now) {
-        var progress = Math.min((now - start) / duration, 1);
-        var eased = 1 - Math.pow(1 - progress, 3);
-        var current = Math.round(targetScore * eased);
-        targetEl.innerHTML = '<div class="demo-score">Code quality: ' + current + '/100</div>';
-        if (progress < 1) {
-          requestAnimationFrame(tick);
-        } else if (callback) {
-          callback();
-        }
-      }
-      requestAnimationFrame(tick);
+    function demoRevealReceipt(container, lines, staggerMs, callback) {
+      lines.forEach(function(line, index) {
+        demoTimeouts.push(setTimeout(function() {
+          var div = document.createElement('div');
+          div.className = 'demo-metric-reveal';
+          div.style.transitionDelay = '0s';
+          var valueClass = line.status ? 'demo-receipt-status' : 'demo-receipt-value';
+          var dot = line.status ? '<span class="demo-pulse-dot"></span>' : '';
+          div.innerHTML = '<span class="demo-receipt-label">' + line.label + '</span>&nbsp;&nbsp;' + dot + '<span class="' + valueClass + '">' + line.value + '</span>';
+          container.appendChild(div);
+          requestAnimationFrame(function() { div.classList.add('demo-metric-visible'); });
+          if (index === lines.length - 1 && callback) {
+            demoTimeouts.push(setTimeout(callback, 300));
+          }
+        }, index * staggerMs));
+      });
     }
 
     function demoAutoplay() {
@@ -2449,67 +2567,79 @@ npm install @daraja-kit/agent-toolkit</div>
         inputEl.value = DEMO_INTENT;
         scaffoldOutput.innerHTML = '<div style="margin-bottom:10px;padding:8px 12px;background:#F0FDF4;border-radius:6px;font-size:0.72rem;color:var(--success);border-left:3px solid var(--success)">' + DEMO_ZERO_CONFIG + '</div>';
         DEMO_FILES.forEach(function(f) {
-          scaffoldOutput.innerHTML += '<div class="tool-output-file"><span class="tool-output-file-icon">' + f.icon + '</span> ' + f.path + '</div>';
+          scaffoldOutput.innerHTML += '<div class="tool-output-file"><span class="tool-output-file-icon">' + f.icon + '</span> ' + f.path + '<span class="demo-file-desc"> &mdash; ' + f.desc + '</span></div>';
         });
-        validateResult.innerHTML = '<div class="demo-score">Code quality: ' + DEMO_SCORE + '/100</div>';
-        preflightOutput.innerHTML =
-          '<div style="padding:10px;background:#F0FDF4;border-radius:8px;margin-bottom:12px;font-weight:600;font-size:0.83rem;color:var(--success)">Ready for deployment</div>' +
-          '<div style="font-size:0.78rem;margin-bottom:6px">Code Score: <strong>' + DEMO_SCORE + '/100</strong></div>' +
-          '<div style="font-size:0.78rem;margin-bottom:6px">OAuth: <strong style="color:var(--success)">Valid</strong></div>';
+        validateResult.innerHTML = '<div class="demo-score" style="color:var(--success)">&#x2713; M-Pesa ready for Kibera Community Clean-Up</div>';
+        preflightOutput.innerHTML = DEMO_CHECKMARK + '<div class="demo-receipt"></div>';
+        var receipt = preflightOutput.querySelector('.demo-receipt');
+        DEMO_RECEIPT.forEach(function(line) {
+          var valueClass = line.status ? 'demo-receipt-status' : 'demo-receipt-value';
+          var dot = line.status ? '<span class="demo-pulse-dot" style="animation:none"></span>' : '';
+          receipt.innerHTML += '<div><span class="demo-receipt-label">' + line.label + '</span>&nbsp;&nbsp;' + dot + '<span class="' + valueClass + '">' + line.value + '</span></div>';
+        });
         demoSetStep(3);
         return;
       }
 
-      // Phase A: Typewriter (0–1.4s)
-      demoTypewriter(inputEl, DEMO_INTENT, 37, function() {
+      // Phase A: Typewriter (0–1.7s)
+      demoTypewriter(inputEl, DEMO_INTENT, 22, function() {
 
-        // Phase C: Advance to Step 2
+        // Phase B: Advance to Step 2 with shimmer
         demoTimeouts.push(setTimeout(function() {
-          // Insert zero-config note (hidden)
-          scaffoldOutput.innerHTML = '<div class="demo-note-reveal" id="demo-note">' +
-            '<div style="margin-bottom:10px;padding:8px 12px;background:#F0FDF4;border-radius:6px;font-size:0.72rem;color:var(--success);border-left:3px solid var(--success)">' +
-            DEMO_ZERO_CONFIG + '</div></div>';
-
+          scaffoldOutput.innerHTML = DEMO_SHIMMER;
           demoSetStep(2);
 
-          // Phase D: Reveal zero-config note
+          // Phase C: Replace shimmer with content
           demoTimeouts.push(setTimeout(function() {
-            var note = document.getElementById('demo-note');
-            if (note) note.classList.add('demo-note-visible');
-          }, 300));
+            // Insert zero-config note (hidden)
+            scaffoldOutput.innerHTML = '<div class="demo-note-reveal" id="demo-note">' +
+              '<div style="margin-bottom:10px;padding:8px 12px;background:#F0FDF4;border-radius:6px;font-size:0.72rem;color:var(--success);border-left:3px solid var(--success)">' +
+              DEMO_ZERO_CONFIG + '</div></div>';
 
-          // Phase E: Stagger files
-          demoTimeouts.push(setTimeout(function() {
-            demoRevealFiles(scaffoldOutput, DEMO_FILES, 300, function() {
+            // Reveal zero-config note
+            demoTimeouts.push(setTimeout(function() {
+              var note = document.getElementById('demo-note');
+              if (note) note.classList.add('demo-note-visible');
+            }, 200));
 
-              // Phase F: Animate score
-              demoTimeouts.push(setTimeout(function() {
-                demoAnimateScore(validateResult, DEMO_SCORE, 800, function() {
+            // Stagger files
+            demoTimeouts.push(setTimeout(function() {
+              demoRevealFiles(scaffoldOutput, DEMO_FILES, 300, function() {
 
-                  // Phase G+H: Dwell, then advance to Step 3
+                // Phase D: M-Pesa status line (replaces score counter)
+                demoTimeouts.push(setTimeout(function() {
+                  validateResult.innerHTML = '<div class="demo-score demo-note-reveal" id="demo-mpesa-status" style="color:var(--success)">&#x2713; M-Pesa ready for Kibera Community Clean-Up</div>';
+                  requestAnimationFrame(function() {
+                    var el = document.getElementById('demo-mpesa-status');
+                    if (el) el.classList.add('demo-note-visible');
+                  });
+
+                  // Phase E: Dwell, then advance to Step 3
                   demoTimeouts.push(setTimeout(function() {
-                    var phtml = '<div class="demo-metric-reveal" id="dm-ready">' +
-                      '<div style="padding:10px;background:#F0FDF4;border-radius:8px;margin-bottom:12px;font-weight:600;font-size:0.83rem;color:var(--success)">Ready for deployment</div></div>';
-                    phtml += '<div class="demo-metric-reveal" id="dm-code" style="transition-delay:0.15s">' +
-                      '<div style="font-size:0.78rem;margin-bottom:6px">Code Score: <strong>' + DEMO_SCORE + '/100</strong></div></div>';
-                    phtml += '<div class="demo-metric-reveal" id="dm-oauth" style="transition-delay:0.3s">' +
-                      '<div style="font-size:0.78rem;margin-bottom:6px">OAuth: <strong style="color:var(--success)">Valid</strong></div></div>';
-                    preflightOutput.innerHTML = phtml;
-
+                    // Show shimmer first
+                    preflightOutput.innerHTML = DEMO_SHIMMER;
                     demoSetStep(3);
 
-                    // Phase J-K: Reveal metrics with stagger
+                    // Phase F: Replace shimmer with checkmark + receipt
                     demoTimeouts.push(setTimeout(function() {
-                      document.querySelectorAll('.demo-metric-reveal').forEach(function(el) {
-                        el.classList.add('demo-metric-visible');
-                      });
-                    }, 200));
+                      preflightOutput.innerHTML = DEMO_CHECKMARK;
 
-                  }, 800));
-                });
-              }, 200));
-            });
-          }, 500));
+                      // Phase G: Reveal receipt lines
+                      demoTimeouts.push(setTimeout(function() {
+                        var receiptDiv = document.createElement('div');
+                        receiptDiv.className = 'demo-receipt';
+                        preflightOutput.appendChild(receiptDiv);
+                        demoRevealReceipt(receiptDiv, DEMO_RECEIPT, 250);
+                      }, 500));
+
+                    }, 600));
+
+                  }, 900));
+                }, 300));
+              });
+            }, 400));
+
+          }, 600));
 
         }, 100));
       });
@@ -2526,6 +2656,7 @@ npm install @daraja-kit/agent-toolkit</div>
       document.getElementById('demo-preflight-output').innerHTML = '';
       document.getElementById('demo-intent').value = '';
       document.getElementById('demo-intent').classList.remove('demo-typing');
+      document.getElementById('demo-progress-fill').style.width = '0%';
 
       // Return to step 1 and replay
       demoSetStep(1);
