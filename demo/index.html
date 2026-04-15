@@ -975,6 +975,42 @@
       border: 1.5px solid var(--green);
     }
     .demo-btn-outline:hover { background: rgba(53,168,57,0.06); }
+
+    /* ── Demo Autoplay Enhancements ─────────────────────────────────── */
+    .demo-autoplay #demo-btn-generate,
+    .demo-autoplay #demo-btn-ship {
+      display: none;
+    }
+    #demo-intent.demo-typing {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(53,168,57,0.12);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .demo-file-reveal {
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+    }
+    .demo-file-reveal.demo-file-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .demo-metric-reveal {
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+    .demo-metric-reveal.demo-metric-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .demo-note-reveal {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .demo-note-reveal.demo-note-visible {
+      opacity: 1;
+    }
     .demo-actions {
       display: flex;
       gap: 12px;
@@ -1167,7 +1203,7 @@
           <div class="demo-step-label">What do you need?</div>
           <h4>Describe what you want to build</h4>
           <p>Type a plain-language description. Your AI assistant handles the rest.</p>
-          <input class="tool-input" id="demo-intent" value="Build me a donation page with M-Pesa" style="margin-bottom:16px;font-family:var(--font-sans);font-size:0.88rem">
+          <input class="tool-input" id="demo-intent" value="" readonly style="margin-bottom:16px;font-family:var(--font-sans);font-size:0.88rem">
           <button class="demo-btn" id="demo-btn-generate" onclick="demoGenerate()">Generate Project</button>
         </div>
 
@@ -1189,7 +1225,7 @@
           <div class="demo-output-panel" id="demo-preflight-output"></div>
           <div class="demo-actions">
             <a href="#tools" class="demo-btn demo-btn-outline">Try all 8 tools yourself</a>
-            <button class="demo-btn demo-btn-outline" onclick="demoReset()" style="border-color:var(--gray-300);color:var(--gray-500)">Run again</button>
+            <button class="demo-btn demo-btn-outline" onclick="demoReset()" style="border-color:var(--gray-300);color:var(--gray-500)">Replay</button>
           </div>
         </div>
       </div>
@@ -2326,11 +2362,20 @@ npm install @daraja-kit/agent-toolkit</div>
       siteNav.classList.toggle('scrolled', window.scrollY > 60);
     });
 
-    // ── Live Step-Through Demo ────────────────────────────────────────
-    let demoCurrentStep = 1;
+    // ── Auto-Playing Demo ──────────────────────────────────────────────
+    let demoHasPlayed = false;
+    let demoTimeouts = [];
+
+    const DEMO_INTENT = 'Build me a donation page with M-Pesa';
+    const DEMO_FILES = [
+      { path: 'package.json',      icon: '&#x1F4E6;' },
+      { path: 'server.js',         icon: '&#x1F4C4;' },
+      { path: 'public/index.html', icon: '&#x1F4C4;' },
+    ];
+    const DEMO_ZERO_CONFIG = 'No credentials, certificates, or environment variables needed. The SDK uses shared sandbox credentials automatically. Test phone: 254708374149.';
+    const DEMO_SCORE = 95;
 
     function demoSetStep(n) {
-      demoCurrentStep = n;
       document.querySelectorAll('.demo-step').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.demo-progress-step').forEach(el => {
         const s = Number(el.dataset.demoStep);
@@ -2341,93 +2386,164 @@ npm install @daraja-kit/agent-toolkit</div>
       document.getElementById('demo-step-' + n).classList.add('active');
     }
 
-    async function demoGenerate() {
-      const btn = document.getElementById('demo-btn-generate');
-      btn.disabled = true;
-      btn.textContent = 'Generating...';
-
-      try {
-        const intent = document.getElementById('demo-intent').value;
-
-        // Step 1: Scaffold
-        const scaffoldRes = await fetch('/api/tools/scaffold', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ intent }),
-        });
-        const scaffoldData = await scaffoldRes.json();
-
-        let scaffoldHtml = '';
-        if (scaffoldData.zeroConfigNote) {
-          scaffoldHtml += '<div style="margin-bottom:10px;padding:8px 12px;background:#F0FDF4;border-radius:6px;font-size:0.72rem;color:var(--success);border-left:3px solid var(--success)">' + scaffoldData.zeroConfigNote + '</div>';
+    function demoTypewriter(el, text, charDelay, callback) {
+      let i = 0;
+      el.value = '';
+      el.classList.add('demo-typing');
+      function typeNext() {
+        if (i < text.length) {
+          el.value += text[i];
+          i++;
+          demoTimeouts.push(setTimeout(typeNext, charDelay));
+        } else {
+          el.classList.remove('demo-typing');
+          if (callback) callback();
         }
-        scaffoldData.files.forEach(f => {
-          scaffoldHtml += '<div class="tool-output-file"><span class="tool-output-file-icon">&#x1F4C4;</span> ' + f.path + '</div>';
-        });
-        document.getElementById('demo-scaffold-output').innerHTML = scaffoldHtml;
-
-        // Step 2: Validate
-        const validateRes = await fetch('/api/tools/validate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: scaffoldData.files.map(f => f.content).join('\n').slice(0, 500) }),
-        });
-        const validateData = await validateRes.json();
-
-        const scoreColor = validateData.score >= 80 ? 'var(--success)' : validateData.score >= 50 ? 'var(--warning)' : 'var(--error)';
-        document.getElementById('demo-validate-result').innerHTML =
-          '<div class="demo-score" style="color:' + scoreColor + '">Code quality: ' + validateData.score + '/100</div>';
-
-        demoSetStep(2);
-      } catch (err) {
-        document.getElementById('demo-scaffold-output').innerHTML =
-          '<div style="color:var(--error);font-size:0.78rem">Error: ' + err.message + '</div>';
-        demoSetStep(2);
       }
-
-      btn.disabled = false;
-      btn.textContent = 'Generate Project';
+      typeNext();
     }
 
-    async function demoShip() {
-      const btn = document.getElementById('demo-btn-ship');
-      btn.disabled = true;
-      btn.textContent = 'Running preflight...';
+    function demoRevealFiles(container, files, staggerMs, callback) {
+      files.forEach(function(file, index) {
+        demoTimeouts.push(setTimeout(function() {
+          var div = document.createElement('div');
+          div.className = 'tool-output-file demo-file-reveal';
+          div.innerHTML = '<span class="tool-output-file-icon">' + file.icon + '</span> ' + file.path;
+          container.appendChild(div);
+          requestAnimationFrame(function() { div.classList.add('demo-file-visible'); });
+          if (index === files.length - 1 && callback) {
+            demoTimeouts.push(setTimeout(callback, 200));
+          }
+        }, index * staggerMs));
+      });
+    }
 
-      try {
-        const preflightRes = await fetch('/api/tools/preflight', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code: 'const result = await mpesa.collect({ amount: 100, phone: "254712345678" });' }),
+    function demoAnimateScore(targetEl, targetScore, duration, callback) {
+      var start = performance.now();
+      function tick(now) {
+        var progress = Math.min((now - start) / duration, 1);
+        var eased = 1 - Math.pow(1 - progress, 3);
+        var current = Math.round(targetScore * eased);
+        targetEl.innerHTML = '<div class="demo-score">Code quality: ' + current + '/100</div>';
+        if (progress < 1) {
+          requestAnimationFrame(tick);
+        } else if (callback) {
+          callback();
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function demoAutoplay() {
+      var container = document.getElementById('live-demo');
+      container.classList.add('demo-autoplay');
+      demoSetStep(1);
+
+      var inputEl = document.getElementById('demo-intent');
+      var scaffoldOutput = document.getElementById('demo-scaffold-output');
+      var validateResult = document.getElementById('demo-validate-result');
+      var preflightOutput = document.getElementById('demo-preflight-output');
+
+      // Reduced motion: show final state immediately
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        inputEl.value = DEMO_INTENT;
+        scaffoldOutput.innerHTML = '<div style="margin-bottom:10px;padding:8px 12px;background:#F0FDF4;border-radius:6px;font-size:0.72rem;color:var(--success);border-left:3px solid var(--success)">' + DEMO_ZERO_CONFIG + '</div>';
+        DEMO_FILES.forEach(function(f) {
+          scaffoldOutput.innerHTML += '<div class="tool-output-file"><span class="tool-output-file-icon">' + f.icon + '</span> ' + f.path + '</div>';
         });
-        const preflightData = await preflightRes.json();
-
-        let phtml = '';
-        const readyBg = preflightData.overallReady ? '#F0FDF4' : '#FEF2F2';
-        const readyColor = preflightData.overallReady ? 'var(--success)' : 'var(--error)';
-        const readyText = preflightData.overallReady ? 'Ready for deployment' : 'Issues found — review before deploying';
-        phtml += '<div style="padding:10px;background:' + readyBg + ';border-radius:8px;margin-bottom:12px;font-weight:600;font-size:0.83rem;color:' + readyColor + '">' + readyText + '</div>';
-        phtml += '<div style="font-size:0.78rem;margin-bottom:6px">Code Score: <strong>' + preflightData.codeScore + '/100</strong></div>';
-        phtml += '<div style="font-size:0.78rem;margin-bottom:6px">OAuth: <strong style="color:' + (preflightData.oauthValid ? 'var(--success)' : 'var(--error)') + '">' + (preflightData.oauthValid ? 'Valid' : 'Check credentials') + '</strong></div>';
-        document.getElementById('demo-preflight-output').innerHTML = phtml;
-
+        validateResult.innerHTML = '<div class="demo-score">Code quality: ' + DEMO_SCORE + '/100</div>';
+        preflightOutput.innerHTML =
+          '<div style="padding:10px;background:#F0FDF4;border-radius:8px;margin-bottom:12px;font-weight:600;font-size:0.83rem;color:var(--success)">Ready for deployment</div>' +
+          '<div style="font-size:0.78rem;margin-bottom:6px">Code Score: <strong>' + DEMO_SCORE + '/100</strong></div>' +
+          '<div style="font-size:0.78rem;margin-bottom:6px">OAuth: <strong style="color:var(--success)">Valid</strong></div>';
         demoSetStep(3);
-      } catch (err) {
-        document.getElementById('demo-preflight-output').innerHTML =
-          '<div style="color:var(--error);font-size:0.78rem">Error: ' + err.message + '</div>';
-        demoSetStep(3);
+        return;
       }
 
-      btn.disabled = false;
-      btn.textContent = 'Check Production Readiness';
+      // Phase A: Typewriter (0–1.4s)
+      demoTypewriter(inputEl, DEMO_INTENT, 37, function() {
+
+        // Phase C: Advance to Step 2
+        demoTimeouts.push(setTimeout(function() {
+          // Insert zero-config note (hidden)
+          scaffoldOutput.innerHTML = '<div class="demo-note-reveal" id="demo-note">' +
+            '<div style="margin-bottom:10px;padding:8px 12px;background:#F0FDF4;border-radius:6px;font-size:0.72rem;color:var(--success);border-left:3px solid var(--success)">' +
+            DEMO_ZERO_CONFIG + '</div></div>';
+
+          demoSetStep(2);
+
+          // Phase D: Reveal zero-config note
+          demoTimeouts.push(setTimeout(function() {
+            var note = document.getElementById('demo-note');
+            if (note) note.classList.add('demo-note-visible');
+          }, 300));
+
+          // Phase E: Stagger files
+          demoTimeouts.push(setTimeout(function() {
+            demoRevealFiles(scaffoldOutput, DEMO_FILES, 300, function() {
+
+              // Phase F: Animate score
+              demoTimeouts.push(setTimeout(function() {
+                demoAnimateScore(validateResult, DEMO_SCORE, 800, function() {
+
+                  // Phase G+H: Dwell, then advance to Step 3
+                  demoTimeouts.push(setTimeout(function() {
+                    var phtml = '<div class="demo-metric-reveal" id="dm-ready">' +
+                      '<div style="padding:10px;background:#F0FDF4;border-radius:8px;margin-bottom:12px;font-weight:600;font-size:0.83rem;color:var(--success)">Ready for deployment</div></div>';
+                    phtml += '<div class="demo-metric-reveal" id="dm-code" style="transition-delay:0.15s">' +
+                      '<div style="font-size:0.78rem;margin-bottom:6px">Code Score: <strong>' + DEMO_SCORE + '/100</strong></div></div>';
+                    phtml += '<div class="demo-metric-reveal" id="dm-oauth" style="transition-delay:0.3s">' +
+                      '<div style="font-size:0.78rem;margin-bottom:6px">OAuth: <strong style="color:var(--success)">Valid</strong></div></div>';
+                    preflightOutput.innerHTML = phtml;
+
+                    demoSetStep(3);
+
+                    // Phase J-K: Reveal metrics with stagger
+                    demoTimeouts.push(setTimeout(function() {
+                      document.querySelectorAll('.demo-metric-reveal').forEach(function(el) {
+                        el.classList.add('demo-metric-visible');
+                      });
+                    }, 200));
+
+                  }, 800));
+                });
+              }, 200));
+            });
+          }, 500));
+
+        }, 100));
+      });
     }
 
     function demoReset() {
+      // Clear pending animation timeouts
+      demoTimeouts.forEach(function(t) { clearTimeout(t); });
+      demoTimeouts = [];
+
+      // Clear outputs
       document.getElementById('demo-scaffold-output').innerHTML = '';
       document.getElementById('demo-validate-result').innerHTML = '';
       document.getElementById('demo-preflight-output').innerHTML = '';
+      document.getElementById('demo-intent').value = '';
+      document.getElementById('demo-intent').classList.remove('demo-typing');
+
+      // Return to step 1 and replay
       demoSetStep(1);
+      demoTimeouts.push(setTimeout(demoAutoplay, 400));
     }
+
+    // Trigger autoplay when section scrolls into view
+    var demoObserver = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting && !demoHasPlayed && document.visibilityState === 'visible') {
+          demoHasPlayed = true;
+          demoObserver.unobserve(entry.target);
+          setTimeout(demoAutoplay, 500);
+        }
+      });
+    }, { threshold: 0.3 });
+
+    demoObserver.observe(document.getElementById('live-demo'));
 
     // ── Copy Button ──────────────────────────────────���────────────────
     function copyCode(btn) {
