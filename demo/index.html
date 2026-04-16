@@ -1218,6 +1218,130 @@
       max-width: 100%;
     }
 
+    /* ── Video Intro Overlay ───────────────────────────────────────────── */
+    .video-intro-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+      padding: 24px;
+    }
+    .video-intro-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+    .video-intro-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(10, 41, 13, 0.80);
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+    }
+    .video-intro-container {
+      position: relative;
+      width: 100%;
+      max-width: 880px;
+      aspect-ratio: 16 / 9;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      background: #000;
+      transform: scale(0.92);
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .video-intro-overlay.active .video-intro-container {
+      transform: scale(1);
+    }
+    .video-intro-player {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+    .video-intro-play-btn {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.95);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0 0 6px;
+      transition: background 0.2s ease, transform 0.2s ease, opacity 0.3s ease;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+      animation: video-intro-pulse 2.2s ease-in-out infinite;
+    }
+    .video-intro-play-btn:hover {
+      background: var(--white);
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+    .video-intro-play-btn svg {
+      width: 32px;
+      height: 32px;
+      fill: var(--dark);
+    }
+    .video-intro-play-btn.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(0.8);
+      animation: none;
+    }
+    @keyframes video-intro-pulse {
+      0%, 100% { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 0 0 rgba(255, 255, 255, 0.4); }
+      50%      { box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3), 0 0 0 18px rgba(255, 255, 255, 0); }
+    }
+    .video-intro-close {
+      position: absolute;
+      top: 14px;
+      right: 14px;
+      z-index: 2;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0, 0, 0, 0.55);
+      color: #fff;
+      font-size: 1.5rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease, transform 0.2s ease;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      font-family: var(--font-sans);
+    }
+    .video-intro-close:hover {
+      background: rgba(0, 0, 0, 0.85);
+      transform: scale(1.1);
+    }
+    .video-intro-overlay.dismissing {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .video-intro-overlay.dismissing .video-intro-container {
+      transform: scale(0.95);
+    }
+    body.video-intro-active {
+      overflow: hidden;
+    }
+
     /* ── Responsive ────────────────────────────────────────────────────── */
     @media (max-width: 1024px) {
       .foundation-grid, .tools-grid, .differentiators, .steps-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1244,10 +1368,34 @@
         box-shadow: var(--shadow-md);
         gap: 16px;
       }
+      .video-intro-overlay { padding: 16px; }
+      .video-intro-container { border-radius: 12px; }
+      .video-intro-play-btn { width: 68px; height: 68px; }
+      .video-intro-play-btn svg { width: 26px; height: 26px; }
+      .video-intro-close { top: 10px; right: 10px; width: 34px; height: 34px; font-size: 1.3rem; }
     }
   </style>
 </head>
 <body>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       VIDEO INTRO OVERLAY
+       ═══════════════════════════════════════════════════════════════════ -->
+  <div class="video-intro-overlay" id="video-intro-overlay" role="dialog" aria-modal="true" aria-label="Introduction video" hidden>
+    <div class="video-intro-backdrop" id="video-intro-backdrop"></div>
+    <div class="video-intro-container" id="video-intro-container">
+      <button class="video-intro-close" id="video-intro-close" aria-label="Close video" title="Close (Esc)">&times;</button>
+      <video
+        class="video-intro-player"
+        id="video-intro-player"
+        playsinline
+        preload="auto"
+      ></video>
+      <button class="video-intro-play-btn" id="video-intro-play-btn" aria-label="Play video">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+      </button>
+    </div>
+  </div>
 
   <!-- ═══════════════════════════════════════════════════════════════════
        STICKY NAV
@@ -2222,6 +2370,128 @@ npm install @daraja-kit/agent-toolkit</div>
        JAVASCRIPT
        ═══════════════════════════════════════════════════════════════════ -->
   <script>
+    // ── Video Intro Overlay ────────────────────────────────────────────
+    (function () {
+      // ═══ CONFIGURATION — change this path to swap the video ══════════
+      var VIDEO_INTRO_SRC = encodeURI('./M-Pesa Daraja 4.0_ The Future of Agentic Commerce.mp4');
+      // ═════════════════════════════════════════════════════════════════
+
+      if (!VIDEO_INTRO_SRC) return;
+
+      var overlay   = document.getElementById('video-intro-overlay');
+      var backdrop  = document.getElementById('video-intro-backdrop');
+      var closeBtn  = document.getElementById('video-intro-close');
+      var playBtn   = document.getElementById('video-intro-play-btn');
+      var video     = document.getElementById('video-intro-player');
+
+      if (!overlay || !video) return;
+
+      // Respect reduced-motion preference — skip the overlay entirely
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        return;
+      }
+
+      var previousFocus = null;
+      var dismissed = false;
+
+      function showOverlay() {
+        if (dismissed) return;
+        previousFocus = document.activeElement;
+        overlay.hidden = false;
+        // Force reflow so the transition fires
+        void overlay.offsetWidth;
+        document.body.classList.add('video-intro-active');
+        overlay.classList.add('active');
+        if (playBtn) playBtn.focus();
+      }
+
+      function dismiss() {
+        if (dismissed) return;
+        if (!overlay.classList.contains('active')) {
+          // Never got shown (e.g., video error) — just hide markup
+          overlay.hidden = true;
+          dismissed = true;
+          return;
+        }
+        dismissed = true;
+        overlay.classList.add('dismissing');
+        try { video.pause(); } catch (e) {}
+        try { video.currentTime = 0; } catch (e) {}
+
+        setTimeout(function () {
+          overlay.classList.remove('active', 'dismissing');
+          overlay.hidden = true;
+          document.body.classList.remove('video-intro-active');
+          if (previousFocus && typeof previousFocus.focus === 'function') {
+            previousFocus.focus();
+          }
+        }, 420);
+      }
+
+      function startPlayback() {
+        var p = video.play();
+        if (p && typeof p.then === 'function') {
+          p.then(function () {
+            if (playBtn) playBtn.classList.add('hidden');
+          }).catch(function () {
+            // Play failed — leave the play button so user can try again
+          });
+        } else {
+          if (playBtn) playBtn.classList.add('hidden');
+        }
+      }
+
+      // Set source and load. If the video fails to load, silently skip.
+      video.addEventListener('error', function () {
+        dismiss();
+      });
+      video.addEventListener('loadedmetadata', function () {
+        showOverlay();
+      });
+      video.addEventListener('ended', function () {
+        setTimeout(dismiss, 300);
+      });
+
+      // Interactions
+      if (playBtn) playBtn.addEventListener('click', startPlayback);
+      closeBtn.addEventListener('click', dismiss);
+      backdrop.addEventListener('click', dismiss);
+
+      // Also let clicking the video itself trigger play (before first play)
+      video.addEventListener('click', function () {
+        if (video.paused && !dismissed) startPlayback();
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && overlay.classList.contains('active')) {
+          e.preventDefault();
+          dismiss();
+        }
+      });
+
+      // Focus trap — Tab cycles between play and close buttons only
+      overlay.addEventListener('keydown', function (e) {
+        if (e.key !== 'Tab') return;
+        var focusables = [];
+        if (playBtn && !playBtn.classList.contains('hidden')) focusables.push(playBtn);
+        focusables.push(closeBtn);
+        if (focusables.length === 0) return;
+        var first = focusables[0];
+        var last  = focusables[focusables.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      });
+
+      // Kick off loading
+      video.src = VIDEO_INTRO_SRC;
+      video.load();
+    })();
+
     // ── Scroll Animations ──────────────────────────────────────────────
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
