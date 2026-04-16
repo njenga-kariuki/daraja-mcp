@@ -296,19 +296,22 @@
       text-align: left;
       padding: 12px 14px;
     }
-    /* ── Get Started (dark variant) ───────────────────────────────── */
-    .step-card-dark {
+    /* ── Get Started (dark variant) ─────────────────────────────────
+       Use compound selectors (.step-card.step-card-dark …) so these
+       rules beat the base .step-card rules which live later in the
+       file — otherwise p-tag color reverts to var(--gray-500). */
+    .step-card.step-card-dark {
       background: rgba(255,255,255,0.07);
       border: 1px solid rgba(255,255,255,0.1);
       border-radius: var(--radius-lg);
       padding: 28px 24px;
     }
-    .step-card-dark .step-num {
+    .step-card.step-card-dark .step-num {
       background: rgba(255,255,255,0.16);
       color: rgba(255,255,255,0.95);
     }
-    .step-card-dark h4 { color: white; }
-    .step-card-dark p {
+    .step-card.step-card-dark h4 { color: white; }
+    .step-card.step-card-dark p {
       color: rgba(255,255,255,0.88);
       font-size: 0.85rem;
     }
@@ -2340,7 +2343,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
 npm install @daraja-kit/agent-toolkit</div>
       </div>
 
-      <div class="step-divider fade-in" style="color:rgba(255,255,255,0.5)">Or build it yourself</div>
+      <div class="step-divider fade-in" style="color:rgba(255,255,255,0.85)">Or build it yourself</div>
 
       <div class="steps-grid fade-in" style="max-width:900px;margin:0 auto">
         <div class="step-card step-card-dark">
