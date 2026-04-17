@@ -15,6 +15,7 @@ import { testSandboxSchema, handleTestSandbox } from './tools/test-sandbox.js';
 import { goLiveSchema, handleGoLive } from './tools/go-live.js';
 import { setupSchema, handleSetup } from './tools/setup.js';
 import { preflightSchema, handlePreflight } from './tools/preflight.js';
+import { feedbackSchema, handleFeedback } from './tools/feedback.js';
 import { getLlmsTxt, searchKnowledge } from './knowledge.js';
 import { sanitize, sanitizeText } from './sanitize.js';
 
@@ -35,9 +36,10 @@ const TOOL_ANNOTATIONS: Record<string, { readOnlyHint?: boolean; destructiveHint
   daraja_test_sandbox: { readOnlyHint: false, destructiveHint: true  },
   daraja_go_live:      { readOnlyHint: true,  destructiveHint: false },
   daraja_preflight:    { readOnlyHint: false, destructiveHint: false },
+  daraja_feedback:     { readOnlyHint: true,  destructiveHint: false },
 };
 
-const TOOLS = [explainSchema, diagnoseSchema, validateSchema, scaffoldSchema, testSandboxSchema, goLiveSchema, setupSchema, preflightSchema];
+const TOOLS = [explainSchema, diagnoseSchema, validateSchema, scaffoldSchema, testSandboxSchema, goLiveSchema, setupSchema, preflightSchema, feedbackSchema];
 
 /** Emit structured audit log to stderr (MCP convention: stdout = protocol, stderr = logging). */
 function emitAudit(
@@ -108,6 +110,9 @@ export function createServer(authContext?: AuthContext): Server {
           break;
         case 'daraja_preflight':
           result = await handlePreflight(args as any);
+          break;
+        case 'daraja_feedback':
+          result = handleFeedback(args as any);
           break;
         default:
           return {

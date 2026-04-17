@@ -21,6 +21,8 @@ import { handleGoLive } from './tools/go-live.js';
 import { handleTestSandbox } from './tools/test-sandbox.js';
 import { handlePreflight } from './tools/preflight.js';
 import { handleSetup } from './tools/setup.js';
+import { handleFeedback } from './tools/feedback.js';
+import { appendFeedback, listFeedback } from './feedback-store.js';
 import { getLlmsTxt } from './knowledge.js';
 import { skillsRouter } from './skills/index.js';
 import { DarajaOAuthProvider } from './auth/provider.js';
@@ -114,6 +116,50 @@ app.post('/api/live/test', async (req, res) => {
   }
 });
 
+// ── Feedback: public submission + token-gated admin read ────────────────────
+app.post('/api/tools/feedback', (req, res) => {
+  try { res.json(handleFeedback(req.body)); }
+  catch (err: any) { res.status(400).json({ error: err.message }); }
+});
+
+app.post('/api/feedback', (req, res) => {
+  try {
+    const { category, message, context } = req.body ?? {};
+    if (typeof message !== 'string' || !message.trim()) {
+      res.status(400).json({ error: 'message is required' });
+      return;
+    }
+    const entry = appendFeedback({
+      category: category ?? 'other',
+      message,
+      context,
+      source: 'http',
+    });
+    res.json({ ok: true, reference: entry.reference });
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+function adminAuthOk(req: express.Request): boolean {
+  const expected = process.env.DARAJA_ADMIN_TOKEN;
+  if (!expected) return false;
+  const header = req.header('authorization') ?? '';
+  const bearer = header.startsWith('Bearer ') ? header.slice(7) : undefined;
+  const query = typeof req.query.token === 'string' ? req.query.token : undefined;
+  const provided = bearer ?? query;
+  return Boolean(provided) && provided === expected;
+}
+
+app.get('/admin/feedback', (req, res) => {
+  if (!adminAuthOk(req)) {
+    res.status(401).json({ error: 'Unauthorized. Provide DARAJA_ADMIN_TOKEN as Bearer token or ?token= query param.' });
+    return;
+  }
+  const limit = Math.min(Number(req.query.limit) || 50, 200);
+  res.json({ count: listFeedback(limit).length, entries: listFeedback(limit) });
+});
+
 // MCP server info (JSON fallback for non-browser clients)
 app.get('/mcp-info', (_req, res) => {
   res.json({
@@ -123,6 +169,7 @@ app.get('/mcp-info', (_req, res) => {
     tools: [
       'daraja_explain', 'daraja_scaffold', 'daraja_validate',
       'daraja_diagnose', 'daraja_test_sandbox', 'daraja_go_live', 'daraja_setup', 'daraja_preflight',
+      'daraja_feedback',
     ],
   });
 });

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Daraja 4.0 — Feedback Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2300B140'/%3E%3Ctext x='16' y='22' font-family='Inter,Arial,sans-serif' font-size='18' font-weight='800' fill='white' text-anchor='middle'%3ED%3C/text%3E%3C/svg%3E">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --green: #00B140;
+      --green-dark: #008641;
+      --dark: #0A290D;
+      --gray-50: #F9FAFB;
+      --gray-100: #F3F4F6;
+      --gray-200: #E5E7EB;
+      --gray-500: #6B7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --error: #DC2626;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+    }
+    header {
+      background: var(--dark);
+      color: white;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    header h1 { margin: 0; font-size: 18px; font-weight: 700; }
+    header .sub { font-size: 13px; opacity: 0.7; margin-top: 2px; }
+    main { max-width: 1200px; margin: 32px auto; padding: 0 32px; }
+    .controls {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .controls label { font-size: 13px; font-weight: 500; color: var(--gray-700); }
+    .controls input {
+      border: 1px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      min-width: 280px;
+    }
+    .controls button {
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .controls button:hover { background: var(--green-dark); }
+    .controls .meta { margin-left: auto; font-size: 13px; color: var(--gray-500); }
+    .error-box {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: var(--error);
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    table {
+      width: 100%;
+      background: white;
+      border-collapse: collapse;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    thead { background: var(--gray-100); }
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--gray-200);
+      font-size: 14px;
+      vertical-align: top;
+    }
+    th { font-weight: 600; color: var(--gray-700); font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; }
+    td.ref, td.time { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--gray-500); white-space: nowrap; }
+    td.msg { max-width: 520px; }
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .tag-bug { background: #FEE2E2; color: #991B1B; }
+    .tag-feature { background: #DBEAFE; color: #1E40AF; }
+    .tag-docs { background: #FEF3C7; color: #92400E; }
+    .tag-experience { background: #D1FAE5; color: #065F46; }
+    .tag-other { background: var(--gray-100); color: var(--gray-700); }
+    .ctx {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-500);
+      margin-top: 6px;
+    }
+    .empty {
+      background: white;
+      border: 1px dashed var(--gray-200);
+      border-radius: 12px;
+      padding: 48px;
+      text-align: center;
+      color: var(--gray-500);
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Daraja 4.0 — Feedback Admin</h1>
+      <div class="sub">Recent submissions from daraja_feedback (MCP) and /api/feedback (HTTP)</div>
+    </div>
+  </header>
+  <main>
+    <div class="controls">
+      <label for="token">Admin token</label>
+      <input id="token" type="password" placeholder="DARAJA_ADMIN_TOKEN" />
+      <button id="load">Load feedback</button>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div id="error" class="error-box" style="display:none"></div>
+    <div id="content"></div>
+  </main>
+
+  <script>
+    const tokenInput = document.getElementById('token');
+    const loadBtn = document.getElementById('load');
+    const content = document.getElementById('content');
+    const errorBox = document.getElementById('error');
+    const meta = document.getElementById('meta');
+
+    const urlToken = new URLSearchParams(location.search).get('token');
+    if (urlToken) tokenInput.value = urlToken;
+
+    function esc(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+      }[c]));
+    }
+
+    async function load() {
+      errorBox.style.display = 'none';
+      content.innerHTML = '';
+      meta.textContent = 'Loading...';
+
+      const token = tokenInput.value.trim();
+      if (!token) {
+        errorBox.textContent = 'Enter the admin token to load feedback.';
+        errorBox.style.display = 'block';
+        meta.textContent = '';
+        return;
+      }
+
+      try {
+        const res = await fetch('/admin/feedback?limit=100', {
+          headers: { 'Authorization': 'Bearer ' + token },
+        });
+        if (!res.ok) {
+          const body = await res.json().catch(() => ({}));
+          throw new Error(body.error || ('Request failed: ' + res.status));
+        }
+        const data = await res.json();
+        render(data.entries || []);
+        meta.textContent = data.count + ' entries shown';
+      } catch (err) {
+        errorBox.textContent = err.message;
+        errorBox.style.display = 'block';
+        meta.textContent = '';
+      }
+    }
+
+    function render(entries) {
+      if (!entries.length) {
+        content.innerHTML = '<div class="empty">No feedback submissions yet. Try <code>daraja_feedback</code> from an MCP client, or <code>POST /api/feedback</code>.</div>';
+        return;
+      }
+      const rows = entries.map(e => {
+        const ctx = e.context ? (
+          '<div class="ctx">' +
+          (e.context.lastTool ? 'tool: ' + esc(e.context.lastTool) + ' ' : '') +
+          (e.context.lastError ? '· error: ' + esc(e.context.lastError) : '') +
+          '</div>'
+        ) : '';
+        return (
+          '<tr>' +
+            '<td class="time">' + esc(e.timestamp) + '</td>' +
+            '<td class="ref">' + esc(e.reference) + '</td>' +
+            '<td><span class="tag tag-' + esc(e.category) + '">' + esc(e.category) + '</span></td>' +
+            '<td class="msg">' + esc(e.message) + ctx + '</td>' +
+            '<td class="ref">' + esc(e.source) + '</td>' +
+          '</tr>'
+        );
+      }).join('');
+      content.innerHTML =
+        '<table>' +
+          '<thead><tr><th>Time</th><th>Reference</th><th>Category</th><th>Message</th><th>Source</th></tr></thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>';
+    }
+
+    loadBtn.addEventListener('click', load);
+    tokenInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') load(); });
+    if (urlToken) load();
+  </script>
+</body>
+</html>

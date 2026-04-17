@@ -15,3 +15,6 @@ packages/support-mcp/src/tools/
 
 # PRFAQ artifact
 *.docx
+
+# Feedback store (local + ephemeral on Railway)
+data/

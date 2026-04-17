@@ -83,6 +83,46 @@ M-Pesa is inherently more secure for AI agent commerce than card-based payments:
 
 ---
 
+## Developer Feedback: What We Collect
+
+Daraja 4.0 ships a `daraja_feedback` MCP tool so developers (and their agents) can submit bug reports, feature requests, documentation gaps, and experience feedback in-flow. Feedback is **user-initiated and opt-in** — nothing is sent unless you explicitly invoke the tool. The same data flow backs `POST /api/feedback` for clients not using MCP.
+
+### Fields stored per submission
+
+| Field | Source | Notes |
+|---|---|---|
+| `reference` | generated | Short random ID returned to the submitter (e.g. `fb_7f2e91a0`) |
+| `timestamp` | generated | ISO 8601 UTC |
+| `category` | submitter | `bug` / `feature` / `docs` / `experience` / `other` |
+| `message` | submitter | Free-text, max 2000 chars. **Sanitized** before write: phone numbers → `254708***149`, `consumerKey`/`consumerSecret`/`password` values → `***` |
+| `context.lastTool` | submitter (optional) | Name of the Daraja tool the feedback is about, sanitized |
+| `context.lastError` | submitter (optional) | Error message or code, sanitized |
+| `source` | derived | `mcp` when submitted via the tool, `http` when submitted via the REST endpoint |
+
+### What we do **not** collect
+
+- No environment variables, file paths, file contents, or command strings
+- No OAuth tokens, consumer keys, or any cached credentials
+- No IP address or user-agent in the stored payload
+- No linkage to a specific Daraja account or MSISDN (unless the submitter types one in free-text, in which case it is masked before storage)
+
+### Where it goes
+
+Each submission is:
+1. Appended to a structured stderr audit line (same `emitAudit()` channel that logs every other MCP tool call).
+2. Persisted to `feedback.jsonl` on the hosted server (rotates at 10 MB).
+3. Held in an in-memory ring buffer of the last 200 submissions, visible at `/admin/feedback` to the Daraja team (requires `DARAJA_ADMIN_TOKEN`).
+
+No third-party analytics platform, no ad network, no Safaricom internal CRM. The data stays on the daraja-kit server.
+
+### Retention
+
+- JSONL file rotates at 10 MB. Rotated files are retained until the Daraja team triages them, then deleted.
+- Ring buffer is cleared on server restart.
+- Individual submissions can be removed on request — email the address listed at [developer.safaricom.co.ke](https://developer.safaricom.co.ke) with the reference ID.
+
+---
+
 ## Compliance Quick Reference
 
 | Regulation | What it means for your integration |
