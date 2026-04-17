@@ -1,0 +1,15 @@
+# CODEOWNERS — reviewers auto-assigned on PRs touching the paths below.
+#
+# The knowledge base is the source of truth for every answer the M-Pesa Support
+# Assistant returns. Every PR that changes it goes through CODEOWNER review,
+# even when the PR is authored by /daraja-augment-knowledge, so a human
+# validates tone and technical accuracy before auto-publish.
+#
+# TODO: When this repo transfers to a Safaricom org or a formal dev-platform
+# team handle exists (e.g., @safaricom/dev-platform), replace the placeholder
+# below. Until then, @njenga-kariuki is the sole reviewer.
+
+/knowledge/**                                @njenga-kariuki
+/packages/support-mcp/**                     @njenga-kariuki
+/.github/ISSUE_TEMPLATE/knowledge-gap.yml    @njenga-kariuki
+/.claude/commands/daraja-augment-knowledge.md @njenga-kariuki

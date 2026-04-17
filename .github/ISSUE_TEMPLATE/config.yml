@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Augment the knowledge base via Claude Code
+    url: https://github.com/njenga-kariuki/daraja-kit/blob/master/CONTRIBUTING.md
+    about: The preferred path — run /daraja-augment-knowledge in Claude Code to add, edit, or revise a doc with AI-assisted normalization and validation.

@@ -137,6 +137,18 @@ Install the full toolkit as `@daraja-kit/mcp` (when available). This support tie
 
 ---
 
+## Augmenting the Knowledge Base
+
+The assistant's quality comes from the knowledge base it retrieves — 30+ markdown docs covering errors, concepts, patterns, and SDK capabilities. Safaricom support engineers and documentation authors own that knowledge and can update it without writing code.
+
+**The preferred path:** open the [daraja-kit repo](https://github.com/njenga-kariuki/daraja-kit) in [Claude Code](https://claude.com/claude-code) and run `/daraja-augment-knowledge`. The slash command handles classification (Add / Edit / Revise / Deprecate), scrub against existing content, normalization, validation, and draft-PR creation. A CODEOWNER reviews; on merge, the change auto-publishes to `@daraja-mcp/support@beta` within roughly five minutes.
+
+**Can't use Claude Code?** File a [knowledge-gap issue](https://github.com/njenga-kariuki/daraja-kit/issues/new?template=knowledge-gap.yml) with structured fields; a maintainer will convert it into a PR.
+
+Full walkthrough in [CONTRIBUTING.md](https://github.com/njenga-kariuki/daraja-kit/blob/master/CONTRIBUTING.md).
+
+---
+
 ## License
 
 MIT. See [LICENSE](../../LICENSE).

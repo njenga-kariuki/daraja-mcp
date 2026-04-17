@@ -28,7 +28,7 @@ describe('security knowledge base', () => {
     // The security.md doc should rank high for this multi-term query
     expect(result.sources.length).toBeGreaterThan(0);
     // Check that security.md is among the sources
-    const hasSecuritySource = result.sources.some((s) => s.includes('security'));
+    const hasSecuritySource = result.sources.some((s) => s.path.includes('security'));
     expect(hasSecuritySource).toBe(true);
   });
 

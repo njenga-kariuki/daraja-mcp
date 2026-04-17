@@ -14,7 +14,8 @@
     "test:mcp": "cd packages/mcp && npm run test",
     "dev": "npm run dev --workspace=@daraja-kit/sdk",
     "demo": "npx tsx --env-file=.env demo/server.ts",
-    "smoke": "npx tsx scripts/sandbox-smoketest.ts"
+    "smoke": "npx tsx scripts/sandbox-smoketest.ts",
+    "lint:knowledge": "node scripts/lint-knowledge.mjs"
   },
   "devDependencies": {
     "tsx": "^4.0.0",

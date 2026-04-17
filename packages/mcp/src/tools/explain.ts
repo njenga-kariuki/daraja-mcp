@@ -1,14 +1,24 @@
 import { searchKnowledge, getLlmsTxt } from '../knowledge.js';
 
+const CONTRIBUTION_TIP =
+  'Spotted an inaccuracy or a gap in this explanation? In a Claude Code session on this repo, run `/daraja-augment-knowledge` with the correction — the slash command handles scrub, validation, and PR submission.';
+
 interface ExplainInput {
   topic: string;
   depth?: 'brief' | 'detailed';
 }
 
+export interface SourceDoc {
+  path: string;
+  sourceUrl: string;
+  editUrl: string;
+}
+
 interface ExplainOutput {
   explanation: string;
   relatedTopics: string[];
-  sources: string[];
+  sources: SourceDoc[];
+  contributionTip: string;
 }
 
 export const explainSchema = {
@@ -44,6 +54,7 @@ export function handleExplain(input: ExplainInput): ExplainOutput {
         'Try broader terms like "payments", "authentication", "callbacks", or "errors".',
       relatedTopics: ['collect-payments', 'authentication', 'callbacks', 'error-codes'],
       sources: [],
+      contributionTip: CONTRIBUTION_TIP,
     };
   }
 
@@ -54,7 +65,12 @@ export function handleExplain(input: ExplainInput): ExplainOutput {
   return {
     explanation: content,
     relatedTopics: results.slice(1, 4).map((r) => r.filename.replace('.md', '')),
-    sources: results.slice(0, 3).map((r) => `${r.category}/${r.filename}`),
+    sources: results.slice(0, 3).map((r) => ({
+      path: `${r.category}/${r.filename}`,
+      sourceUrl: r.sourceUrl,
+      editUrl: r.editUrl,
+    })),
+    contributionTip: CONTRIBUTION_TIP,
   };
 }
 

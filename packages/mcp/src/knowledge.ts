@@ -5,11 +5,16 @@ import { fileURLToPath } from 'node:url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const KNOWLEDGE_ROOT = path.resolve(__dirname, '..', '..', '..', 'knowledge');
 
+const GITHUB_REPO = 'njenga-kariuki/daraja-kit';
+const GITHUB_BRANCH = 'master';
+
 interface KnowledgeEntry {
   path: string;
   filename: string;
   category: string;
   content: string;
+  sourceUrl: string;
+  editUrl: string;
 }
 
 let cache: KnowledgeEntry[] | null = null;
@@ -28,11 +33,14 @@ function loadKnowledge(): KnowledgeEntry[] {
       if (stat.isDirectory()) {
         walk(full, file);
       } else if (file.endsWith('.md')) {
+        const rel = path.relative(KNOWLEDGE_ROOT, full).split(path.sep).join('/');
         entries.push({
           path: full,
           filename: file,
           category,
           content: fs.readFileSync(full, 'utf8'),
+          sourceUrl: `https://github.com/${GITHUB_REPO}/blob/${GITHUB_BRANCH}/knowledge/${rel}`,
+          editUrl: `https://github.com/${GITHUB_REPO}/edit/${GITHUB_BRANCH}/knowledge/${rel}`,
         });
       }
     }

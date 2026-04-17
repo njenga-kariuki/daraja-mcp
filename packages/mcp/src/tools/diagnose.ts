@@ -1,9 +1,18 @@
 import { searchKnowledge } from '../knowledge.js';
 
+const CONTRIBUTION_TIP =
+  'Spotted an inaccuracy or a gap in these docs? In a Claude Code session on this repo, run `/daraja-augment-knowledge` with the correction — the slash command handles scrub, validation, and PR submission.';
+
 interface DiagnoseInput {
   error: string;
   context?: string;
   method?: 'collect' | 'send' | 'query' | 'balance' | 'reverse' | 'register_url' | 'c2b';
+}
+
+export interface RelatedDoc {
+  path: string;
+  sourceUrl: string;
+  editUrl: string;
 }
 
 export interface DiagnoseTraceStep {
@@ -42,12 +51,13 @@ interface DiagnoseOutput {
   fix: string;
   prevention?: string;
   codeExample?: string;
-  relatedDocs: string[];
+  relatedDocs: RelatedDoc[];
   trace: DiagnoseTraceStep[];
   confidence: 'high' | 'medium' | 'low';
   hypotheses?: Hypothesis[];
   followUp?: FollowUp;
   context?: Record<string, unknown>;
+  contributionTip: string;
 }
 
 export const diagnoseSchema = {
@@ -79,7 +89,10 @@ export const diagnoseSchema = {
 };
 
 /** Known Daraja error codes with structured diagnosis. */
-const ERROR_DB: Record<string, Omit<DiagnoseOutput, 'relatedDocs' | 'trace' | 'confidence'>> = {
+const ERROR_DB: Record<
+  string,
+  Omit<DiagnoseOutput, 'relatedDocs' | 'trace' | 'confidence' | 'contributionTip'>
+> = {
   '1': {
     errorCode: '1',
     meaning: 'Insufficient M-Pesa balance',
@@ -315,7 +328,7 @@ await mpesa.send({ amount: 1000, phone, callbackUrl });`,
  */
 const METHOD_OVERRIDES: Record<
   string,
-  Partial<Omit<DiagnoseOutput, 'relatedDocs' | 'trace' | 'confidence'>>
+  Partial<Omit<DiagnoseOutput, 'relatedDocs' | 'trace' | 'confidence' | 'contributionTip'>>
 > = {
   '1:send': {
     rootCause:
@@ -548,7 +561,8 @@ export function handleDiagnose(input: DiagnoseInput): DiagnoseOutput {
       confidence: 'high',
     });
 
-    let merged: Omit<DiagnoseOutput, 'relatedDocs' | 'trace' | 'confidence'> = { ...known };
+    let merged: Omit<DiagnoseOutput, 'relatedDocs' | 'trace' | 'confidence' | 'contributionTip'> =
+      { ...known };
     if (input.method) {
       const overrideKey = `${code}:${input.method}`;
       const override = METHOD_OVERRIDES[overrideKey];
@@ -565,7 +579,11 @@ export function handleDiagnose(input: DiagnoseInput): DiagnoseOutput {
 
     const relatedDocs = searchKnowledge(code + ' ' + known.meaning)
       .slice(0, 3)
-      .map((r) => `${r.category}/${r.filename}`);
+      .map((r) => ({
+        path: `${r.category}/${r.filename}`,
+        sourceUrl: r.sourceUrl,
+        editUrl: r.editUrl,
+      }));
     trace.push({ step: 'kb_search', detail: `${relatedDocs.length} related doc(s)`, confidence: 'high' });
 
     return {
@@ -574,12 +592,17 @@ export function handleDiagnose(input: DiagnoseInput): DiagnoseOutput {
       trace,
       confidence: 'high',
       ...(hasExtracted ? { context: extractedContext } : {}),
+      contributionTip: CONTRIBUTION_TIP,
     };
   }
 
   // Step 4: knowledge base search for context-aware related docs.
   const results = searchKnowledge(input.error + ' ' + (input.context ?? ''));
-  const relatedDocs = results.slice(0, 3).map((r) => `${r.category}/${r.filename}`);
+  const relatedDocs: RelatedDoc[] = results.slice(0, 3).map((r) => ({
+    path: `${r.category}/${r.filename}`,
+    sourceUrl: r.sourceUrl,
+    editUrl: r.editUrl,
+  }));
 
   // Step 5: sandbox-vs-prod divergence hint.
   const lowerContext = (input.context ?? '').toLowerCase();
@@ -605,6 +628,7 @@ export function handleDiagnose(input: DiagnoseInput): DiagnoseOutput {
       trace,
       confidence: 'medium',
       ...(hasExtracted ? { context: extractedContext } : {}),
+      contributionTip: CONTRIBUTION_TIP,
     };
   }
 
@@ -627,6 +651,7 @@ export function handleDiagnose(input: DiagnoseInput): DiagnoseOutput {
       confidence: 'medium',
       hypotheses,
       ...(hasExtracted ? { context: extractedContext } : {}),
+      contributionTip: CONTRIBUTION_TIP,
     };
   }
 
@@ -647,6 +672,7 @@ export function handleDiagnose(input: DiagnoseInput): DiagnoseOutput {
       confidence: 'medium',
       hypotheses,
       ...(hasExtracted ? { context: extractedContext } : {}),
+      contributionTip: CONTRIBUTION_TIP,
     };
   }
 
@@ -675,6 +701,7 @@ export function handleDiagnose(input: DiagnoseInput): DiagnoseOutput {
       confidence: 'medium',
       hypotheses,
       ...(hasExtracted ? { context: extractedContext } : {}),
+      contributionTip: CONTRIBUTION_TIP,
     };
   }
 
@@ -708,5 +735,6 @@ export function handleDiagnose(input: DiagnoseInput): DiagnoseOutput {
     trace,
     confidence: 'low',
     followUp,
+    contributionTip: CONTRIBUTION_TIP,
   };
 }

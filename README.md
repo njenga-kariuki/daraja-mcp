@@ -32,6 +32,8 @@ No forums. No tickets. No guesswork.
 
 > **Beta.** `@daraja-mcp/support` is an early release under the `beta` dist-tag. Expect rapid iteration. [Release notes →](packages/support-mcp/CHANGELOG.md)
 
+> **Safaricom engineers and dev-platform authors:** the knowledge base powering this assistant is yours to refine. Run `/daraja-augment-knowledge` in Claude Code to add, edit, revise, or deprecate a doc — AI-assisted scrub and validation, CODEOWNER review, auto-publish to `@daraja-mcp/support@beta` within minutes of merge. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ---
 
 ## Developers Asked, We Answered

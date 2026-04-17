@@ -1,0 +1,83 @@
+name: Report a knowledge gap
+description: Flag something the M-Pesa Support Assistant got wrong or missed. A maintainer will convert this into a /daraja-augment-knowledge PR.
+title: "[knowledge] "
+labels: ["knowledge", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for flagging a gap in the Support Assistant's knowledge. This form is the escape hatch for contributors who prefer not to use Claude Code directly. A maintainer will take it from here.
+
+        **If you can use Claude Code**, run `/daraja-augment-knowledge` instead — it handles this flow end to end and the fix lands faster.
+
+  - type: dropdown
+    id: operation
+    attributes:
+      label: What kind of change is this?
+      description: Pick the closest match. You can leave it as "Not sure" and a maintainer will decide.
+      options:
+        - Add — a brand-new doc (new error, new concept, new pattern)
+        - Edit — a small correction to an existing doc
+        - Revise — a deeper rewrite of an existing doc
+        - Deprecate — an obsolete doc to remove or mark superseded
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: developer-question
+    attributes:
+      label: What developer question or error did the assistant fail to address well?
+      description: The original query, error code, or scenario you expected the assistant to handle.
+      placeholder: |
+        Example — "I got ResultCode 17 on STK Push and the assistant said it didn't know what that meant."
+    validations:
+      required: true
+
+  - type: textarea
+    id: assistant-response
+    attributes:
+      label: What did the assistant actually say (if anything)?
+      description: Paste the assistant's response or "no response / no retrieval" if nothing matched.
+      placeholder: |
+        Paste the assistant's output here, or note that retrieval returned nothing useful.
+
+  - type: textarea
+    id: correct-answer
+    attributes:
+      label: What should the correct answer be?
+      description: The SOP, decision tree, or explanation you want the assistant to surface for this query in the future.
+      placeholder: |
+        Example — "ResultCode 17 means the customer's M-Pesa account is suspended for KYC review.
+        The fix is: customer must visit a Safaricom shop with ID to complete KYC uplift.
+        Prevention: do not auto-retry; show a clear 'account suspended — visit Safaricom' message."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: category
+    attributes:
+      label: Which category do you think this belongs in?
+      description: A guess is fine — maintainers will confirm during PR conversion.
+      options:
+        - errors/ (error code or symptom)
+        - concepts/ (mechanism or reference)
+        - capabilities/ (SDK method)
+        - patterns/ (integration walkthrough)
+        - Not sure
+    validations:
+      required: false
+
+  - type: textarea
+    id: draft-content
+    attributes:
+      label: Draft content (optional)
+      description: If you have the full answer written out already, paste the markdown here. Otherwise leave blank — maintainers will draft from the fields above.
+      render: markdown
+
+  - type: input
+    id: affected-audience
+    attributes:
+      label: Who is affected?
+      description: Optional — e.g., "developers integrating B2C in production", "iOS eSIM customers", "new Daraja apps since Q1".
+      placeholder: e.g., developers integrating B2C in production
