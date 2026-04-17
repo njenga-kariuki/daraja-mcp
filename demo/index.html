@@ -3,16 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Daraja 4.0 — Africa's Agentic Payments Platform</title>
+  <title>Safaricom Launches Daraja 4.0 — Africa's Standard for Agentic Commerce on M-Pesa</title>
+  <meta name="description" content="Safaricom launches Daraja 4.0, setting Africa's standard for agentic commerce on M-Pesa. Simpler to build for the next generation of developers, simpler to operate for the 105,000+ already on the rail, safer on every call for the customer.">
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="canonical" href="https://daraja-kit-mcp-production.up.railway.app/">
+  <meta name="theme-color" content="#00B140">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Safaricom launches Daraja 4.0 — Africa's standard for agentic commerce on M-Pesa">
+  <meta property="og:description" content="A new standard that simplifies how every builder reaches the rail — coding directly, working alongside an AI coding assistant, or operating an AI agent that acts within limits the customer sets.">
+  <meta property="og:url" content="https://daraja-kit-mcp-production.up.railway.app/">
+  <meta property="og:image" content="/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Safaricom launches Daraja 4.0 — Africa's standard for agentic commerce on M-Pesa">
+  <meta name="twitter:description" content="A new standard that simplifies how every builder reaches the rail — coding directly, working alongside an AI coding assistant, or operating an AI agent that acts within limits the customer sets.">
+  <meta name="twitter:image" content="/og-image.png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%2300B140' d='M32 4l7.6 18.6L60 24.6 44.4 38.2 49 58.4 32 47.8 15 58.4l4.6-20.2L4 24.6l20.4-2z'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     /* ── Design Tokens ─────────────────────────────────────────────────── */
     :root {
-      --green: #35A839;
-      --green-dark: #2D8F31;
-      --green-hover: #2FA633;
+      --green: #00B140;
+      --green-dark: #008641;
+      --green-hover: #00A03A;
       --dark: #0A290D;
       --dark-surface: #0F3A13;
       --light: #F7FDF7;
@@ -60,6 +74,28 @@
     a { color: var(--green); text-decoration: none; }
     a:hover { text-decoration: underline; }
 
+    /* ── Brand Polish ──────────────────────────────────────────────────── */
+    ::selection { background: rgba(0,177,64,0.22); color: var(--gray-900); }
+    ::-moz-selection { background: rgba(0,177,64,0.22); color: var(--gray-900); }
+    :focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* Scroll progress bar — sits above the sticky nav */
+    .scroll-progress {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 0;
+      background: var(--green);
+      z-index: 1000;
+      transition: width 0.1s linear;
+      box-shadow: 0 0 12px rgba(0,177,64,0.3);
+    }
+
     /* ── Utility ───────────────────────────────────────────────────────── */
     .container { max-width: var(--max-w); margin: 0 auto; padding: 0 32px; }
     .overline {
@@ -72,11 +108,15 @@
     }
     .overline-light { color: rgba(255,255,255,0.6); }
     .section-title {
-      font-size: 2.2rem;
+      font-size: 2.6rem;
       font-weight: 800;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      margin-bottom: 16px;
+      line-height: 1.12;
+      letter-spacing: -0.025em;
+      margin-bottom: 18px;
+      max-width: 880px;
+    }
+    @media (max-width: 768px) {
+      .section-title { font-size: 1.9rem; }
     }
     .section-subtitle {
       font-size: 1.1rem;
@@ -109,7 +149,7 @@
       color: var(--green);
       border: 1.5px solid var(--green);
     }
-    .btn-secondary:hover { background: rgba(53,168,57,0.06); text-decoration: none; }
+    .btn-secondary:hover { background: rgba(0,177,64,0.06); text-decoration: none; }
     .btn-dark {
       background: var(--white);
       color: var(--dark);
@@ -159,25 +199,24 @@
       transform: translateY(0);
     }
     @keyframes pulse-green {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(53,168,57,0.3); }
-      50% { box-shadow: 0 0 0 12px rgba(53,168,57,0); }
+      0%, 100% { box-shadow: 0 0 0 0 rgba(0,177,64,0.3); }
+      50% { box-shadow: 0 0 0 12px rgba(0,177,64,0); }
     }
     @keyframes float {
       0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-6px); }
     }
     @keyframes counter-glow {
-      0% { text-shadow: 0 0 20px rgba(53,168,57,0); }
-      50% { text-shadow: 0 0 20px rgba(53,168,57,0.3); }
-      100% { text-shadow: 0 0 20px rgba(53,168,57,0); }
+      0% { text-shadow: 0 0 20px rgba(0,177,64,0); }
+      50% { text-shadow: 0 0 20px rgba(0,177,64,0.3); }
+      100% { text-shadow: 0 0 20px rgba(0,177,64,0); }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
        SECTION 1: HERO
        ═══════════════════════════════════════════════════════════════════ */
     #hero {
-      padding: 140px 0 100px;
-      text-align: center;
+      padding: 160px 0 100px;
       position: relative;
       overflow: hidden;
     }
@@ -188,28 +227,230 @@
       left: -50%;
       width: 200%;
       height: 200%;
-      background: radial-gradient(circle at 50% 50%, rgba(53,168,57,0.04) 0%, transparent 60%);
+      background: radial-gradient(circle at 30% 35%, rgba(0,177,64,0.07) 0%, transparent 55%);
       pointer-events: none;
     }
-    #hero .overline { font-size: 0.78rem; letter-spacing: 0.15em; }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 64px;
+      align-items: center;
+      position: relative;
+    }
+    .hero-text { max-width: 580px; }
+    #hero .overline {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      color: var(--green);
+    }
     #hero h1 {
-      font-size: 3.2rem;
+      font-size: 4.2rem;
       font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.03em;
-      margin-bottom: 24px;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+      margin-bottom: 28px;
+      color: var(--gray-900);
     }
     #hero .subtitle {
-      font-size: 1.15rem;
-      color: var(--gray-500);
-      max-width: 640px;
-      margin: 0 auto 40px;
-      line-height: 1.7;
+      font-size: 1.12rem;
+      color: var(--gray-600);
+      margin: 0 0 40px;
+      line-height: 1.65;
     }
-    .hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    #hero .subtitle strong { color: var(--gray-900); font-weight: 600; }
+    .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
+    .hero-ctas .btn { padding: 15px 26px; }
+    .hero-cta-arrow {
+      display: inline-block;
+      transition: transform 0.2s ease;
+      margin-left: 2px;
+    }
+    .btn-primary:hover .hero-cta-arrow { transform: translateX(3px); }
+
+    /* Hero product artifact — split panel: code (left) + receipt (right) */
+    .hero-artifact {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #0B1220;
+      box-shadow:
+        0 30px 60px -20px rgba(8, 32, 14, 0.45),
+        0 16px 36px -12px rgba(0, 177, 64, 0.18),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .hero-artifact-bar {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.025);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .hero-artifact-dots { display: flex; gap: 6px; }
+    .hero-artifact-dots span {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.14);
+    }
+    .hero-artifact-title {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.45);
+      letter-spacing: 0.02em;
+    }
+    .hero-artifact-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      min-height: 280px;
+    }
+    .hero-artifact-code {
+      padding: 22px 22px 24px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.7;
+      color: #E6EDF3;
+      background: linear-gradient(180deg, rgba(0,177,64,0.06) 0%, transparent 100%);
+      border-right: 1px solid rgba(255,255,255,0.05);
+      overflow: hidden;
+      position: relative;
+    }
+    .hero-artifact-code .typed-line { white-space: pre; }
+    .hero-artifact-code .caret {
+      display: inline-block;
+      width: 7px; height: 1.05em;
+      background: #00B140;
+      vertical-align: -2px;
+      margin-left: 2px;
+      animation: hero-caret 1s step-end infinite;
+    }
+    @keyframes hero-caret {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+    .hero-artifact-result {
+      padding: 22px 22px 24px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      line-height: 1.65;
+      color: #C8D6E0;
+      background: rgba(0,177,64,0.025);
+      position: relative;
+    }
+    .hero-result-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-family: var(--font-sans);
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      background: rgba(0,177,64,0.18);
+      color: #6EE89D;
+      margin-bottom: 14px;
+    }
+    .hero-result-status::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: #4ADE80;
+      box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.18);
+    }
+    .hero-result-line {
+      opacity: 0;
+      transform: translateY(6px);
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    .hero-result-line.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .hero-result-key { color: #94A3B8; }
+    .hero-result-str { color: #6EE89D; }
+    .hero-result-num { color: #FCD34D; }
+    .hero-result-bool { color: #C4B5FD; }
+    .hero-artifact-stamp {
+      position: absolute;
+      bottom: 12px;
+      right: 14px;
+      font-family: var(--font-sans);
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.32);
+    }
+    @media (max-width: 1024px) {
+      .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+      .hero-text { max-width: 100%; }
+      #hero h1 { font-size: 3.4rem; }
+    }
+    @media (max-width: 640px) {
+      .hero-artifact-grid { grid-template-columns: 1fr; }
+      .hero-artifact-code { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       STATS STRIP — the rail at a glance
+       ═══════════════════════════════════════════════════════════════════ */
+    #stats {
+      padding: 80px 0 88px;
+      border-top: 1px solid var(--gray-200);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .stats-overline {
+      font-size: 0.7rem;
+      letter-spacing: 0.18em;
+      color: var(--green);
+      text-transform: uppercase;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    .stats-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.015em;
+      color: var(--gray-900);
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+      align-items: start;
+    }
+    .stats-stat { text-align: center; padding: 0 8px; }
+    .stats-stat-value {
+      font-size: 3.4rem;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--green);
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .stats-stat-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--gray-900);
+      margin-bottom: 6px;
+      letter-spacing: -0.005em;
+    }
+    .stats-stat-desc {
+      font-size: 0.78rem;
+      color: var(--gray-500);
+      line-height: 1.55;
+      max-width: 260px;
+      margin: 0 auto;
+    }
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: 1fr; gap: 36px; }
+      .stats-stat-value { font-size: 2.8rem; }
+    }
 
     /* ═══════════════════════════════════════════════════════════════════
        SECTION 2: FOUNDATION (Celebrate Daraja 3.0)
@@ -483,7 +724,7 @@
     .tool-input:focus {
       outline: none;
       border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(53,168,57,0.1);
+      box-shadow: 0 0 0 3px rgba(0,177,64,0.12);
     }
     .tool-btn {
       width: 100%;
@@ -710,10 +951,113 @@
 
     footer {
       background: var(--dark);
-      padding: 32px 0;
-      text-align: center;
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.35);
+      padding: 0;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.82rem;
+    }
+    .footer-top {
+      padding: 56px 0 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .footer-mast {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+    .footer-mast-logo { width: 28px; height: 28px; }
+    .footer-mast-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.18); }
+    .footer-mast-product {
+      font-family: var(--font-sans);
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: white;
+      letter-spacing: -0.01em;
+    }
+    .footer-mast-mission {
+      max-width: 540px;
+      color: rgba(255,255,255,0.65);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      margin-bottom: 16px;
+    }
+    .footer-preview-band {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border: 1px solid rgba(245,158,11,0.35);
+      background: rgba(245,158,11,0.08);
+      border-radius: 8px;
+      font-size: 0.74rem;
+      color: rgba(255,255,255,0.78);
+      letter-spacing: 0.01em;
+    }
+    .footer-preview-band::before {
+      content: '';
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--warning);
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.18);
+    }
+    .footer-cols {
+      display: grid;
+      grid-template-columns: 1.2fr repeat(4, 1fr);
+      gap: 48px;
+      padding: 56px 0 48px;
+    }
+    .footer-col-brand p {
+      color: rgba(255,255,255,0.55);
+      font-size: 0.82rem;
+      line-height: 1.6;
+      max-width: 280px;
+    }
+    .footer-col h5 {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.95);
+      margin-bottom: 18px;
+    }
+    .footer-col ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .footer-col a {
+      color: rgba(255,255,255,0.55);
+      font-size: 0.85rem;
+      text-decoration: none;
+      transition: color 0.18s ease;
+    }
+    .footer-col a:hover { color: var(--green); text-decoration: none; }
+    .footer-col a.is-disabled {
+      color: rgba(255,255,255,0.25);
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 24px 0 32px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      color: rgba(255,255,255,0.45);
+      font-size: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .footer-bottom-meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .footer-bottom-meta span.dot { color: rgba(255,255,255,0.25); }
+    @media (max-width: 1024px) {
+      .footer-cols { grid-template-columns: 1fr 1fr; gap: 36px; }
+    }
+    @media (max-width: 640px) {
+      .footer-cols { grid-template-columns: 1fr; gap: 32px; padding: 40px 0; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -730,6 +1074,9 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      background: rgba(255,255,255,0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       transition: background 0.3s ease, box-shadow 0.3s ease, backdrop-filter 0.3s ease;
     }
     .site-nav.scrolled {
@@ -738,13 +1085,54 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
     .nav-brand {
-      font-family: var(--font-mono);
-      font-size: 1rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
       font-weight: 700;
-      color: var(--green);
+      letter-spacing: -0.005em;
+      color: var(--gray-900);
       text-decoration: none;
     }
-    .nav-brand:hover { text-decoration: none; }
+    .nav-brand:hover { text-decoration: none; color: var(--gray-900); }
+    .nav-logo {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    .nav-divider {
+      width: 1px;
+      height: 18px;
+      background: var(--gray-300);
+    }
+    .nav-product { color: var(--gray-900); font-weight: 700; }
+    .nav-preview-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: 16px;
+      padding: 3px 9px;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gray-500);
+      border: 1px solid var(--gray-300);
+      border-radius: 999px;
+      background: rgba(255,255,255,0.6);
+    }
+    .nav-preview-pill::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--warning);
+      box-shadow: 0 0 0 2px rgba(245,158,11,0.18);
+    }
+    @media (max-width: 640px) {
+      .nav-preview-pill { display: none; }
+    }
     .nav-links {
       display: flex;
       align-items: center;
@@ -802,33 +1190,61 @@
       font-size: 0.83rem;
     }
     .compare-table th {
-      padding: 16px 20px;
+      padding: 18px 24px;
       text-align: left;
       font-weight: 700;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.14em;
       color: var(--gray-500);
-      border-bottom: 2px solid var(--gray-200);
+      border-bottom: 1px solid var(--gray-200);
       white-space: nowrap;
     }
     .compare-table td {
-      padding: 14px 20px;
+      padding: 18px 24px;
       border-bottom: 1px solid var(--gray-100);
       color: var(--gray-700);
       white-space: nowrap;
+      font-size: 0.85rem;
     }
     .compare-table tr:last-child td { border-bottom: none; }
     .compare-table .row-highlight {
-      background: #F0FDF4;
+      background: rgba(0,177,64,0.06);
+      box-shadow: inset 3px 0 0 var(--green);
     }
     .compare-table .row-highlight td {
-      color: var(--dark);
+      color: var(--gray-900);
       font-weight: 600;
     }
-    .compare-table .cell-check { color: var(--success); font-weight: 700; }
-    .compare-table .cell-cross { color: var(--gray-400); }
-    .compare-table .cell-partial { color: var(--warning); }
+    .compare-table .row-highlight td:first-child strong {
+      color: var(--green-dark);
+    }
+    .cmp-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      vertical-align: -3px;
+      margin-right: 8px;
+    }
+    .cmp-mark.cmp-yes { background: var(--green); color: white; }
+    .cmp-mark.cmp-no { background: var(--gray-200); color: var(--gray-400); }
+    .cmp-mark.cmp-partial {
+      background: linear-gradient(90deg, var(--warning) 50%, var(--gray-200) 50%);
+      color: white;
+    }
+    .cmp-mark svg { width: 10px; height: 10px; display: block; }
+    .compare-table .cell-check { color: var(--gray-900); font-weight: 600; }
+    .compare-table .cell-cross { color: var(--gray-500); }
+    .compare-table .cell-partial { color: var(--gray-700); }
+    .compare-table-caption {
+      font-size: 0.75rem;
+      color: var(--gray-500);
+      margin-top: 14px;
+      font-style: italic;
+    }
     .differentiators {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -986,7 +1402,7 @@
       color: var(--green);
       border: 1.5px solid var(--green);
     }
-    .demo-btn-outline:hover { background: rgba(53,168,57,0.06); }
+    .demo-btn-outline:hover { background: rgba(0,177,64,0.06); }
 
     /* ── Demo Autoplay Enhancements ─────────────────────────────────── */
     .demo-autoplay #demo-btn-generate,
@@ -995,7 +1411,7 @@
     }
     #demo-intent.demo-typing {
       border-color: var(--green);
-      box-shadow: 0 0 0 3px rgba(53,168,57,0.12);
+      box-shadow: 0 0 0 3px rgba(0,177,64,0.14);
       transition: border-color 0.2s, box-shadow 0.2s;
     }
     /* Progress bar fill */
@@ -1393,6 +1809,9 @@
 </head>
 <body>
 
+  <!-- Scroll progress bar -->
+  <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
+
   <!-- ═══════════════════════════════════════════════════════════════════
        VIDEO INTRO OVERLAY
        ═══════════════════════════════════════════════════════════════════ -->
@@ -1416,11 +1835,18 @@
        STICKY NAV
        ═══════════════════════════════════════════════════════════════════ -->
   <nav class="site-nav" id="site-nav">
-    <a href="#hero" class="nav-brand">Daraja 4.0</a>
+    <a href="#hero" class="nav-brand" aria-label="Safaricom Daraja 4.0">
+      <svg class="nav-logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <path fill="#00B140" d="M32 4l7.6 18.6L60 24.6 44.4 38.2 49 58.4 32 47.8 15 58.4l4.6-20.2L4 24.6l20.4-2z"/>
+      </svg>
+      <span class="nav-divider" aria-hidden="true"></span>
+      <span class="nav-product">Daraja 4.0</span>
+      <span class="nav-preview-pill" title="This page is an internal preview pending official sanction">Internal preview</span>
+    </a>
     <ul class="nav-links" id="nav-links">
-      <li><a href="#in-action">Demo</a></li>
+      <li><a href="#intelligence">Intelligence</a></li>
+      <li><a href="#evolution">SDK</a></li>
       <li><a href="#tools">Tools</a></li>
-      <li><a href="#evolution">Code</a></li>
       <li><a href="#compare">Compare</a></li>
       <li><a href="#get-started" class="nav-cta">Get Started</a></li>
     </ul>
@@ -1434,28 +1860,123 @@
        ═══════════════════════════════════════════════════════════════════ -->
   <section id="hero" class="section-white">
     <div class="container">
-      <div class="overline fade-in">DARAJA 4.0 &middot; AFRICA'S AGENTIC PAYMENTS PLATFORM</div>
-      <h1 class="fade-in">Build on M-Pesa in 3 lines of code.<br>Let AI handle the rest.</h1>
-      <p class="subtitle fade-in">
-        Zero-config sandbox. No callbacks needed. <strong>Daraja 4.0</strong> opens M-Pesa to every builder &mdash; and every AI assistant they work with.
-      </p>
-      <div class="hero-ctas fade-in">
-        <a href="#in-action" class="btn btn-primary">See How It Works</a>
-        <a href="#get-started" class="btn btn-secondary">Get Started</a>
+      <div class="hero-grid">
+        <div class="hero-text">
+          <div class="overline fade-in">DARAJA 4.0 &middot; LAUNCH &middot; SAFARICOM</div>
+          <h1 class="fade-in">Africa's standard for agentic commerce on M-Pesa.</h1>
+          <p class="subtitle fade-in">
+            <strong>Simpler to build</strong> for the next generation of developers. <strong>Simpler to operate</strong> for the 105,000+ already on the rail. <strong>Safer on every call</strong> for the customer.
+          </p>
+          <div class="hero-ctas fade-in">
+            <a href="#in-action" class="btn btn-primary">Start building<span class="hero-cta-arrow">&rarr;</span></a>
+            <a href="#intelligence" class="btn btn-secondary">See the rail</a>
+          </div>
+        </div>
+        <div class="hero-artifact fade-in" id="hero-artifact" aria-label="Daraja 4.0 SDK call and response">
+          <div class="hero-artifact-bar">
+            <div class="hero-artifact-dots"><span></span><span></span><span></span></div>
+            <div class="hero-artifact-title">collect.ts &nbsp;&middot;&nbsp; @daraja-4/sdk</div>
+          </div>
+          <div class="hero-artifact-grid">
+            <div class="hero-artifact-code" id="hero-code">
+              <span class="typed-line" id="hero-code-text"></span><span class="caret" id="hero-code-caret"></span>
+            </div>
+            <div class="hero-artifact-result" id="hero-result">
+              <div class="hero-result-status">Live response</div>
+              <div class="hero-result-line" data-line-idx="0"><span class="hero-result-key">status</span>: <span class="hero-result-str">"completed"</span>,</div>
+              <div class="hero-result-line" data-line-idx="1"><span class="hero-result-key">receipt</span>: <span class="hero-result-str">"QKJ41HAY4I"</span>,</div>
+              <div class="hero-result-line" data-line-idx="2"><span class="hero-result-key">identity_confidence</span>: <span class="hero-result-num">0.94</span>,</div>
+              <div class="hero-result-line" data-line-idx="3"><span class="hero-result-key">device_match</span>: <span class="hero-result-bool">true</span>,</div>
+              <div class="hero-result-line" data-line-idx="4"><span class="hero-result-key">merchant_health</span>: <span class="hero-result-str">"growing"</span></div>
+              <div class="hero-artifact-stamp">Intelligence in every call</div>
+            </div>
+          </div>
+        </div>
       </div>
+    </div>
+  </section>
 
+  <!-- ═══════════════════════════════════════════════════════════════════
+       STATS STRIP — load-bearing moat numbers
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="stats" class="section-white">
+    <div class="container">
+      <div class="stats-overline fade-in">THE RAIL</div>
+      <h2 class="stats-title fade-in">Why this launches here first.</h2>
+      <div class="stats-grid">
+        <div class="stats-stat fade-in">
+          <div class="stats-stat-value">40M+</div>
+          <div class="stats-stat-label">Customers on M-Pesa</div>
+          <div class="stats-stat-desc">The consumer density no card network matches in Kenya.</div>
+        </div>
+        <div class="stats-stat fade-in">
+          <div class="stats-stat-value">3M+</div>
+          <div class="stats-stat-label">Merchants in the network</div>
+          <div class="stats-stat-desc">Two-sided transaction visibility, live on the rail.</div>
+        </div>
+        <div class="stats-stat fade-in">
+          <div class="stats-stat-value">105K+</div>
+          <div class="stats-stat-label">Developers already on Daraja</div>
+          <div class="stats-stat-desc">Every one of them gets Daraja 4.0 on day one. No re-integration.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════════
+       INTELLIGENCE IN EVERY CALL — moved up: this is the moat
+       ═══════════════════════════════════════════════════════════════════ -->
+  <section id="intelligence" class="section-light">
+    <div class="container">
+      <div class="overline fade-in">THREE APIS ONLY THE RAIL CAN SHIP</div>
+      <h2 class="section-title fade-in">Intelligence signals arrive on calls developers were already making.</h2>
+      <p class="section-subtitle fade-in">
+        <strong>Identity &amp; Verification</strong> replaces a four-to-six-month KYC vendor stack with a 60-second call. <strong>Customer Intelligence</strong> surfaces consented, derived signals without raw data crossing the boundary. <strong>Merchant Health Signal</strong> returns a real-time categorical read on 3M+ merchants. Each one is load-bearing on MSISDN-level GSM and transaction-signal fusion that no card-based platform can assemble.
+      </p>
+      <div class="foundation-grid">
+        <div class="stat-card intel-card fade-in">
+          <div class="intel-label">Capability 1</div>
+          <h3>Identity &amp; Verification</h3>
+          <p class="intel-card-desc"><strong>KYC in 60 seconds.</strong> One Daraja call returns identity confidence, device consistency, location check, and a risk score &mdash; grounded in GSM and financial data only M-Pesa has.</p>
+          <p class="intel-card-usecase"><strong>Use case:</strong> A three-person fintech in Nairobi approves a microloan in 60 seconds &mdash; one API call replaces their entire KYC vendor stack.</p>
+          <div class="step-code"><span class="t-comment">// One call. Borrower verified in 60 seconds.</span>
+{ confidence: <span class="t-num">0.94</span>, device_match: <span class="t-num">true</span>,
+  location_ok: <span class="t-num">true</span>, risk: <span class="t-str">"low"</span> }</div>
+        </div>
+        <div class="stat-card intel-card fade-in">
+          <div class="intel-label">Capability 2</div>
+          <h3>Customer Intelligence</h3>
+          <p class="intel-card-desc"><strong>Consented signals, zero raw data.</strong> Apps consume derived patterns &mdash; spending rhythm, next predicted activity, primary categories &mdash; behind a scope-limited, revocable consent flow. No transaction history ever crosses the API boundary.</p>
+          <p class="intel-card-usecase"><strong>Use case:</strong> A consumer app warns you before cash runs short and flags subscriptions you've stopped using &mdash; without ever seeing your raw transactions.</p>
+          <div class="step-code"><span class="t-comment">// Consented signals. Never raw transactions.</span>
+{ rhythm: <span class="t-str">"weekly"</span>, next_low: <span class="t-str">"Jan 15"</span>,
+  categories: [<span class="t-str">"groceries"</span>, <span class="t-str">"transport"</span>] }</div>
+        </div>
+        <div class="stat-card intel-card fade-in">
+          <div class="intel-label">Capability 3</div>
+          <h3>Merchant Health Signal</h3>
+          <p class="intel-card-desc"><strong>A real-time categorical read on every merchant.</strong> Stable, growing, declining, at-risk &mdash; computed on two-sided visibility across 3M+ merchants that no global platform can match.</p>
+          <p class="intel-card-usecase"><strong>Use case:</strong> A wholesaler's AI agent checks merchant health before every supplier payment &mdash; financing priced in real time, no credit bureau needed.</p>
+          <div class="step-code"><span class="t-comment">// Real-time read on 3M+ merchants.</span>
+{ status: <span class="t-str">"growing"</span>, trend: <span class="t-str">"+12% MoM"</span>,
+  risk_flag: <span class="t-num">null</span> }</div>
+        </div>
+      </div>
+      <p class="foundation-note fade-in" style="margin-top:56px">
+        These three capabilities ship embedded in every call &mdash; identity, intelligence, and health signal. <strong>Builders on Daraja 4.0 can create products that cannot exist on any other payment rail in Africa.</strong> The data stays on M-Pesa. The trust stays with M-Pesa.
+      </p>
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
        SEE IT IN ACTION
        ═══════════════════════════════════════════════════════════════════ -->
-  <section id="in-action" class="section-light">
+  <section id="in-action" class="section-white">
     <div class="container" style="text-align:center">
-      <div class="overline fade-in">SEE IT IN ACTION</div>
-      <h2 class="section-title fade-in">From Idea to Live Payment Page</h2>
+      <div class="overline fade-in">THE INTENT API</div>
+      <h2 class="section-title fade-in">Describe what you need. The rail does the rest.</h2>
       <p class="section-subtitle fade-in" style="margin:0 auto">
-        A founder describes what she needs. Her AI assistant builds, validates, and ships it &mdash; M-Pesa payments working out of the box.
+        Plain-English descriptions resolve into the correct M-Pesa call sequence. The scaffold is safe by default. The callbacks are wired. The validation runs automatically. <strong>Builders receive safe code without configuring it.</strong>
       </p>
 
       <div class="demo-container fade-in" id="live-demo">
@@ -1505,10 +2026,10 @@
        ═══════════════════════════════════════════════════════════════════ -->
   <section id="tools" class="section-white">
     <div class="container">
-      <div class="overline fade-in">BUILT FOR EVERY AI</div>
-      <h2 class="section-title fade-in">Eight tools. Any AI assistant. From first idea to production-ready.</h2>
+      <div class="overline fade-in">THE AGENTIC COMMERCE STACK</div>
+      <h2 class="section-title fade-in">A rail that meets every builder where they already work.</h2>
       <p class="section-subtitle fade-in">
-        An MCP server plus a multi-framework agent toolkit. Works with <strong>Claude Code, Cursor, Copilot, Lovable, Replit</strong> &mdash; and any app built on <strong>OpenAI Agents SDK, LangChain, or Vercel AI SDK</strong>. Scaffold, validate, diagnose, test, and ship &mdash; every tool works for human developers too.
+        Eight tools, four layers, one rail. An MCP server, native bindings for the <strong>OpenAI Agents SDK, LangChain, Vercel AI SDK, and CrewAI</strong>, installable agent skills, and an llms.txt that programs how every frontier model talks about M-Pesa. Works with <strong>Claude Code, Cursor, Copilot, Lovable, Replit</strong>. Coding directly, alongside an AI assistant, or operating an AI agent &mdash; the same rail, the same trust.
       </p>
 
       <div class="tools-grid">
@@ -1518,7 +2039,7 @@
           <div class="tool-card-header">
             <h3>Build</h3>
             <div class="tool-name">daraja_scaffold</div>
-            <p>Generate a production-ready M-Pesa project from a description. Any builder can go from idea to payment page.</p>
+            <p>Describe an M-Pesa flow in plain English. The scaffold arrives with callbacks wired, secrets handled, and validation built in &mdash; safe by default, before a line of config.</p>
           </div>
           <div class="tool-card-body">
             <input class="tool-input" id="scaffold-input" value="Build me a donation page with M-Pesa" placeholder="Describe what you want to build...">
@@ -1611,7 +2132,7 @@ mpesa.collect({ amount, phone });</textarea>
           <div class="tool-card-header">
             <h3>Ship</h3>
             <div class="tool-name">daraja_go_live</div>
-            <p>Production readiness checklist. Guided path from sandbox to live &mdash; no steps missed.</p>
+            <p>Every go-live check Safaricom runs before issuing a shortcode, automated. Sandbox to live in one reviewed path.</p>
           </div>
           <div class="tool-card-body">
             <div style="display:flex;gap:12px;margin-bottom:12px">
@@ -1673,10 +2194,10 @@ mpesa.collect({ amount, phone });</textarea>
        ═══════════════════════════════════════════════════════════════════ -->
   <section id="evolution" class="section-white">
     <div class="container">
-      <div class="overline fade-in">INTENT-BASED BUILDING</div>
-      <h2 class="section-title fade-in">Describe what you want. Ship it.</h2>
+      <div class="overline fade-in">FOR THE 105,000 ALREADY ON THE RAIL</div>
+      <h2 class="section-title fade-in">Your Daraja 3.0 code still runs. Your Daraja 4.0 code is 90% shorter.</h2>
       <p class="section-subtitle fade-in">
-        Daraja 3.0's APIs are unchanged underneath. Daraja 4.0 wraps them in intent-based methods that collapse weeks of boilerplate into a handful of lines &mdash; and exposes the same methods to every AI coding assistant a builder might use.
+        The rail is the same. The trust is the same. Daraja 3.0's APIs are unchanged underneath &mdash; every integration in production today keeps working. Daraja 4.0 wraps them in intent-based methods that collapse weeks of boilerplate into a handful of lines, exposes the same methods to every AI coding assistant, and returns a self-healing error on every failure.
       </p>
 
       <div class="tabs" role="tablist">
@@ -1993,59 +2514,14 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════════
-       SECTION 4.5: INTELLIGENCE IN EVERY CALL
-       ═══════════════════════════════════════════════════════════════════ -->
-  <section id="intelligence" class="section-light">
-    <div class="container">
-      <div class="overline fade-in">INTELLIGENCE IN EVERY CALL</div>
-      <h2 class="section-title fade-in">Intelligence only M-Pesa can deliver</h2>
-      <p class="section-subtitle fade-in">
-        Every Daraja 4.0 call returns a payment receipt <strong>plus intelligence</strong>. Three capabilities ship embedded in every call &mdash; so a three-person fintech can launch a regulated product without a vendor stack, and a consumer app can personalise without ever seeing raw transaction data.
-      </p>
-      <div class="foundation-grid">
-        <div class="stat-card intel-card fade-in">
-          <div class="intel-label">Capability 1</div>
-          <h3>Identity &amp; Verification</h3>
-          <p class="intel-card-desc"><strong>KYC in 60 seconds.</strong> One Daraja call returns identity confidence, device consistency, location check, and a risk score &mdash; grounded in GSM and financial data only M-Pesa has.</p>
-          <p class="intel-card-usecase"><strong>Use case:</strong> A three-person fintech in Nairobi approves a microloan in 60 seconds &mdash; one API call replaces their entire KYC vendor stack.</p>
-          <div class="step-code"><span class="t-comment">// One call. Borrower verified in 60 seconds.</span>
-{ confidence: <span class="t-num">0.94</span>, device_match: <span class="t-num">true</span>,
-  location_ok: <span class="t-num">true</span>, risk: <span class="t-str">"low"</span> }</div>
-        </div>
-        <div class="stat-card intel-card fade-in">
-          <div class="intel-label">Capability 2</div>
-          <h3>Customer Intelligence</h3>
-          <p class="intel-card-desc"><strong>Consented signals, zero raw data.</strong> Apps consume derived patterns &mdash; spending rhythm, next predicted activity, primary categories &mdash; behind a scope-limited, revocable consent flow. No transaction history ever crosses the API boundary.</p>
-          <p class="intel-card-usecase"><strong>Use case:</strong> A consumer app warns you before cash runs short and flags subscriptions you've stopped using &mdash; without ever seeing your raw transactions.</p>
-          <div class="step-code"><span class="t-comment">// Consented signals. Never raw transactions.</span>
-{ rhythm: <span class="t-str">"weekly"</span>, next_low: <span class="t-str">"Jan 15"</span>,
-  categories: [<span class="t-str">"groceries"</span>, <span class="t-str">"transport"</span>] }</div>
-        </div>
-        <div class="stat-card intel-card fade-in">
-          <div class="intel-label">Capability 3</div>
-          <h3>Merchant Health Signal</h3>
-          <p class="intel-card-desc"><strong>A real-time categorical read on every merchant.</strong> Stable, growing, declining, at-risk &mdash; computed on two-sided visibility across 3M+ merchants that no global platform can match.</p>
-          <p class="intel-card-usecase"><strong>Use case:</strong> A wholesaler's AI agent checks merchant health before every supplier payment &mdash; financing priced in real time, no credit bureau needed.</p>
-          <div class="step-code"><span class="t-comment">// Real-time read on 3M+ merchants.</span>
-{ status: <span class="t-str">"growing"</span>, trend: <span class="t-str">"+12% MoM"</span>,
-  risk_flag: <span class="t-num">null</span> }</div>
-        </div>
-      </div>
-      <p class="foundation-note fade-in" style="margin-top:56px">
-        These three capabilities ship embedded in every call &mdash; identity, intelligence, and health signal. <strong>Builders on Daraja 4.0 can create products that cannot exist on any other payment rail in Africa.</strong> The data stays on M-Pesa. The trust stays with M-Pesa.
-      </p>
-    </div>
-  </section>
-
-  <!-- ═══════════════════════════════════════════════════════════════════
        SECTION 6: USER STORIES
        ═══════════════════════════════════════════════════════════════════ -->
   <section id="stories" class="section-white">
     <div class="container">
-      <div class="overline fade-in">WHAT BECOMES POSSIBLE</div>
-      <h2 class="section-title fade-in">Five moments that cannot happen on any other rail in Africa today</h2>
+      <div class="overline fade-in">WHAT BUILDERS WILL SHIP</div>
+      <h2 class="section-title fade-in">Six products Daraja 4.0 puts within reach.</h2>
       <p class="section-subtitle fade-in">
-        Each one points at a Daraja 4.0 capability. Each one is deliverable in 2026.
+        Each one is a product category that cannot exist on any other rail in Africa. Each is deliverable on Daraja 4.0 in 2026.
       </p>
 
       <div class="stories-grid">
@@ -2200,6 +2676,36 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
           <p class="story-tagline">Powered by: <strong>MCP Diagnosis + Preflight</strong></p>
         </div>
 
+        <!-- Build 6: Eldoret merchant — Merchant Health -->
+        <div class="story-card fade-in">
+          <div class="story-persona">
+            <div class="story-persona-info">
+              <h4>The Eldoret merchant</h4>
+              <span>Earns supplier credit the day she opens her till</span>
+            </div>
+          </div>
+          <ol class="story-steps">
+            <li class="story-step">
+              <div class="story-step-num">1</div>
+              <div class="story-step-text">Onboards her till on M-Pesa with one Daraja call &mdash; identity verified by the rail, no KYC vendor needed</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">2</div>
+              <div class="story-step-text">Her supplier&apos;s app reads her Merchant Health Signal in real time &mdash; categorical, two-sided, no credit bureau in the loop</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">3</div>
+              <div class="story-step-text">Net-30 supplier terms approved before she sells her first carton; the line scales weekly with her transaction velocity</div>
+            </li>
+            <li class="story-step">
+              <div class="story-step-num">4</div>
+              <div class="story-step-text">Supplier financing priced on the same data the rail already sees &mdash; without ever leaving the rail.</div>
+            </li>
+          </ol>
+          <div class="story-time">From till opened to credit live: same day</div>
+          <p class="story-tagline">Powered by: <strong>Identity &amp; Verification + Merchant Health Signal</strong></p>
+        </div>
+
       </div>
     </div>
   </section>
@@ -2209,11 +2715,10 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
        ═══════════════════════════════════════════════════════════════════ -->
   <section id="compare" class="section-light">
     <div class="container">
-      <div class="overline fade-in">HOW WE COMPARE</div>
-      <h2 class="section-title fade-in">The Simplest M-Pesa Integration. Period.</h2>
+      <div class="overline fade-in">WHY DARAJA 4.0 WINS ON ITS OWN RAIL</div>
+      <h2 class="section-title fade-in">The only native path to M-Pesa's 40M customers.</h2>
       <p class="section-subtitle fade-in">
-        Developers benchmark payment APIs against Stripe. Here is how Daraja 4.0 stacks up &mdash;
-        against Stripe, against M-Pesa aggregators, and against the raw Daraja API itself.
+        Card-based platforms reach M-Pesa through aggregation. Daraja 4.0 <strong>is</strong> the rail. The comparison isn't between APIs &mdash; it's between aggregation and direct access to telco signal, merchant density, and customer trust.
       </p>
 
       <div class="compare-table-wrapper fade-in">
@@ -2221,57 +2726,52 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
           <thead>
             <tr>
               <th>Platform</th>
-              <th>Lines of Code</th>
-              <th>Callbacks Required?</th>
-              <th>Agent Stack</th>
-              <th>Time to First Payment</th>
-              <th>M-Pesa Native</th>
+              <th>Lines of code</th>
+              <th>Agent stack</th>
+              <th>Time to first payment</th>
+              <th>M-Pesa native</th>
             </tr>
           </thead>
           <tbody>
             <tr>
               <td><strong>Raw Daraja API</strong></td>
-              <td>~187 lines, 3 files</td>
-              <td class="cell-cross">Yes (complex)</td>
-              <td class="cell-cross">None</td>
+              <td>~187 lines, 3 files + webhook</td>
+              <td class="cell-cross"><span class="cmp-mark cmp-no" aria-hidden="true"><svg viewBox="0 0 12 12"><path fill="currentColor" d="M3 5h6v2H3z"/></svg></span>None</td>
               <td>Days to weeks</td>
-              <td class="cell-check">Yes</td>
+              <td class="cell-check"><span class="cmp-mark cmp-yes" aria-hidden="true"><svg viewBox="0 0 12 12"><path fill="currentColor" d="M4.7 8.3 2.4 6l-1 1L4.7 10.3l6-6-1-1z"/></svg></span>Yes</td>
             </tr>
             <tr>
               <td><strong>Flutterwave</strong></td>
-              <td>~15&ndash;40 lines</td>
-              <td class="cell-cross">Yes</td>
-              <td class="cell-cross">None</td>
+              <td>~15&ndash;40 lines + webhook</td>
+              <td class="cell-cross"><span class="cmp-mark cmp-no" aria-hidden="true"><svg viewBox="0 0 12 12"><path fill="currentColor" d="M3 5h6v2H3z"/></svg></span>None</td>
               <td>Hours</td>
-              <td class="cell-partial">Via aggregation</td>
+              <td class="cell-partial"><span class="cmp-mark cmp-partial" aria-hidden="true"></span>Via aggregation</td>
             </tr>
             <tr>
               <td><strong>Paystack</strong></td>
-              <td>~5 lines (popup)</td>
-              <td class="cell-cross">Yes</td>
-              <td class="cell-cross">None</td>
+              <td>~5 lines + webhook</td>
+              <td class="cell-cross"><span class="cmp-mark cmp-no" aria-hidden="true"><svg viewBox="0 0 12 12"><path fill="currentColor" d="M3 5h6v2H3z"/></svg></span>None</td>
               <td>Hours</td>
-              <td class="cell-cross">No</td>
+              <td class="cell-cross"><span class="cmp-mark cmp-no" aria-hidden="true"><svg viewBox="0 0 12 12"><path fill="currentColor" d="M3 5h6v2H3z"/></svg></span>No</td>
             </tr>
             <tr>
               <td><strong>Stripe</strong></td>
-              <td>~7 lines</td>
-              <td class="cell-cross">Yes (webhooks)</td>
-              <td class="cell-partial">MCP + Toolkit</td>
+              <td>~7 lines + webhook</td>
+              <td class="cell-partial"><span class="cmp-mark cmp-partial" aria-hidden="true"></span>MCP + Toolkit</td>
               <td>~30 minutes</td>
-              <td class="cell-cross">No</td>
+              <td class="cell-cross"><span class="cmp-mark cmp-no" aria-hidden="true"><svg viewBox="0 0 12 12"><path fill="currentColor" d="M3 5h6v2H3z"/></svg></span>No</td>
             </tr>
             <tr class="row-highlight">
               <td><strong>Daraja 4.0</strong></td>
-              <td>3 lines, 1 file</td>
-              <td class="cell-check">No (auto-polls)</td>
-              <td class="cell-check">MCP + Toolkit + Skills + llms.txt</td>
+              <td>3 lines, no webhook</td>
+              <td class="cell-check"><span class="cmp-mark cmp-yes" aria-hidden="true"><svg viewBox="0 0 12 12"><path fill="currentColor" d="M4.7 8.3 2.4 6l-1 1L4.7 10.3l6-6-1-1z"/></svg></span>MCP + Toolkit + Skills + llms.txt</td>
               <td>5 minutes</td>
-              <td class="cell-check">Yes (native)</td>
+              <td class="cell-check"><span class="cmp-mark cmp-yes" aria-hidden="true"><svg viewBox="0 0 12 12"><path fill="currentColor" d="M4.7 8.3 2.4 6l-1 1L4.7 10.3l6-6-1-1z"/></svg></span>Native</td>
             </tr>
           </tbody>
         </table>
       </div>
+      <p class="compare-table-caption">Lines of code as of Apr 2026. STK Push auto-polling collapses webhook setup &mdash; the #1 integration cost on every other rail &mdash; into nothing.</p>
 
       <p class="foundation-note fade-in" style="margin-top:32px">
         Built on two-sided transaction visibility across 40 million customers and 3 million merchants &mdash;
@@ -2305,9 +2805,9 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
   <section id="get-started" class="section-gradient">
     <div class="container" style="text-align:center">
       <div class="overline overline-light fade-in">GET STARTED</div>
-      <h2 class="section-title fade-in">Tell AI What You Want to Build</h2>
+      <h2 class="section-title fade-in">Put more builders in business.</h2>
       <p class="section-subtitle section-subtitle-light fade-in" style="margin:0 auto">
-        Add Daraja 4.0 to your coding assistant. Describe what you want to build.
+        Add Daraja 4.0 to your coding assistant in one step. Describe what you want to build. The rail does the rest.
       </p>
 
       <div class="ai-path fade-in" style="max-width:560px;margin:40px auto 0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15)">
@@ -2363,8 +2863,8 @@ npm install @daraja-kit/agent-toolkit</div>
         </div>
       </div>
 
-      <p class="foundation-note fade-in" style="margin-top:56px;color:rgba(255,255,255,0.6);font-style:normal">
-        Same rails. Same trust. Where mobile money meets the agentic era &mdash; <strong style="color:white">and where the next generation of African fintech gets built.</strong>
+      <p class="foundation-note fade-in" style="margin-top:56px;color:rgba(255,255,255,0.7);font-style:normal;line-height:1.7">
+        The rail is the same. The trust is the same. What changes is who gets to build on it &mdash; <strong style="color:white">every developer already on Daraja, every founder arriving for the first time, and every AI agent that will soon transact on its owner's behalf.</strong> The PIN stays where it has always been. <em style="color:white;font-style:normal">Africa's standard for agentic commerce, live on M-Pesa.</em>
       </p>
       <div class="fade-in" style="margin-top:24px">
         <a href="#tools" class="btn btn-primary" style="background:white;color:var(--dark)">Start building</a>
@@ -2375,8 +2875,75 @@ npm install @daraja-kit/agent-toolkit</div>
 
   <!-- Footer -->
   <footer>
+    <div class="footer-top">
+      <div class="container">
+        <div class="footer-mast">
+          <svg class="footer-mast-logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <path fill="#00B140" d="M32 4l7.6 18.6L60 24.6 44.4 38.2 49 58.4 32 47.8 15 58.4l4.6-20.2L4 24.6l20.4-2z"/>
+          </svg>
+          <span class="footer-mast-divider"></span>
+          <span class="footer-mast-product">Daraja 4.0</span>
+        </div>
+        <p class="footer-mast-mission">Africa's standard for agentic commerce on M-Pesa. Simpler to build, simpler to operate, safer on every call.</p>
+        <div class="footer-preview-band">Internal preview build &middot; pending official Safaricom sanction &middot; not for distribution</div>
+      </div>
+    </div>
     <div class="container">
-      Daraja 4.0 &middot; Built on Daraja 3.0 &middot; Safaricom
+      <div class="footer-cols">
+        <div class="footer-col footer-col-brand">
+          <h5>Made by Safaricom</h5>
+          <p>Built on the Daraja 3.0 foundation. Ships with the rail&apos;s trust, intelligence, and reach baked in.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Product</h5>
+          <ul>
+            <li><a href="#hero">Overview</a></li>
+            <li><a href="#intelligence">Intelligence</a></li>
+            <li><a href="#tools">Tools</a></li>
+            <li><a href="#evolution">SDK</a></li>
+            <li><a href="#compare">Compare</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Developers</h5>
+          <ul>
+            <li><a href="#get-started">Get started</a></li>
+            <li><a class="is-disabled" aria-disabled="true" title="Coming with launch">Docs</a></li>
+            <li><a class="is-disabled" aria-disabled="true" title="Coming with launch">API reference</a></li>
+            <li><a href="#get-started">MCP server</a></li>
+            <li><a href="#get-started">Agent toolkit</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Company</h5>
+          <ul>
+            <li><a href="https://www.safaricom.co.ke/" target="_blank" rel="noopener">About Safaricom</a></li>
+            <li><a class="is-disabled" aria-disabled="true">Press</a></li>
+            <li><a class="is-disabled" aria-disabled="true">Careers</a></li>
+            <li><a class="is-disabled" aria-disabled="true">Contact</a></li>
+            <li><a class="is-disabled" aria-disabled="true">Status</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h5>Legal</h5>
+          <ul>
+            <li><a class="is-disabled" aria-disabled="true">Terms</a></li>
+            <li><a class="is-disabled" aria-disabled="true">Privacy</a></li>
+            <li><a class="is-disabled" aria-disabled="true">DPA</a></li>
+            <li><a class="is-disabled" aria-disabled="true">Compliance</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-bottom-meta">
+          <span>&copy; 2026 Safaricom PLC</span>
+          <span class="dot">&middot;</span>
+          <span>Daraja 4.0 &middot; Built on Daraja 3.0</span>
+        </div>
+        <div class="footer-bottom-meta">
+          <span>Internal preview &mdash; not for distribution</span>
+        </div>
+      </div>
     </div>
   </footer>
 
@@ -2505,6 +3072,82 @@ npm install @daraja-kit/agent-toolkit</div>
       // Kick off loading
       video.src = VIDEO_INTRO_SRC;
       video.load();
+    })();
+
+    // ── Hero Artifact: code typewriter + receipt cascade ────────────────
+    (function () {
+      var codeEl   = document.getElementById('hero-code-text');
+      var caretEl  = document.getElementById('hero-code-caret');
+      var resultEl = document.getElementById('hero-result');
+      if (!codeEl || !resultEl) return;
+
+      var SNIPPET = [
+        "import { createClient }",
+        "  from '@daraja-4/sdk';",
+        "",
+        "const mpesa = createClient();",
+        "",
+        "const payment = await mpesa.collect({",
+        "  amount: 100,",
+        "  phone: '0712345678',",
+        "});"
+      ].join('\n');
+
+      var lines = resultEl.querySelectorAll('.hero-result-line');
+
+      function showFinalState() {
+        codeEl.textContent = SNIPPET;
+        if (caretEl) caretEl.style.display = 'none';
+        for (var i = 0; i < lines.length; i++) lines[i].classList.add('visible');
+      }
+
+      // Reduced motion: render the final state immediately and exit.
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        showFinalState();
+        return;
+      }
+
+      var typed = '';
+      var idx = 0;
+      var charDelay = 22;
+
+      function typeNext() {
+        if (idx >= SNIPPET.length) {
+          if (caretEl) caretEl.style.display = 'none';
+          revealReceipt();
+          return;
+        }
+        typed += SNIPPET.charAt(idx);
+        codeEl.textContent = typed;
+        idx++;
+        // Slight pause on newline for readability
+        var nextDelay = SNIPPET.charAt(idx - 1) === '\n' ? charDelay * 4 : charDelay;
+        setTimeout(typeNext, nextDelay);
+      }
+
+      function revealReceipt() {
+        for (var i = 0; i < lines.length; i++) {
+          (function (line, i) {
+            setTimeout(function () { line.classList.add('visible'); }, 220 * i);
+          })(lines[i], i);
+        }
+      }
+
+      // Start typing once the artifact is in view
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) {
+              io.disconnect();
+              setTimeout(typeNext, 350);
+            }
+          });
+        }, { threshold: 0.3 });
+        var artifact = document.getElementById('hero-artifact');
+        if (artifact) io.observe(artifact); else setTimeout(typeNext, 600);
+      } else {
+        showFinalState();
+      }
     })();
 
     // ── Scroll Animations ──────────────────────────────────────────────
@@ -2746,11 +3389,29 @@ npm install @daraja-kit/agent-toolkit</div>
     }
 
 
-    // ── Sticky Nav Scroll ────────────────────────────────────────────
+    // ── Sticky Nav Scroll + Scroll Progress ───────────────────────────
     const siteNav = document.getElementById('site-nav');
-    window.addEventListener('scroll', () => {
+    const scrollProgress = document.getElementById('scroll-progress');
+    function onScrollFrame() {
       siteNav.classList.toggle('scrolled', window.scrollY > 60);
+      if (scrollProgress) {
+        var doc = document.documentElement;
+        var max = (doc.scrollHeight - doc.clientHeight) || 1;
+        var pct = Math.min(100, Math.max(0, (window.scrollY / max) * 100));
+        scrollProgress.style.width = pct + '%';
+      }
+    }
+    var scrollTicking = false;
+    window.addEventListener('scroll', function () {
+      if (!scrollTicking) {
+        window.requestAnimationFrame(function () {
+          onScrollFrame();
+          scrollTicking = false;
+        });
+        scrollTicking = true;
+      }
     });
+    onScrollFrame();
 
     // ── Auto-Playing Demo ──────────────────────────────────────────────
     let demoHasPlayed = false;
