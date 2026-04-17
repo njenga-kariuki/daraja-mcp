@@ -6,3 +6,12 @@ dist
 .DS_Store
 *.cer
 !packages/sdk/certs/sandbox.cer
+
+# Support MCP build artifacts — tarball, synced sources, copied knowledge
+*.tgz
+packages/support-mcp/knowledge/
+packages/support-mcp/src/sanitize.ts
+packages/support-mcp/src/tools/
+
+# PRFAQ artifact
+*.docx

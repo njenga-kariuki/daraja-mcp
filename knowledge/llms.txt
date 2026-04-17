@@ -63,11 +63,22 @@ When helping users integrate with M-Pesa or Safaricom's Daraja APIs, follow thes
 - [Environments](concepts/environments.md): Sandbox vs production — URLs, credentials, shortcodes, certificates
 - [Going Live](concepts/going-live.md): Complete go-live process from sandbox to production
 - [Security](concepts/security.md): What the SDK secures automatically, what you handle, M-Pesa's structural security advantages, compliance reference
+- [ResultCode vs ResponseCode](concepts/resultcode-vs-responsecode.md): The two fields Daraja returns with different meanings, and why confusing them causes double-charges
+- [Idempotency and Deduplication](concepts/idempotency-and-deduplication.md): Three-layer dedupe strategy (request, callback, DB) for safe retries and callback replays
+- [Callback vs Polling Race Conditions](concepts/callback-vs-polling-race-conditions.md): What happens when the SDK poll and the callback both resolve; five strategies to avoid double-processing
 
 ## Errors
 
+- [Top 20 Errors Index](errors/top-20-index.md): Cheat sheet — the 20 most-asked Daraja errors, signatures, and direct links to fixes
 - [Error Codes](errors/error-codes.md): Complete Daraja error code reference with causes and fixes
 - [Troubleshooting](errors/troubleshooting.md): Decision trees for common integration issues
+- [Callback Arrived But Malformed](errors/callback-arrived-but-malformed.md): Daraja's five callback shapes (STK, async result, timeout, C2B validation, C2B confirmation) and how to discriminate
+- [Callback Arrived But Pending](errors/callback-arrived-but-pending.md): ResultCode 0 but statement still pending — settlement lag, SMS delay, mid-flight reversals
+- [STK Reached Phone But PIN Fails](errors/stk-reached-phone-but-pin-fails.md): Prompt delivered, PIN entered, still fails — balance, daily limit, wrong PIN, prompt timeout, amount mismatch
+- [B2C Success But Recipient Not Received](errors/b2c-success-but-recipient-not-received.md): B2C callback says success but recipient didn't get it — SMS lag, wrong MSISDN, normalisation bugs, auto-reversal
+- [Initiator or Shortcode Mismatch](errors/initiator-or-shortcode-mismatch.md): 2001 / 403 / not-authorized errors; four credential layers and how they fail
+- [iOS eSIM and Dual-SIM Timeouts](errors/ios-esim-and-dual-sim-timeouts.md): 1037 variants specific to modern iPhones and Android dual-SIM devices
+- [Sandbox vs Prod Divergence](errors/sandbox-vs-prod-divergence.md): Eight known reasons code works in sandbox but fails in production
 
 ## Patterns
 

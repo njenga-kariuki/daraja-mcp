@@ -158,6 +158,82 @@ export function mapDarajaError(
         darajaCode: code,
         raw,
       }),
+    '06': () =>
+      new MpesaError({
+        message: `Confirmation failed: ${desc}`,
+        code: 'CONFIRMATION_FAILED',
+        suggestion:
+          'M-Pesa could not confirm the transaction downstream. Retry once after a short delay. If it persists, the receiving shortcode may have a provisioning issue — escalate to apisupport@safaricom.co.ke.',
+        prevention:
+          'Treat 06 as transient on the first retry. Page your ops team on repeated 06 from the same shortcode — it typically signals a Safaricom-side provisioning problem, not a code bug.',
+        darajaCode: code,
+        raw,
+      }),
+    '32': () =>
+      new MpesaError({
+        message: `Service not activated on shortcode: ${desc}`,
+        code: 'SERVICE_NOT_ACTIVATED',
+        suggestion:
+          'Your paybill/till does not have this API enabled at the Safaricom side. Email apisupport@safaricom.co.ke requesting activation for your shortcode. Include your app name and go-live approval.',
+        prevention:
+          'Verify every API you intend to use is enabled on your shortcode before go-live. Use daraja_preflight to catch missing enablement early.',
+        darajaCode: code,
+        raw,
+      }),
+    '33': () =>
+      new MpesaError({
+        message: `Go-live not approved: ${desc}`,
+        code: 'GO_LIVE_NOT_APPROVED',
+        suggestion:
+          'You are calling production APIs before Safaricom has approved go-live. Complete the go-live checklist (daraja_go_live) and submit. Approval takes 3-7 business days. Until then, keep environment on sandbox.',
+        prevention:
+          'Keep `environment: "sandbox"` in production config until the approval email arrives, then flip the flag. Do not split-deploy with half-approved credentials.',
+        darajaCode: code,
+        raw,
+      }),
+    '34': () =>
+      new MpesaError({
+        message: `Processing delay: ${desc}`,
+        code: 'PROCESSING_DELAY',
+        suggestion:
+          'Do NOT retry — this is slow processing, not failure. Retrying creates a duplicate (error 35) and real money movement on both paths. Wait 60 seconds and query status instead.',
+        prevention:
+          'Exclude code 34 from retry logic. A retry-on-34 policy is the #1 cause of double-charges in custom Daraja integrations. Let the callback resolve the state.',
+        darajaCode: code,
+        raw,
+      }),
+    '43': () =>
+      new ValidationError({
+        message: `Duplicate MerchantRequestID: ${desc}`,
+        code: 'DUPLICATE_MERCHANT_REQUEST_ID',
+        suggestion:
+          'Your code sent the same MerchantRequestID twice. Generate a unique ID per request using crypto.randomUUID(). The SDK does this automatically.',
+        prevention:
+          'Never derive MerchantRequestID from deterministic data (user ID, timestamp, order number). Always use crypto.randomUUID(). Retries must generate a new ID.',
+        darajaCode: code,
+        raw,
+      }),
+    '500.001.1001': () =>
+      new AuthError({
+        message: `Invalid initiator information: ${desc}`,
+        suggestion:
+          'Your SecurityCredential decrypts to the wrong password on the Safaricom side. Verify you are using the env-matching certificate — sandbox uses SandboxCertificate.cer, production uses ProductionCertificate.cer.',
+        prevention:
+          'Let the SDK handle certificate selection via createClient({ environment }). Never hand-bake SecurityCredential generation. Rotate production credentials via the portal, not manually.',
+        darajaCode: code,
+        raw,
+      }),
+    '404.001.04': () =>
+      new MpesaError({
+        message: `Resource not found (namespaced): ${desc}`,
+        code: 'NOT_FOUND_NAMESPACED',
+        suggestion:
+          'The endpoint URL or request body is wrong. Most common cause: mixing sandbox and production base URLs. Use createClient({ environment }) to pick the correct base URL automatically.',
+        prevention:
+          'Use createClient({ environment }) and let the SDK pick the base URL. If calling raw HTTP, centralize URL selection in one config module driven by NODE_ENV.',
+        darajaCode: code,
+        raw,
+      }),
     '35': () =>
       new MpesaError({
         message: `Duplicate transaction: ${desc}`,

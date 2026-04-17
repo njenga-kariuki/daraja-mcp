@@ -1,0 +1,55 @@
+name: Publish @daraja-mcp/support
+
+# Publishes the support tier to npm under the `beta` dist-tag with SLSA provenance.
+# Fire either manually (workflow_dispatch) or automatically when a tag matching
+# `support-mcp-v*` is pushed (e.g. `support-mcp-v0.0.1-beta.2`).
+
+on:
+  push:
+    tags:
+      - 'support-mcp-v*'
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: 'Run npm pack only; do not publish'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Required for npm provenance attestation (SLSA).
+      id-token: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build workspace
+        run: npm run build -w @daraja-mcp/support
+
+      - name: Run tests
+        run: npx vitest run
+
+      - name: Inspect tarball
+        working-directory: packages/support-mcp
+        run: npm pack --dry-run
+
+      - name: Publish to npm (beta)
+        if: ${{ !inputs.dry-run }}
+        working-directory: packages/support-mcp
+        run: npm publish --access public --tag beta --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

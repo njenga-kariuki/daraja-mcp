@@ -8,11 +8,18 @@ interface Issue {
   line?: number;
   message: string;
   fix: string;
+  /** Security-critical override: surfaces this issue into the blockers list regardless of severity. */
+  critical?: boolean;
 }
 
 interface ValidateOutput {
   issues: Issue[];
+  blockers: Issue[];
+  warnings: Issue[];
+  nits: Issue[];
   score: number;
+  riskSummary: string;
+  canDeploy: boolean;
 }
 
 export const validateSchema = {
@@ -20,7 +27,7 @@ export const validateSchema = {
   description:
     'Validate code that uses the Daraja/M-Pesa APIs or @daraja-kit/sdk for common mistakes: ' +
     'wrong phone formats, missing auth, hardcoded credentials, incorrect callback URLs, ' +
-    'wrong field lengths, missing error handling.',
+    'wrong field lengths, missing error handling. Returns severity-partitioned blockers/warnings/nits, a risk summary, and a canDeploy signal.',
   inputSchema: {
     type: 'object' as const,
     properties: {
@@ -34,6 +41,7 @@ export const validateSchema = {
 const CHECKS: Array<{
   pattern: RegExp;
   severity: Issue['severity'];
+  critical?: boolean;
   message: string;
   fix: string;
 }> = [
@@ -41,13 +49,15 @@ const CHECKS: Array<{
   {
     pattern: /(?:consumer[_-]?key|consumer[_-]?secret)\s*[:=]\s*['"][A-Za-z0-9]{10,}['"]/i,
     severity: 'error',
+    critical: true,
     message: 'Hardcoded consumer key/secret detected',
     fix: 'Use environment variables: process.env.DARAJA_CONSUMER_KEY and process.env.DARAJA_CONSUMER_SECRET',
   },
   {
     pattern: /passkey\s*[:=]\s*['"]bfb279f9aa.*?['"]/i,
     severity: 'warning',
-    message: 'Sandbox passkey hardcoded — will break in production',
+    critical: true,
+    message: 'Sandbox passkey hardcoded — will break in production and leaks shared sandbox secret',
     fix: 'Use environment variables or the SDK sandbox defaults (createClient() auto-loads sandbox credentials)',
   },
   // Phone format issues
@@ -68,12 +78,14 @@ const CHECKS: Array<{
   {
     pattern: /https?:\/\/localhost/,
     severity: 'error',
+    critical: true,
     message: 'localhost callback URL — Daraja cannot reach this',
     fix: 'Use ngrok for local dev: npx ngrok http 3000. Use the https URL from ngrok as your callback URL.',
   },
   {
     pattern: /http:\/\/(?!localhost)/,
     severity: 'error',
+    critical: true,
     message: 'HTTP callback URL — Daraja requires HTTPS',
     fix: 'Callback URLs must use HTTPS with a valid SSL certificate.',
   },
@@ -113,6 +125,7 @@ const SECURITY_CHECKS: Array<{
   guard: RegExp;
   absent: RegExp;
   severity: Issue['severity'];
+  critical?: boolean;
   message: string;
   fix: string;
 }> = [
@@ -121,6 +134,7 @@ const SECURITY_CHECKS: Array<{
     guard: /for\s*\(.*(?:payments|recipients|batch)\b/i,
     absent: /\.length\s*>\s*\d+|\.slice\s*\(/,
     severity: 'error',
+    critical: true,
     message: 'Unbounded batch loop — no size limit on payment array',
     fix: 'Add a batch size guard: if (payments.length > 100) throw new Error("Max 100 payments per batch"). Prevents accidental mass disbursement.',
   },
@@ -170,6 +184,7 @@ export function handleValidate(input: ValidateInput): ValidateOutput {
         line: lineNum,
         message: check.message,
         fix: check.fix,
+        ...(check.critical ? { critical: true } : {}),
       });
     }
   }
@@ -190,6 +205,7 @@ export function handleValidate(input: ValidateInput): ValidateOutput {
         line: lineNum,
         message: check.message,
         fix: check.fix,
+        ...(check.critical ? { critical: true } : {}),
       });
     }
   }
@@ -201,5 +217,19 @@ export function handleValidate(input: ValidateInput): ValidateOutput {
     100 - issues.reduce((s, i) => s + deductions[i.severity], 0),
   );
 
-  return { issues, score };
+  // Partition by severity + critical flag.
+  const blockers = issues.filter((i) => i.severity === 'error' || i.critical);
+  const warnings = issues.filter((i) => i.severity === 'warning' && !i.critical);
+  const nits = issues.filter((i) => i.severity === 'info' && !i.critical);
+
+  const canDeploy = blockers.length === 0;
+  const riskSummary = !canDeploy
+    ? `${blockers.length} critical blocker(s) — DO NOT deploy. Fix ${blockers.length === 1 ? 'it' : 'them'} first.`
+    : warnings.length > 0
+      ? `${warnings.length} warning(s); safe to deploy after review.`
+      : nits.length > 0
+        ? 'Clean. Minor nits worth cleaning up when convenient.'
+        : 'Clean — ready to deploy.';
+
+  return { issues, blockers, warnings, nits, score, riskSummary, canDeploy };
 }

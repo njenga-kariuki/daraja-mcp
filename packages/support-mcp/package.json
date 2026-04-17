@@ -1,0 +1,62 @@
+{
+  "name": "@daraja-mcp/support",
+  "version": "0.0.1-beta.1",
+  "description": "The 24/7 M-Pesa Support Assistant — MCP server for Daraja developers. Diagnose any error, explain any concept, validate any integration, verify fixes against sandbox. Read-only knowledge tools + sandbox-only verification.",
+  "keywords": [
+    "mpesa",
+    "daraja",
+    "safaricom",
+    "mcp",
+    "mcp-server",
+    "claude-code",
+    "cursor",
+    "support",
+    "troubleshooting"
+  ],
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "daraja-support": "dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "knowledge",
+    "README.md",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "tag": "beta"
+  },
+  "scripts": {
+    "prebuild": "node scripts/sync-sources.mjs && node scripts/copy-knowledge.mjs",
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "prepack": "npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "axios": "^1.7.7"
+  },
+  "devDependencies": {
+    "@daraja-kit/sdk": "*",
+    "tsup": "^8.3.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/safaricom/daraja-poc"
+  },
+  "license": "MIT"
+}
