@@ -165,21 +165,36 @@ Safaricom provides two public certificates for SecurityCredential encryption:
 | Sandbox | Sandbox/testing | `SandboxCertificate.cer` |
 | Production | Live/production | `ProductionCertificate.cer` |
 
-**The SDK auto-discovers the cert at `~/.daraja/sandbox.cer` or `MPESA_CERT_PATH`** — you download it once and drop it at a stable path, then every project using the SDK picks it up. STK Push (collect) and QR do not require the cert; only B2C, Status, Balance, and Reversal do.
+STK Push (`collect`) and QR do not need a cert. Only B2C, Status, Balance, and Reversal do. You have two ways to satisfy this — pick the simpler one.
 
-### One-time setup
+### Option A (recommended for sandbox): pre-encrypted SecurityCredential
+
+The Daraja portal will do the RSA encryption for you and hand back a base64 string that's valid until Safaricom rotates the underlying cert.
 
 ```bash
-# 1. Download SandboxCertificate.cer from developer.safaricom.co.ke →
-#    your app → Keys tab (some portal versions list it under Documentation).
-# 2. Drop it at the canonical path the SDK looks for:
+# 1. developer.safaricom.co.ke → Test Credentials
+# 2. Enter initiator password: Safaricom999!*!   (sandbox default)
+# 3. Select Sandbox → click Generate Password
+# 4. Copy the generated value, then:
+export MPESA_SECURITY_CREDENTIAL=<paste-the-value>
+```
+
+When `MPESA_SECURITY_CREDENTIAL` is set, the SDK skips the cert-based encryption step entirely — no cert file needed.
+
+### Option B: ship the cert and let the SDK encrypt each call
+
+Use this when you want the SDK to encrypt on every request (e.g., if your initiator password rotates frequently, or for production where you manage certs formally).
+
+```bash
+# 1. Download SandboxCertificate.cer (or ProductionCertificate.cer for prod).
+# 2. Drop it at the canonical path the SDK auto-discovers:
 mkdir -p ~/.daraja
 mv ~/Downloads/SandboxCertificate.cer ~/.daraja/sandbox.cer
 ```
 
-Alternatively, keep the cert anywhere and export the path:
+Or keep the cert anywhere and point at it explicitly:
 ```bash
-export MPESA_CERT_PATH=/secure/path/to/SandboxCertificate.cer
+export MPESA_CERT_PATH=/secure/path/to/cert.cer
 ```
 
 ### Cert resolution order

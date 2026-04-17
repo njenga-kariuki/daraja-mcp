@@ -33,7 +33,7 @@ On developer experience, the target is **as simple as Stripe, for M-Pesa**. Stri
 - **No callbacks needed for STK Push** — auto-polling eliminates the #1 integration pain point
 - **Self-healing errors** — every error includes a `.suggestion` field and every diagnosis includes a `.prevention` field — readable by humans and AI agents
 - **8 MCP tools** — AI agents can scaffold, validate, diagnose, preflight, test, and ship M-Pesa integrations
-- **Zero-config sandbox** — pre-loaded test credentials; STK Push and QR work with no setup. B2C/Status/Balance/Reversal need a one-time sandbox-cert drop at `~/.daraja/sandbox.cer` (or `MPESA_CERT_PATH`).
+- **Zero-config sandbox** — pre-loaded test credentials; STK Push and QR work with no setup. B2C/Status/Balance/Reversal need a one-time SecurityCredential (paste from the portal's Test Credentials page into `MPESA_SECURITY_CREDENTIAL`, or manage a cert at `~/.daraja/sandbox.cer`).
 - **20-doc knowledge base** — optimized for both human reading and LLM consumption
 
 ## The Four Capabilities

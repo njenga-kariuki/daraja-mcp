@@ -159,8 +159,10 @@ if (failed > 0) {
 
 if (skipped > 0) {
   console.log('\nTo exercise skipped methods:');
-  console.log('  1. Download SandboxCertificate.cer from developer.safaricom.co.ke → your app → Keys,');
-  console.log('     then save at ~/.daraja/sandbox.cer (or set MPESA_CERT_PATH). B2C family requires it.');
+  console.log('  1. Unblock SecurityCredential for B2C family — pick one:');
+  console.log('     a. developer.safaricom.co.ke → Test Credentials → enter Safaricom999!*! → Sandbox → Generate');
+  console.log('        → copy the value, then `export MPESA_SECURITY_CREDENTIAL=<value>` (simplest, no cert)');
+  console.log('     b. drop SandboxCertificate.cer at ~/.daraja/sandbox.cer (or set MPESA_CERT_PATH)');
   console.log('  2. Set MPESA_CALLBACK_BASE_URL (ngrok or similar) so callback-bearing methods can run.');
   console.log('  3. Set SMOKE_TRANSACTION_ID to a real sandbox tx ID for status/reverse.');
 }
