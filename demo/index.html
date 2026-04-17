@@ -56,7 +56,7 @@
       --radius-lg: 16px;
       --radius-xl: 24px;
       --max-w: 1280px;
-      --section-py: 120px;
+      --section-py: 96px;
     }
 
     /* ── Reset & Base ──────────────────────────────────────────────────── */
@@ -132,6 +132,7 @@
       color: var(--gray-500);
       max-width: 900px;
       line-height: 1.7;
+      text-wrap: pretty;
     }
     .section-subtitle-light { color: rgba(255,255,255,0.7); }
     .btn {
@@ -225,7 +226,7 @@
        SECTION 1: HERO
        ═══════════════════════════════════════════════════════════════════ */
     #hero {
-      padding: 130px 0 100px;
+      padding: 130px 0 72px;
       position: relative;
       overflow: hidden;
     }
@@ -242,7 +243,7 @@
     .hero-grid {
       display: grid;
       grid-template-columns: 1.05fr 1fr;
-      gap: 64px;
+      gap: 48px;
       align-items: center;
       position: relative;
     }
@@ -265,6 +266,7 @@
       color: var(--gray-600);
       margin: 0 0 40px;
       line-height: 1.65;
+      text-wrap: pretty;
     }
     #hero .subtitle strong { color: var(--gray-900); font-weight: 600; }
     .hero-ctas { display: flex; gap: 14px; flex-wrap: wrap; }
@@ -406,7 +408,7 @@
        STATS STRIP — the rail at a glance
        ═══════════════════════════════════════════════════════════════════ */
     #stats {
-      padding: 80px 0 88px;
+      padding: 64px 0 72px;
       border-top: 1px solid var(--gray-200);
       border-bottom: 1px solid var(--gray-200);
     }
@@ -468,7 +470,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 24px;
-      margin-top: 48px;
+      margin-top: 40px;
     }
     .stat-card {
       background: var(--white);
@@ -502,7 +504,7 @@
     }
     .foundation-note {
       max-width: 720px;
-      margin: 48px auto 0;
+      margin: 40px auto 0;
       text-align: center;
       font-size: 1.05rem;
       color: var(--gray-600);
@@ -681,7 +683,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 24px;
-      margin-top: 48px;
+      margin-top: 40px;
     }
     .tool-card {
       background: var(--white);
@@ -878,7 +880,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 32px;
-      margin-top: 48px;
+      margin-top: 40px;
     }
     /* Center the lone 5th card below the two full rows (no-op for 6+ cards) */
     .stories-grid > .story-card:nth-child(5):last-child {
@@ -1113,7 +1115,7 @@
        ═══════════════════════════════════════════════════════════════════ */
     .compare-table-wrapper {
       overflow-x: auto;
-      margin-top: 48px;
+      margin-top: 40px;
       border-radius: var(--radius-lg);
       border: 1px solid var(--gray-200);
       background: var(--white);
@@ -1183,7 +1185,7 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 24px;
-      margin-top: 48px;
+      margin-top: 40px;
     }
     .diff-card {
       padding: 28px;
@@ -1213,7 +1215,7 @@
        ═══════════════════════════════════════════════════════════════════ */
     .demo-container {
       max-width: 720px;
-      margin: 48px auto 0;
+      margin: 40px auto 0;
       background: var(--white);
       border-radius: var(--radius-lg);
       box-shadow: var(--shadow-xl);
@@ -1490,7 +1492,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 32px;
-      margin-top: 48px;
+      margin-top: 40px;
     }
     .step-card {
       text-align: center;
@@ -1893,7 +1895,7 @@
   risk_flag: <span class="t-num">null</span> }</div>
         </div>
       </div>
-      <p class="foundation-note fade-in" style="margin-top:56px">
+      <p class="foundation-note fade-in" style="margin-top:40px">
         These three capabilities ship embedded in every call &mdash; identity, intelligence, and health signal. <strong>Builders on Daraja 4.0 can create products that cannot exist on any other payment rail in Africa.</strong> The data stays on M-Pesa. The trust stays with M-Pesa.
       </p>
     </div>
@@ -2794,7 +2796,7 @@ npm install @daraja-kit/agent-toolkit</div>
         </div>
       </div>
 
-      <p class="foundation-note fade-in" style="margin-top:56px;color:rgba(255,255,255,0.7);font-style:normal;line-height:1.7">
+      <p class="foundation-note fade-in" style="margin-top:40px;color:rgba(255,255,255,0.7);font-style:normal;line-height:1.7">
         The rail is the same. The trust is the same. What changes is who gets to build on it &mdash; <strong style="color:white">every developer already on Daraja, every founder arriving for the first time, and every AI agent that will soon transact on its owner's behalf.</strong> The PIN stays where it has always been. <em style="color:white;font-style:normal">Africa's standard for agentic commerce, live on M-Pesa.</em>
       </p>
       <div class="fade-in" style="margin-top:24px">
