@@ -42,10 +42,13 @@ export function buildSecurityCredential(password: string, certPath: string): str
       message: `Safaricom certificate not found at ${resolved}`,
       code: 'CERT_NOT_FOUND',
       suggestion:
-        'Download the Safaricom certificate from developer.safaricom.co.ke → Documentation. ' +
-        'For sandbox, download SandboxCertificate.cer. ' +
-        'For production, download ProductionCertificate.cer. ' +
-        'Place it at the certPath specified in your config, or set the securityCredential option directly.',
+        'This method (B2C / Status / Balance / Reversal) needs the Safaricom public cert to RSA-encrypt the initiator password. ' +
+        'STK Push (collect) and QR do not require it. To set it up: ' +
+        '(1) Log in to developer.safaricom.co.ke → your app → Keys tab, and download the sandbox (or production) certificate. ' +
+        `(2) Save it at ~/.daraja/sandbox.cer (the SDK auto-discovers this path), or set MPESA_CERT_PATH=/full/path/to/cert.cer in your environment. ` +
+        '(3) Retry the call.',
+      prevention:
+        'Store each environment\'s cert at a stable per-user path (~/.daraja/sandbox.cer, ~/.daraja/production.cer) and reference via MPESA_CERT_PATH in deployment configs. Rotate when Safaricom issues a new cert.',
     });
   }
 

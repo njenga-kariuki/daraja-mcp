@@ -165,12 +165,39 @@ Safaricom provides two public certificates for SecurityCredential encryption:
 | Sandbox | Sandbox/testing | `SandboxCertificate.cer` |
 | Production | Live/production | `ProductionCertificate.cer` |
 
-**The SDK bundles the sandbox certificate** so you do not need to download or manage it for sandbox testing. For production, you will use the production certificate.
+**The SDK auto-discovers the cert at `~/.daraja/sandbox.cer` or `MPESA_CERT_PATH`** — you download it once and drop it at a stable path, then every project using the SDK picks it up. STK Push (collect) and QR do not require the cert; only B2C, Status, Balance, and Reversal do.
+
+### One-time setup
+
+```bash
+# 1. Download SandboxCertificate.cer from developer.safaricom.co.ke →
+#    your app → Keys tab (some portal versions list it under Documentation).
+# 2. Drop it at the canonical path the SDK looks for:
+mkdir -p ~/.daraja
+mv ~/Downloads/SandboxCertificate.cer ~/.daraja/sandbox.cer
+```
+
+Alternatively, keep the cert anywhere and export the path:
+```bash
+export MPESA_CERT_PATH=/secure/path/to/SandboxCertificate.cer
+```
+
+### Cert resolution order
+
+The SDK looks for the sandbox cert in this order and uses the first that exists:
+
+1. `opts.certPath` passed to `createClient({ certPath })`
+2. `MPESA_CERT_PATH` environment variable
+3. `~/.daraja/sandbox.cer`
+4. `./certs/sandbox.cer` relative to your process cwd
+5. `packages/sdk/certs/sandbox.cer` inside the SDK install (for monorepo dev)
+
+If none exist, the SDK throws `CERT_NOT_FOUND` with these exact setup steps in the error message — only when a B2C-family method is actually called.
 
 ### Where to Get Certificates
 
-- **Sandbox:** Bundled in the SDK. Also available at developer.safaricom.co.ke under your app.
-- **Production:** Provided by Safaricom during the go-live process, or download from the developer portal.
+- **Sandbox:** `developer.safaricom.co.ke` → your app → Keys tab → download `SandboxCertificate.cer`.
+- **Production:** Provided by Safaricom during the go-live process, or from the same Keys tab once your production app is approved.
 
 ### Common Certificate Errors
 

@@ -54,8 +54,10 @@ async function step(name: string, fn: () => Promise<string>): Promise<void> {
     }
     const mpesaErr = err as MpesaError;
     const message = mpesaErr?.message ?? String(err);
-    if (/CERT_NOT_FOUND|sandbox\.cer/i.test(message)) {
-      console.log('⏭  skipped — sandbox cert missing at packages/sdk/certs/sandbox.cer');
+    if (/CERT_NOT_FOUND/i.test(message) || /certificate not found/i.test(message)) {
+      const pathMatch = message.match(/not found at (\S+)/);
+      const where = pathMatch?.[1] ?? '~/.daraja/sandbox.cer';
+      console.log(`⏭  skipped — sandbox cert missing at ${where}`);
       results.push({ name, status: 'skipped', detail: 'cert missing' });
       return;
     }
@@ -157,7 +159,8 @@ if (failed > 0) {
 
 if (skipped > 0) {
   console.log('\nTo exercise skipped methods:');
-  console.log('  1. Ensure packages/sdk/certs/sandbox.cer is present (B2C family requires it).');
+  console.log('  1. Download SandboxCertificate.cer from developer.safaricom.co.ke → your app → Keys,');
+  console.log('     then save at ~/.daraja/sandbox.cer (or set MPESA_CERT_PATH). B2C family requires it.');
   console.log('  2. Set MPESA_CALLBACK_BASE_URL (ngrok or similar) so callback-bearing methods can run.');
   console.log('  3. Set SMOKE_TRANSACTION_ID to a real sandbox tx ID for status/reverse.');
 }

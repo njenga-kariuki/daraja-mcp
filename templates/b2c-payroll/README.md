@@ -21,7 +21,15 @@ Send salary/business payments to many recipients via M-Pesa B2C. Includes a veri
    # copy the https URL ngrok prints
    ```
 
-3. Set credentials and the callback base URL:
+3. B2C also needs the **Safaricom sandbox certificate** (used to RSA-encrypt the initiator password). One-time setup:
+   ```bash
+   # From developer.safaricom.co.ke → your app → Keys tab → download SandboxCertificate.cer
+   mkdir -p ~/.daraja
+   mv ~/Downloads/SandboxCertificate.cer ~/.daraja/sandbox.cer
+   ```
+   Or set `MPESA_CERT_PATH=/path/to/SandboxCertificate.cer` if you keep it elsewhere.
+
+4. Set credentials and the callback base URL:
    ```bash
    export DARAJA_CONSUMER_KEY=your_key
    export DARAJA_CONSUMER_SECRET=your_secret
