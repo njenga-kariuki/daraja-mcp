@@ -56,15 +56,24 @@ The 24/7 Support Assistant answers all of these in the context where they appear
 
 ## Read-Only, Credential-Free, Offline-Capable
 
-**Read-only for knowledge.** `diagnose`, `explain`, `validate` never touch your credentials and work offline after install.
+Security posture for beta, benchmarked against Stripe Scoped Payment Tokens, Visa Trusted Agent Protocol, Mastercard Agent Pay, and OWASP Agentic Top 10. Design principle: **invisible security** — zero-config on the happy path, enforced in the MCP server and SDK. Every claim below points to the file and symbol that implements it.
 
-**Sandbox-only for verification.** `preflight` and `test_sandbox` only hit `sandbox.safaricom.co.ke` — never production. Sandbox hostname is pinned in code.
+**Read-only for knowledge.** `diagnose`, `explain`, `validate` never touch your credentials and work offline after install. MCP tool annotations declare `readOnlyHint: true` on these three and `destructiveHint: true` on `test_sandbox` — compliant clients (Claude Code, Cursor, Claude Desktop) auto-prompt on destructive calls.
+→ `packages/support-mcp/src/server.ts` → `TOOL_ANNOTATIONS`
+
+**Sandbox-only for verification.** `preflight` and `test_sandbox` only hit `sandbox.safaricom.co.ke` — never production. Environment defaults to sandbox; the SDK refuses to reach production without explicit credentials.
+→ `packages/sdk/src/config.ts` → `resolveConfig()`
 
 **Zero-config.** No consumer key, no secret, no setup. Shared sandbox credentials ship bundled.
+→ `packages/sdk/src/constants.ts` → `SANDBOX`
 
-**PII masked.** Phone numbers (`254708***149`), shortcodes, and request IDs are redacted before any log line.
+**PII masked.** Phone numbers (`254708***149`) and credential material (consumer keys, secrets, initiator passwords) are redacted recursively before any log line or tool output reaches the agent.
+→ `packages/support-mcp/src/sanitize.ts` → `sanitize()`, `sanitizeText()`
 
-**Structured audit log.** Every tool call emits `{timestamp, tool, sanitized_args, status, duration_ms}` to stderr — pipe straight to your SIEM.
+**Structured audit log.** Every tool call emits `{timestamp, tool, sanitized_args, status, duration_ms, tier}` to stderr — pipe straight to your SIEM. Stdout stays reserved for MCP protocol traffic.
+→ `packages/support-mcp/src/server.ts` → `emitAudit()`
+
+For the full security spec — what the SDK handles, what you handle, incident-response playbook, M-Pesa's structural advantages, and compliance (Kenya DPA, CBK KYC/AML, PCI DSS) — see [`knowledge/concepts/security.md`](knowledge/concepts/security.md).
 
 ---
 
