@@ -17,7 +17,7 @@
   <meta name="twitter:title" content="Safaricom launches Daraja 4.0 — Africa's standard for agentic commerce on M-Pesa">
   <meta name="twitter:description" content="A new standard that simplifies how every builder reaches the rail — coding directly, working alongside an AI coding assistant, or operating an AI agent that acts within limits the customer sets.">
   <meta name="twitter:image" content="/og-image.png">
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%2300B140' d='M32 4l7.6 18.6L60 24.6 44.4 38.2 49 58.4 32 47.8 15 58.4l4.6-20.2L4 24.6l20.4-2z'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2300B140'/%3E%3Ctext x='16' y='22' font-family='Inter,Arial,sans-serif' font-size='18' font-weight='800' fill='white' text-anchor='middle'%3ED%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -113,6 +113,15 @@
       line-height: 1.12;
       letter-spacing: -0.025em;
       margin-bottom: 18px;
+      text-wrap: balance;
+    }
+    /* In centered sections, also center the H2 box itself (not just the
+       text inside) — without this, the block sits left-aligned in the
+       container and the centered text reads as misaligned. */
+    [style*="text-align:center"] > .section-title,
+    [style*="text-align: center"] > .section-title {
+      margin-left: auto;
+      margin-right: auto;
       max-width: 880px;
     }
     @media (max-width: 768px) {
@@ -951,113 +960,37 @@
 
     footer {
       background: var(--dark);
-      padding: 0;
-      color: rgba(255,255,255,0.6);
-      font-size: 0.82rem;
+      padding: 28px 0;
+      color: rgba(255,255,255,0.55);
+      font-size: 0.78rem;
     }
-    .footer-top {
-      padding: 56px 0 32px;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-    }
-    .footer-mast {
+    .footer-bar {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 14px;
-      margin-bottom: 14px;
+      flex-wrap: wrap;
+      text-align: center;
     }
-    .footer-mast-logo { width: 28px; height: 28px; }
-    .footer-mast-divider { width: 1px; height: 22px; background: rgba(255,255,255,0.18); }
-    .footer-mast-product {
-      font-family: var(--font-sans);
-      font-weight: 700;
-      font-size: 1.05rem;
-      color: white;
-      letter-spacing: -0.01em;
-    }
-    .footer-mast-mission {
-      max-width: 540px;
-      color: rgba(255,255,255,0.65);
-      font-size: 0.92rem;
-      line-height: 1.55;
-      margin-bottom: 16px;
-    }
-    .footer-preview-band {
+    .footer-bar > span { white-space: nowrap; }
+    .footer-bar .dot { color: rgba(255,255,255,0.22); }
+    .footer-bar .footer-preview {
       display: inline-flex;
       align-items: center;
-      gap: 10px;
-      padding: 8px 14px;
-      border: 1px solid rgba(245,158,11,0.35);
-      background: rgba(245,158,11,0.08);
-      border-radius: 8px;
-      font-size: 0.74rem;
-      color: rgba(255,255,255,0.78);
-      letter-spacing: 0.01em;
+      gap: 7px;
+      color: rgba(255,255,255,0.7);
     }
-    .footer-preview-band::before {
+    .footer-bar .footer-preview::before {
       content: '';
-      width: 7px; height: 7px;
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
       background: var(--warning);
-      box-shadow: 0 0 0 3px rgba(245,158,11,0.18);
-    }
-    .footer-cols {
-      display: grid;
-      grid-template-columns: 1.2fr repeat(4, 1fr);
-      gap: 48px;
-      padding: 56px 0 48px;
-    }
-    .footer-col-brand p {
-      color: rgba(255,255,255,0.55);
-      font-size: 0.82rem;
-      line-height: 1.6;
-      max-width: 280px;
-    }
-    .footer-col h5 {
-      font-size: 0.7rem;
-      font-weight: 700;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,0.95);
-      margin-bottom: 18px;
-    }
-    .footer-col ul {
-      list-style: none;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .footer-col a {
-      color: rgba(255,255,255,0.55);
-      font-size: 0.85rem;
-      text-decoration: none;
-      transition: color 0.18s ease;
-    }
-    .footer-col a:hover { color: var(--green); text-decoration: none; }
-    .footer-col a.is-disabled {
-      color: rgba(255,255,255,0.25);
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-    .footer-bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      padding: 24px 0 32px;
-      border-top: 1px solid rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.45);
-      font-size: 0.75rem;
-      flex-wrap: wrap;
-    }
-    .footer-bottom-meta { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-    .footer-bottom-meta span.dot { color: rgba(255,255,255,0.25); }
-    @media (max-width: 1024px) {
-      .footer-cols { grid-template-columns: 1fr 1fr; gap: 36px; }
+      box-shadow: 0 0 0 3px rgba(245,158,11,0.16);
     }
     @media (max-width: 640px) {
-      .footer-cols { grid-template-columns: 1fr; gap: 32px; padding: 40px 0; }
-      .footer-bottom { flex-direction: column; align-items: flex-start; }
+      .footer-bar { gap: 10px; font-size: 0.72rem; }
+      .footer-bar .dot { display: none; }
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -1086,8 +1019,8 @@
     }
     .nav-brand {
       display: inline-flex;
-      align-items: center;
-      gap: 12px;
+      align-items: baseline;
+      gap: 10px;
       font-family: var(--font-sans);
       font-size: 0.95rem;
       font-weight: 700;
@@ -1096,14 +1029,15 @@
       text-decoration: none;
     }
     .nav-brand:hover { text-decoration: none; color: var(--gray-900); }
-    .nav-logo {
-      width: 22px;
-      height: 22px;
-      flex-shrink: 0;
+    .nav-brand-corp {
+      color: #E40521; /* Safaricom red */
+      font-weight: 700;
+      letter-spacing: -0.005em;
     }
     .nav-divider {
+      align-self: center;
       width: 1px;
-      height: 18px;
+      height: 14px;
       background: var(--gray-300);
     }
     .nav-product { color: var(--gray-900); font-weight: 700; }
@@ -1836,9 +1770,7 @@
        ═══════════════════════════════════════════════════════════════════ -->
   <nav class="site-nav" id="site-nav">
     <a href="#hero" class="nav-brand" aria-label="Safaricom Daraja 4.0">
-      <svg class="nav-logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-        <path fill="#00B140" d="M32 4l7.6 18.6L60 24.6 44.4 38.2 49 58.4 32 47.8 15 58.4l4.6-20.2L4 24.6l20.4-2z"/>
-      </svg>
+      <span class="nav-brand-corp">Safaricom</span>
       <span class="nav-divider" aria-hidden="true"></span>
       <span class="nav-product">Daraja 4.0</span>
       <span class="nav-preview-pill" title="This page is an internal preview pending official sanction">Internal preview</span>
@@ -2875,74 +2807,15 @@ npm install @daraja-kit/agent-toolkit</div>
 
   <!-- Footer -->
   <footer>
-    <div class="footer-top">
-      <div class="container">
-        <div class="footer-mast">
-          <svg class="footer-mast-logo" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
-            <path fill="#00B140" d="M32 4l7.6 18.6L60 24.6 44.4 38.2 49 58.4 32 47.8 15 58.4l4.6-20.2L4 24.6l20.4-2z"/>
-          </svg>
-          <span class="footer-mast-divider"></span>
-          <span class="footer-mast-product">Daraja 4.0</span>
-        </div>
-        <p class="footer-mast-mission">Africa's standard for agentic commerce on M-Pesa. Simpler to build, simpler to operate, safer on every call.</p>
-        <div class="footer-preview-band">Internal preview build &middot; pending official Safaricom sanction &middot; not for distribution</div>
-      </div>
-    </div>
     <div class="container">
-      <div class="footer-cols">
-        <div class="footer-col footer-col-brand">
-          <h5>Made by Safaricom</h5>
-          <p>Built on the Daraja 3.0 foundation. Ships with the rail&apos;s trust, intelligence, and reach baked in.</p>
-        </div>
-        <div class="footer-col">
-          <h5>Product</h5>
-          <ul>
-            <li><a href="#hero">Overview</a></li>
-            <li><a href="#intelligence">Intelligence</a></li>
-            <li><a href="#tools">Tools</a></li>
-            <li><a href="#evolution">SDK</a></li>
-            <li><a href="#compare">Compare</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h5>Developers</h5>
-          <ul>
-            <li><a href="#get-started">Get started</a></li>
-            <li><a class="is-disabled" aria-disabled="true" title="Coming with launch">Docs</a></li>
-            <li><a class="is-disabled" aria-disabled="true" title="Coming with launch">API reference</a></li>
-            <li><a href="#get-started">MCP server</a></li>
-            <li><a href="#get-started">Agent toolkit</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h5>Company</h5>
-          <ul>
-            <li><a href="https://www.safaricom.co.ke/" target="_blank" rel="noopener">About Safaricom</a></li>
-            <li><a class="is-disabled" aria-disabled="true">Press</a></li>
-            <li><a class="is-disabled" aria-disabled="true">Careers</a></li>
-            <li><a class="is-disabled" aria-disabled="true">Contact</a></li>
-            <li><a class="is-disabled" aria-disabled="true">Status</a></li>
-          </ul>
-        </div>
-        <div class="footer-col">
-          <h5>Legal</h5>
-          <ul>
-            <li><a class="is-disabled" aria-disabled="true">Terms</a></li>
-            <li><a class="is-disabled" aria-disabled="true">Privacy</a></li>
-            <li><a class="is-disabled" aria-disabled="true">DPA</a></li>
-            <li><a class="is-disabled" aria-disabled="true">Compliance</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <div class="footer-bottom-meta">
-          <span>&copy; 2026 Safaricom PLC</span>
-          <span class="dot">&middot;</span>
-          <span>Daraja 4.0 &middot; Built on Daraja 3.0</span>
-        </div>
-        <div class="footer-bottom-meta">
-          <span>Internal preview &mdash; not for distribution</span>
-        </div>
+      <div class="footer-bar">
+        <span>&copy; 2026 Safaricom PLC</span>
+        <span class="dot">&middot;</span>
+        <span>Daraja 4.0</span>
+        <span class="dot">&middot;</span>
+        <span>Built on Daraja 3.0</span>
+        <span class="dot">&middot;</span>
+        <span class="footer-preview">Internal preview</span>
       </div>
     </div>
   </footer>
