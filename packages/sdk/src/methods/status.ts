@@ -20,6 +20,7 @@ export async function status(
       message: 'transactionId is required',
       code: 'MISSING_TRANSACTION_ID',
       suggestion: 'Provide the M-Pesa transaction ID (e.g., "QKJ41HAY4I").',
+      prevention: 'Persist the transaction ID returned from mpesa.collect()/mpesa.send() at the time of payment. Never derive it client-side or store only partial references.',
     });
   }
   if (!opts.callbackUrl) {
@@ -29,6 +30,7 @@ export async function status(
       suggestion:
         'Transaction status results are delivered via callback. ' +
         'For local dev, use ngrok: npx ngrok http 3000.',
+      prevention: 'Expose a dedicated /callbacks/status endpoint wrapped with verifyCallback() from the SDK. Compose the URL from MPESA_CALLBACK_BASE_URL in your environment.',
     });
   }
 

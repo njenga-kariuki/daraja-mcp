@@ -23,6 +23,15 @@ export async function collect(
       message: `Invalid amount: ${opts.amount}`,
       code: 'INVALID_AMOUNT',
       suggestion: 'Amount must be a positive whole number (KES). M-Pesa does not support decimals.',
+      prevention: 'Validate amounts server-side before calling the SDK: `Number.isInteger(amount) && amount >= 1`. Round or floor decimals with `Math.round(total)` or `Math.floor(total)` before passing in.',
+    });
+  }
+  if (opts.amount > 150_000) {
+    throw new ValidationError({
+      message: `Amount too high: ${opts.amount} (max 150,000 KES per STK Push)`,
+      code: 'AMOUNT_TOO_HIGH',
+      suggestion: 'STK Push caps at KES 150,000 per transaction. Reduce the amount or split into multiple transactions.',
+      prevention: 'Enforce `amount <= 150_000` on your server before calling mpesa.collect(). For payments above this cap, split into multiple transactions or use B2B/paybill flows.',
     });
   }
   if (!opts.phone) {
@@ -30,6 +39,7 @@ export async function collect(
       message: 'Phone number is required',
       code: 'MISSING_PHONE',
       suggestion: 'Provide the customer phone number. Any Kenyan format works: 0712345678, +254712345678, etc.',
+      prevention: 'Require phone at the form/API boundary before calling the SDK. The SDK normalizes every Kenyan format, so validation on your side only needs to confirm presence.',
     });
   }
 

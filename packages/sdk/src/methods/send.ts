@@ -21,6 +21,15 @@ export async function send(
       message: `Invalid amount: ${opts.amount}`,
       code: 'INVALID_AMOUNT',
       suggestion: 'Amount must be a positive whole number (KES).',
+      prevention: 'Validate amounts server-side: `Number.isInteger(amount) && amount >= 1`. For payroll/batch flows, validate every row before entering the send loop.',
+    });
+  }
+  if (opts.amount > 150_000) {
+    throw new ValidationError({
+      message: `Amount too high: ${opts.amount} (max 150,000 KES per B2C transaction)`,
+      code: 'AMOUNT_TOO_HIGH',
+      suggestion: 'B2C transactions cap at KES 150,000 each. Split larger disbursements into multiple payments.',
+      prevention: 'Enforce `amount <= 150_000` per payment in your batch builder. For large payroll runs, chunk each recipient into transactions at or below the cap.',
     });
   }
   if (!opts.phone) {
@@ -28,6 +37,7 @@ export async function send(
       message: 'Phone number is required',
       code: 'MISSING_PHONE',
       suggestion: 'Provide the recipient phone number.',
+      prevention: 'Require phone at the form/API boundary before calling the SDK. The SDK normalizes every Kenyan format, so validation on your side only needs to confirm presence.',
     });
   }
   if (!opts.callbackUrl) {
@@ -38,6 +48,7 @@ export async function send(
         'B2C payments are async — Daraja sends the result to your callback URL. ' +
         'For local dev, use ngrok: npx ngrok http 3000, then pass the https URL. ' +
         'Example: mpesa.send({ amount: 100, phone: "0712345678", callbackUrl: "https://abc.ngrok-free.app/callback" })',
+      prevention: 'Set MPESA_CALLBACK_BASE_URL in your environment and compose callback URLs from it. In production, point to your HTTPS endpoint; in dev, use ngrok. Never hardcode localhost URLs.',
     });
   }
 

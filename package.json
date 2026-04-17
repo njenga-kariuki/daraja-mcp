@@ -13,7 +13,8 @@
     "test:sandbox": "cd packages/sdk && npm run test -- --testPathPattern sandbox",
     "test:mcp": "cd packages/mcp && npm run test",
     "dev": "npm run dev --workspace=@daraja-kit/sdk",
-    "demo": "npx tsx --env-file=.env demo/server.ts"
+    "demo": "npx tsx --env-file=.env demo/server.ts",
+    "smoke": "npx tsx scripts/sandbox-smoketest.ts"
   },
   "devDependencies": {
     "tsx": "^4.0.0",

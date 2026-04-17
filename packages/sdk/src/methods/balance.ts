@@ -19,6 +19,7 @@ export async function balance(
       suggestion:
         'Balance results are delivered via callback. ' +
         'For local dev, use ngrok: npx ngrok http 3000.',
+      prevention: 'Expose a dedicated /callbacks/balance endpoint wrapped with verifyCallback() from the SDK. Compose the URL from MPESA_CALLBACK_BASE_URL in your environment.',
     });
   }
 
