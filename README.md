@@ -2,6 +2,8 @@
 
 > The simplest way to integrate M-Pesa. For humans and AI agents.
 
+Built for the non-technical founder shipping their first app, the engineer on an established integration closing the debug loop inside their IDE, and the AI agent transacting for its owner under scoped authority.
+
 Daraja 4.0 is an AI-native developer experience layer for Safaricom's Daraja (M-Pesa) APIs. It transforms M-Pesa integration from a weeks-long engineering project into a minutes-long conversation.
 
 ## 3 Lines to Your First Payment
