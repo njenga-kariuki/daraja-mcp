@@ -1,18 +1,22 @@
 name: Publish @daraja-mcp/support
 
-# Two paths lead here:
+# Single-job release workflow. Three trigger paths:
 #
-# 1. auto-release (on push to master) — when a merge touches knowledge/** or
-#    packages/support-mcp/**, auto-bump the prerelease, commit the version, tag,
-#    and push. The tag push re-enters this workflow and fires the publish job.
-#    Self-trigger loops are guarded by filtering commit messages for
-#    "chore(release):".
+# 1. Push to master that touches knowledge/** or packages/support-mcp/** →
+#    auto-bump the prerelease, commit, tag, push, build, lint, test, publish
+#    to @daraja-mcp/support@beta. Changes reach npx users in ~5 minutes.
 #
-# 2. publish (on tag push or workflow_dispatch) — builds, lints knowledge, runs
-#    tests, and publishes to npm under the `beta` dist-tag with SLSA provenance.
+# 2. Push of a support-mcp-v* tag (manual release) → build, lint, test,
+#    publish. The bump/commit/tag steps are skipped; the tag already pins
+#    the version.
 #
-# Cadence: a knowledge merge reaches @daraja-mcp/support@beta users in roughly
-# five minutes, with no maintainer action required beyond CODEOWNER review.
+# 3. workflow_dispatch → ad-hoc manual publish, optionally dry-run.
+#
+# Self-trigger loops are guarded by filtering commit messages for
+# "chore(release):" on branch pushes. GitHub's GITHUB_TOKEN-recursion rule
+# (pushes via GITHUB_TOKEN do not trigger new workflow runs) is fine here
+# because bump + build + publish all happen in a single run — there is no
+# cross-run tag trigger to rely on.
 
 on:
   push:
@@ -29,83 +33,27 @@ on:
         default: false
 
 jobs:
-  auto-release:
-    # Fires only on push to master (not on tag push). Skips commits authored by
-    # the auto-bump itself. Skips pushes that only touched unrelated paths.
+  release:
+    # Skip if this is the auto-bump commit itself.
     if: >-
-      github.event_name == 'push' &&
-      github.ref == 'refs/heads/master' &&
-      !startsWith(github.event.head_commit.message, 'chore(release):')
+      github.event_name == 'workflow_dispatch' ||
+      startsWith(github.ref, 'refs/tags/support-mcp-v') ||
+      (github.event_name == 'push' &&
+       github.ref == 'refs/heads/master' &&
+       !startsWith(github.event.head_commit.message, 'chore(release):'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Check if knowledge or support-mcp changed
-        id: changed
-        run: |
-          base="${{ github.event.before }}"
-          head="${{ github.event.after }}"
-          if git diff --name-only "$base" "$head" | grep -E '^(knowledge/|packages/support-mcp/)' >/dev/null; then
-            echo "relevant=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "relevant=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Setup Node
-        if: steps.changed.outputs.relevant == 'true'
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        if: steps.changed.outputs.relevant == 'true'
-        run: npm ci
-
-      - name: Lint knowledge
-        if: steps.changed.outputs.relevant == 'true'
-        run: npm run lint:knowledge
-
-      - name: Configure git
-        if: steps.changed.outputs.relevant == 'true'
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-
-      - name: Bump prerelease and tag
-        if: steps.changed.outputs.relevant == 'true'
-        working-directory: packages/support-mcp
-        run: |
-          new_version=$(npm version prerelease --preid=beta --no-git-tag-version)
-          # npm version prints "v<version>"; strip the leading v for the tag.
-          clean_version=${new_version#v}
-          cd ../..
-          git add packages/support-mcp/package.json
-          git commit -m "chore(release): support-mcp-v${clean_version}"
-          git tag "support-mcp-v${clean_version}"
-          git push origin master --follow-tags
-
-  publish:
-    # Fires on tag push (either auto-release above or a manual tag) or on
-    # workflow_dispatch. The tag-push path is what carries auto-released
-    # versions through to npm.
-    if: >-
-      startsWith(github.ref, 'refs/tags/support-mcp-v') ||
-      github.event_name == 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
       # Required for npm provenance attestation (SLSA).
       id-token: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          # Full history so we can diff against github.event.before.
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -119,18 +67,72 @@ jobs:
       - name: Lint knowledge
         run: npm run lint:knowledge
 
+      - name: Determine if this run should publish
+        id: gate
+        run: |
+          # Tag pushes and workflow_dispatch always proceed.
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] \
+             || [[ "${{ github.ref }}" == refs/tags/support-mcp-v* ]]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "auto_bump=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          # Branch pushes: only if knowledge/ or support-mcp/ changed.
+          base="${{ github.event.before }}"
+          head="${{ github.event.after }}"
+          if git diff --name-only "$base" "$head" \
+             | grep -E '^(knowledge/|packages/support-mcp/)' >/dev/null; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "auto_bump=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+            echo "auto_bump=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure git (for auto-bump path)
+        if: steps.gate.outputs.auto_bump == 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+
+      - name: Bump prerelease
+        if: steps.gate.outputs.auto_bump == 'true'
+        id: bump
+        working-directory: packages/support-mcp
+        run: |
+          # --no-git-tag-version bumps package.json without touching git.
+          # Pipe stdout to /dev/null because in a workspace, npm prints audit
+          # and funding chatter alongside the version. Read the clean value
+          # back from package.json.
+          npm version prerelease --preid=beta --no-git-tag-version >/dev/null
+          new_version=$(node -p "require('./package.json').version")
+          echo "version=${new_version}" >> "$GITHUB_OUTPUT"
+          echo "Bumped to ${new_version}"
+
+      - name: Commit, tag, and push
+        if: steps.gate.outputs.auto_bump == 'true'
+        run: |
+          tag="support-mcp-v${{ steps.bump.outputs.version }}"
+          git add packages/support-mcp/package.json
+          git commit -m "chore(release): ${tag}"
+          git tag -a "${tag}" -m "Release ${tag}"
+          git push origin master "${tag}"
+
       - name: Build workspace
+        if: steps.gate.outputs.proceed == 'true'
         run: npm run build -w @daraja-mcp/support
 
       - name: Run tests
+        if: steps.gate.outputs.proceed == 'true'
         run: npx vitest run
 
       - name: Inspect tarball
+        if: steps.gate.outputs.proceed == 'true'
         working-directory: packages/support-mcp
         run: npm pack --dry-run
 
       - name: Publish to npm (beta)
-        if: ${{ !inputs.dry-run }}
+        if: steps.gate.outputs.proceed == 'true' && !inputs.dry-run
         working-directory: packages/support-mcp
         run: npm publish --access public --tag beta --provenance
         env:
