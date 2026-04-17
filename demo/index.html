@@ -115,6 +115,15 @@
       margin-bottom: 18px;
       text-wrap: balance;
     }
+    /* In centered sections, also center the H2 box itself (not just the
+       text inside) — without this, the block sits left-aligned in the
+       container and the centered text reads as misaligned. */
+    [style*="text-align:center"] > .section-title,
+    [style*="text-align: center"] > .section-title {
+      margin-left: auto;
+      margin-right: auto;
+      max-width: 880px;
+    }
     @media (max-width: 768px) {
       .section-title { font-size: 1.9rem; }
     }
@@ -407,6 +416,7 @@
       color: var(--green);
       text-transform: uppercase;
       font-weight: 700;
+      text-align: center;
       margin-bottom: 12px;
     }
     .stats-title {
@@ -414,6 +424,7 @@
       font-weight: 700;
       letter-spacing: -0.015em;
       color: var(--gray-900);
+      text-align: center;
       margin-bottom: 48px;
     }
     .stats-grid {
@@ -490,8 +501,9 @@
       line-height: 1.5;
     }
     .foundation-note {
-      max-width: 760px;
-      margin: 48px 0 0;
+      max-width: 720px;
+      margin: 48px auto 0;
+      text-align: center;
       font-size: 1.05rem;
       color: var(--gray-600);
       line-height: 1.7;
@@ -1551,7 +1563,8 @@
     }
     .ai-path {
       max-width: 640px;
-      margin: 0;
+      margin: 0 auto;
+      text-align: center;
     }
     .ai-path h4 {
       font-size: 1.1rem;
@@ -1891,10 +1904,10 @@
        SEE IT IN ACTION
        ═══════════════════════════════════════════════════════════════════ -->
   <section id="in-action" class="section-white">
-    <div class="container">
+    <div class="container" style="text-align:center">
       <div class="overline fade-in">THE INTENT API</div>
       <h2 class="section-title fade-in">Describe what you need. The rail does the rest.</h2>
-      <p class="section-subtitle fade-in">
+      <p class="section-subtitle fade-in" style="margin:0 auto">
         Plain-English descriptions resolve into the correct M-Pesa call sequence. The scaffold is safe by default. The callbacks are wired. The validation runs automatically. <strong>Builders receive safe code without configuring it.</strong>
       </p>
 
@@ -2722,14 +2735,14 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
        GET STARTED
        ═══════════════════════════════════════════════════════════════════ -->
   <section id="get-started" class="section-gradient">
-    <div class="container">
+    <div class="container" style="text-align:center">
       <div class="overline overline-light fade-in">GET STARTED</div>
       <h2 class="section-title fade-in">Put more builders in business.</h2>
-      <p class="section-subtitle section-subtitle-light fade-in">
+      <p class="section-subtitle section-subtitle-light fade-in" style="margin:0 auto">
         Add Daraja 4.0 to your coding assistant in one step. Describe what you want to build. The rail does the rest.
       </p>
 
-      <div class="ai-path fade-in" style="max-width:560px;margin:40px 0 0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15)">
+      <div class="ai-path fade-in" style="max-width:560px;margin:40px auto 0;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15)">
         <h4 style="color:white">One step: add this to your project</h4>
         <p style="color:rgba(255,255,255,0.7)">
           Drop a <code style="background:rgba(255,255,255,0.1);color:white">.mcp.json</code> in your project root. Your AI assistant instantly gets 8 M-Pesa tools.
@@ -2752,7 +2765,7 @@ app.<span class="fn">post</span>(<span class="str">'/api/donate'</span>, <span c
         </div>
       </div>
 
-      <div class="ai-path fade-in" style="max-width:560px;margin:24px 0 0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1)">
+      <div class="ai-path fade-in" style="max-width:560px;margin:24px auto 0;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1)">
         <h4 style="color:white">Building an AI agent?</h4>
         <p style="color:rgba(255,255,255,0.7)">
           The agent toolkit gives any OpenAI, LangChain, or Vercel AI SDK app native M-Pesa tools.
@@ -2764,7 +2777,7 @@ npm install @daraja-kit/agent-toolkit</div>
 
       <div class="step-divider fade-in" style="color:rgba(255,255,255,0.85)">Or build it yourself</div>
 
-      <div class="steps-grid fade-in" style="max-width:900px;margin:0">
+      <div class="steps-grid fade-in" style="max-width:900px;margin:0 auto">
         <div class="step-card step-card-dark">
           <div class="step-num">1</div>
           <h4>Start in Sandbox (No Keys Needed)</h4>
