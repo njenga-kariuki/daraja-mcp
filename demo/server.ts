@@ -17,6 +17,10 @@ const app = express();
 app.use(express.json());
 app.use(express.static(__dirname));
 
+app.get('/support', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'support.html'));
+});
+
 // ── MCP Tool Endpoints (local, no network needed) ─────────────────────────
 
 app.post('/api/tools/scaffold', (req, res) => {
