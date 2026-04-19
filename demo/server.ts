@@ -21,6 +21,10 @@ app.get('/support', (_req, res) => {
   res.sendFile(path.join(__dirname, 'support.html'));
 });
 
+app.get('/intelligence', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'intelligence.html'));
+});
+
 // ── MCP Tool Endpoints (local, no network needed) ─────────────────────────
 
 app.post('/api/tools/scaffold', (req, res) => {
