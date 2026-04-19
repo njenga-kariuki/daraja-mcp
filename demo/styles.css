@@ -1720,28 +1720,13 @@ body.video-intro-active {
    SUPPORT ASSISTANT NAV TAB (ingress from main page)
    ═══════════════════════════════════════════════════════════════════ */
 .nav-cta-support {
-  display: inline-flex !important;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px !important;
   color: var(--green) !important;
   font-weight: 600 !important;
-  border: 1.5px solid var(--green);
-  border-radius: 6px;
-  transition: background 0.2s, color 0.2s;
+  transition: color 0.2s;
 }
 .nav-cta-support:hover {
-  background: var(--green);
-  color: var(--white) !important;
+  color: var(--green-dark) !important;
   text-decoration: none;
-}
-.nav-cta-support::after {
-  content: '→';
-  font-size: 0.9em;
-  transition: transform 0.2s ease;
-}
-.nav-cta-support:hover::after {
-  transform: translateX(2px);
 }
 
 /* Clickable forum-card accent line (wraps "Support Assistant answers in 30 seconds") */
