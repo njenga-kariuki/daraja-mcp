@@ -49,6 +49,28 @@ export async function collect(
   const reference = (opts.reference ?? 'Payment').slice(0, 12);
   const description = (opts.description ?? 'Payment').slice(0, 13);
 
+  // Daraja requires a CallBackURL in the STK Push payload. With the default
+  // auto-polling, the SDK captures the final status via STK Query and the
+  // callback goes unused. If the caller opts out of polling, a real callback
+  // URL is required so Daraja can deliver the result.
+  const shouldPoll = opts.poll !== false;
+  if (!shouldPoll && !config.callbackBaseUrl) {
+    throw new ValidationError({
+      message: 'callbackBaseUrl is required when polling is disabled',
+      code: 'MISSING_CALLBACK_URL',
+      suggestion:
+        'Either enable polling (the default), or set callbackBaseUrl on the client / ' +
+        'MPESA_CALLBACK_BASE_URL in your environment so Daraja can deliver the STK result.',
+      prevention:
+        'Leave `opts.poll` unset (default true) for STK Push — the SDK polls and returns the ' +
+        'final status inline, no callback infrastructure needed. Only opt out of polling if you ' +
+        'have a callback handler wired up behind MPESA_CALLBACK_BASE_URL.',
+    });
+  }
+  const callBackUrl = config.callbackBaseUrl
+    ? `${config.callbackBaseUrl}/callbacks/stkpush`
+    : 'https://daraja-kit.local/unused-when-polling';
+
   const { data } = await http.post('/mpesa/stkpush/v1/processrequest', {
     BusinessShortCode: config.shortcode,
     Password: password,
@@ -58,9 +80,7 @@ export async function collect(
     PartyA: phone,
     PartyB: config.shortcode,
     PhoneNumber: phone,
-    CallBackURL: config.callbackBaseUrl
-      ? `${config.callbackBaseUrl}/callbacks/stkpush`
-      : 'https://example.com/callback',
+    CallBackURL: callBackUrl,
     AccountReference: reference,
     TransactionDesc: description,
   });
@@ -75,7 +95,6 @@ export async function collect(
   };
 
   // If polling is enabled (default), wait for the transaction to resolve.
-  const shouldPoll = opts.poll !== false;
   if (shouldPoll) {
     return pollStkStatus(http, config, data.CheckoutRequestID, {
       interval: opts.pollInterval ?? 3000,

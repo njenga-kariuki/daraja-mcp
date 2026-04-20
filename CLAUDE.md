@@ -32,9 +32,9 @@ On developer experience, the target is **as simple as Stripe, for M-Pesa**. Stri
 
 - **No callbacks needed for STK Push** — auto-polling eliminates the #1 integration pain point
 - **Self-healing errors** — every error includes a `.suggestion` field and every diagnosis includes a `.prevention` field — readable by humans and AI agents
-- **8 MCP tools** — AI agents can scaffold, validate, diagnose, preflight, test, and ship M-Pesa integrations
+- **9 MCP tools** — AI agents can scaffold, validate, diagnose, preflight, test, ship, and feed back on M-Pesa integrations
 - **Zero-config sandbox** — pre-loaded test credentials; STK Push and QR work with no setup. B2C/Status/Balance/Reversal need a one-time SecurityCredential (paste from the portal's Test Credentials page into `MPESA_SECURITY_CREDENTIAL`, or manage a cert at `~/.daraja/sandbox.cer`).
-- **20-doc knowledge base** — optimized for both human reading and LLM consumption
+- **30+ knowledge base docs** — optimized for both human reading and LLM consumption
 
 ## The Four Capabilities
 
@@ -45,7 +45,7 @@ Daraja 4.0 ships four capabilities on top of the Daraja 3.0 foundation:
 3. **Customer Intelligence API** — consent-gated behavioural signals (spend rhythm, predicted cash timing, spend segment, primary categories, churn risk). Scope-limited, revocable, OAuth-style consent. No raw transaction data crosses the API boundary.
 4. **Merchant Health Signal** — real-time categorical read on any merchant (`stable`, `growing`, `declining`, `at_risk`) with factor indicators (transaction velocity trend, days-active ratio, reversal rate). Default field on every B2C and C2B response — unlocks merchant financing, tiered supplier terms, dynamic onboarding on existing calls.
 
-**Repository scope.** This repository implements the **Intent API + Agentic Commerce Stack layer** — the SDK, 8-tool MCP server, zero-config sandbox, knowledge base, and runnable templates. Identity & Verification, Customer Intelligence, and Merchant Health are rail-side capabilities that arrive as embedded default fields on the same SDK call responses — they are part of Daraja 4.0's launch scope but not built in this repo. When explaining those three, describe the capability and note it is served by the rail, not by local SDK code.
+**Repository scope.** This repository implements the **Intent API + Agentic Commerce Stack layer** — the SDK, 9-tool MCP server, zero-config sandbox, knowledge base, and runnable templates. Identity & Verification, Customer Intelligence, and Merchant Health are rail-side capabilities that arrive as embedded default fields on the same SDK call responses — they are part of Daraja 4.0's launch scope but not built in this repo. When explaining those three, describe the capability and note it is served by the rail, not by local SDK code.
 
 ## Trust Layer (Security & Privacy)
 
@@ -111,7 +111,7 @@ You are an M-Pesa integration assistant powered by the Daraja 4.0 toolkit. You h
 ## SDK Quick Reference
 
 ```typescript
-import { createClient } from '@daraja-4/sdk';
+import { createClient } from '@daraja-kit/sdk';
 
 // Sandbox — only consumer key/secret required (everything else auto-configured)
 const mpesa = createClient({
@@ -162,7 +162,7 @@ const { qrCode } = await mpesa.qr({ amount: 100 });
 
 ## When Generating Code, Always:
 
-1. Use the `@daraja-4/sdk` — never raw Daraja API calls
+1. Use the `@daraja-kit/sdk` — never raw Daraja API calls
 2. Wrap M-Pesa calls in try/catch — use `err.suggestion` for user-facing errors, `err.prevention` for long-term guidance
 3. Use environment variables for credentials — never hardcode
 4. Default to sandbox mode — production is an explicit upgrade
@@ -183,8 +183,9 @@ Detailed documentation is in the `knowledge/` directory:
 ## Project Structure
 
 ```
-packages/sdk/     — @daraja-4/sdk (6 payment methods + verifyCallback utility)
-packages/mcp/     — @Daraja 4.0/mcp (MCP server with 8 annotated tools)
-knowledge/        — Agent-consumable documentation
-templates/        — Complete runnable project templates
+packages/sdk/          — @daraja-kit/sdk (6 payment methods + verifyCallback utility)
+packages/mcp/          — @daraja-kit/mcp (full agent toolkit — 9 annotated tools)
+packages/support-mcp/  — @daraja-mcp/support (Support Assistant, 5 tools, beta dist-tag)
+knowledge/             — Agent-consumable documentation (30+ docs)
+templates/             — Complete runnable project templates
 ```

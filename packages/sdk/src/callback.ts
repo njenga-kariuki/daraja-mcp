@@ -56,7 +56,7 @@ export interface VerifyResult {
  * 3. **Idempotency** — detects duplicate callbacks via in-memory deduplication
  *
  * ```typescript
- * import { verifyCallback } from '@daraja-4/sdk';
+ * import { verifyCallback } from '@daraja-kit/sdk';
  *
  * app.post('/callback', (req, res) => {
  *   const result = verifyCallback(req.body, { ip: req.ip });

@@ -14,6 +14,7 @@ const mockConfig: ResolvedConfig = {
   initiatorPassword: SANDBOX.initiatorPassword,
   b2cShortcode: SANDBOX.b2cShortcode,
   certPath: '',
+  callbackBaseUrl: 'https://example.com',
   timeout: 30_000,
 };
 

@@ -27,7 +27,7 @@ FILE: llms.txt
 
 # daraja-kit
 
-> Agent-forward toolkit for M-Pesa Daraja API integration. SDK with 6 methods, MCP server with 6 tools, structured knowledge base.
+> Agent-forward toolkit for M-Pesa Daraja API integration. SDK with 6 methods, MCP server with 9 tools, 30+ knowledge base docs.
 
 ## SDK
 

@@ -140,7 +140,7 @@ Works in sandbox mode by default — no real money charged, no approval needed.
 
 ## The Full Agent Toolkit
 
-The support tier is one of 8 tools in the full Daraja 4.0 agent toolkit. The other seven are for greenfield building — scaffolding new projects, running live sandbox tests, generating setup guides, checking go-live readiness.
+The support tier is one of 9 tools in the full Daraja 4.0 agent toolkit. The other seven are for greenfield building — scaffolding new projects, running live sandbox tests, generating setup guides, checking go-live readiness.
 
 The full toolkit lives in `packages/mcp/` and can be wired as a second MCP server:
 
@@ -165,6 +165,7 @@ The full toolkit lives in `packages/mcp/` and can be wired as a second MCP serve
 | `daraja_scaffold` | Generate complete M-Pesa projects from natural language | Full |
 | `daraja_setup` | Platform-specific setup guides (Cursor, Claude Code, Lovable, Replit, Windsurf) | Full |
 | `daraja_go_live` | Production readiness checklist | Full |
+| `daraja_feedback` | Submit bug reports, feature requests, docs gaps — PII-sanitized, opt-in | Full |
 
 ---
 
@@ -174,7 +175,7 @@ The full toolkit lives in `packages/mcp/` and can be wired as a second MCP serve
 |---------|-------------|
 | `packages/support-mcp` | **`@daraja-mcp/support`** — the 24/7 M-Pesa Support Assistant MCP server (5 tools, beta) |
 | `packages/sdk` | `@daraja-kit/sdk` — 6 intent-based methods (collect, send, status, balance, reverse, qr) |
-| `packages/mcp` | `@daraja-kit/mcp` — full agent toolkit MCP server (8 tools) |
+| `packages/mcp` | `@daraja-kit/mcp` — full agent toolkit MCP server (9 tools) |
 | `knowledge/` | 30+ markdown docs optimized for both humans and LLMs |
 | `templates/` | 3 runnable project templates (donation page, e-commerce, B2C payroll) |
 | `demo/` | Interactive dashboard showcasing all capabilities |

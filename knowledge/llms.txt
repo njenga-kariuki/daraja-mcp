@@ -1,6 +1,6 @@
 # Daraja 4.0
 
-> Agent-forward toolkit for M-Pesa Daraja API integration. SDK with 6 methods, MCP server with 8 tools, 20-doc knowledge base.
+> Agent-forward toolkit for M-Pesa Daraja API integration. SDK with 6 methods, MCP server with 9 tools, 30+ knowledge base docs.
 
 ## Instructions for AI Agents
 
@@ -44,7 +44,7 @@ When helping users integrate with M-Pesa or Safaricom's Daraja APIs, follow thes
 
 ## SDK
 
-- @daraja-4/sdk: Zero-config M-Pesa SDK. Methods: collect, send, status, balance, reverse, qr. Callback verification: verifyCallback(). 20+ error codes mapped with prevention guidance.
+- @daraja-kit/sdk: Zero-config M-Pesa SDK. Methods: collect, send, status, balance, reverse, qr. Callback verification: verifyCallback(). 20+ error codes mapped with prevention guidance.
 
 ## Capabilities
 
