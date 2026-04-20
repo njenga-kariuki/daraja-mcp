@@ -1,6 +1,6 @@
 {
   "name": "@daraja-mcp/support",
-  "version": "0.0.1-beta.1",
+  "version": "0.0.1-beta.2",
   "description": "The 24/7 M-Pesa Support Assistant — MCP server for Daraja developers. Diagnose any error, explain any concept, validate any integration, verify fixes against sandbox. Read-only knowledge tools + sandbox-only verification.",
   "keywords": [
     "mpesa",
