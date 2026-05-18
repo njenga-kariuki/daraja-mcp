@@ -4,8 +4,3 @@ dist
 .env
 .env.local
 *.log
-
-# Large video asset — 51MB MP4 used only for the demo video-intro overlay.
-# Excluding it from Railway uploads to avoid repeated timeouts; the page
-# falls back to no-video when the asset is missing.
-demo/M-Pesa Daraja 4.0_ The Future of Agentic Commerce.mp4
